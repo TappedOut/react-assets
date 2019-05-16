@@ -1,0 +1,620 @@
+$mtg-dark-black: rgb(21, 11, 0);
+$mtg-light-black: rgba(166, 159, 157, 0.25);
+$mtg-light-black-mirror: rgba(166, 159, 157, 0.5);
+$mtg-dark-blue: rgb(14, 104, 171);
+$mtg-light-blue: rgba(179, 206, 234, 0.25);
+$mtg-light-blue-mirror: rgba(179, 206, 234, 0.5);
+$mtg-dark-colorless: rgb(67, 70, 75);
+$mtg-light-colorless: rgba(178, 180, 181, 0.25);
+$mtg-light-colorless-mirror: rgba(178, 180, 181, 0.5);
+$mtg-dark-gold: rgb(190, 150, 0);
+$mtg-light-gold: rgba(255, 235, 20, 0.15);
+$mtg-light-gold-mirror: rgba(255, 235, 20, 0.25);
+$mtg-dark-green: rgb(0, 115, 62);
+$mtg-light-green: rgba(196, 211, 202, 0.25);
+$mtg-light-green-mirror: rgba(196, 211, 202, 0.5);
+$mtg-dark-red: rgb(211, 32, 42);
+$mtg-light-red: rgba(235, 159, 130, 0.25);
+$mtg-light-red-mirror: rgba(235, 159, 130, 0.5);
+$mtg-dark-white: rgb(248, 231, 185);
+$mtg-light-white: rgba(249, 250, 244, 0.25);
+$mtg-light-white-mirror: rgba(249, 250, 244, 0.5);
+$primary-light: #337ab7;
+$primary-dark: #2e6da4;
+$primary-hover-light: #286090;
+$primary-hover-dark: #204d74;
+
+@mixin border-top-radius($size) {
+  -webkit-border-top-left-radius: $size;
+  -webkit-border-top-right-radius: $size;
+  -moz-border-radius-topleft: $size;
+  -moz-border-radius-topright: $size;
+  border-top-left-radius: $size;
+  border-top-right-radius: $size;
+}
+
+@mixin border-bottom-radius($size) {
+  -webkit-border-bottom-left-radius: $size;
+  -webkit-border-bottom-right-radius: $size;
+  -moz-border-radius-bottomleft: $size;
+  -moz-border-radius-bottomright: $size;
+  border-bottom-left-radius: $size;
+  border-bottom-right-radius: $size;
+}
+
+@mixin border-radius($size) {
+  @include border-top-radius($size);
+  @include border-bottom-radius($size);
+}
+
+@mixin text-border($blur, $color) {
+  text-shadow: -1px 0 $blur $color, 0 1px $blur $color,
+                1px 0 $blur $color, 0 -1px $blur $color;
+}
+
+@mixin card-color($border, $background) {
+  border: 1px solid $border;
+  background-color: $background;
+
+  &.card-spoiler-partial {
+    .card-spoiler-partial-title {
+      color: $border;
+
+      @if ($border == $mtg-dark-black or $border == $mtg-dark-colorless) {
+        @include text-border(2px, #AAA);
+      } @else {
+        @include text-border(2px, black);
+      }
+    }
+  }
+}
+
+@mixin card-pin() {
+  .full-panel {
+    min-height: 76px;
+    width: 195px;
+  }
+
+  .panel-body {
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+    justify-content: space-between;
+    padding: 0.6em;
+
+    &::after {
+      content: none;
+    }
+
+    &::before {
+      content: none;
+    }
+
+    &.new-card {
+      min-height: 50px;
+    }
+
+    &.image-card {
+      width: 180px;
+    }
+
+    h5.card-name {
+      font-size: 1.1em;
+      font-weight: 600;
+      margin: 0;
+      white-space: normal;
+
+      a {
+        .glyphicon {
+          font-size: 0.9em;
+        }
+      }
+    }
+
+    .card-info {
+      position: relative;
+      bottom: 0.2em;
+
+      .card-condition {
+        font-weight: bold;
+        margin-left: 0.25em;
+        position: relative;
+        top: 0.1em;
+      }
+    }
+
+    .card-qty {
+      margin-left: 1em;
+    }
+
+    .glyphicon {
+      font-size: larger;
+      margin: 0.2em;
+    }
+  }
+}
+
+@mixin grab-cursor() {
+  cursor: move;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
+@mixin grabbing-cursor() {
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+}
+
+@mixin card-draggable($spoiler-view) {
+  @include grab-cursor();
+  display: inline-block;
+  margin: 0.5em;
+  text-align: left;
+  vertical-align: top;
+
+  &:active {
+    @include grabbing-cursor();
+  }
+
+  &.card-error {
+    border: 1px solid #a00;
+    background-color: rgba(170,0,0,.10);
+  }
+
+  .card-link, .card-settings {
+    cursor: pointer;
+  }
+
+  .card-thumbnail {
+    padding: 0.25em;
+    text-align: center;
+    position: relative;
+
+    @if ($spoiler-view) {
+
+      .card-info-spoiler {
+        bottom: 0.25em;
+        left: 1em;
+        position: absolute;
+
+        .card-condition {
+          color: white;
+          font-weight: bold;
+          margin-left: 0.25em;
+          position: relative;
+          text-shadow: 1px 1px 1px black;
+          top: 0.1em;
+        }
+      }
+    }
+  }
+
+  .card-thumbnail-foil {
+    position: relative;
+    overflow: hidden;
+
+    img.overlay-foil {
+      position: absolute;
+      height: 97%;
+      width: auto;
+    }
+  }
+
+  @if ($spoiler-view) {
+    .panel {
+      margin: 0;
+
+      @include card-pin();
+
+      &.card-spoiler-partial {
+        border-bottom: none;
+        margin-bottom: -2px;
+
+        @include border-bottom-radius(0);
+
+        .card-spoiler-partial-title {
+          background: none;
+          font-weight: bold;
+          padding: 3px 4px;
+        }
+      }
+    }
+  } @else {
+    @include card-pin();
+  }
+}
+
+.board-panel {
+  div.compact-board {
+    max-height: 400px;
+    overflow-x: auto;
+    overflow-y: auto;
+    white-space: nowrap;
+  }
+
+  div.desktop-board {
+    min-height: 350px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  div.mobile-board {
+    overflow-x: auto;
+  }
+
+  h4 {
+    display: inline;
+  }
+
+  .list-group-item {
+    border: none;
+  }
+
+  .panel-body {
+    padding: 5px;
+    width: 100%;
+  }
+
+  .panel-heading.board-title {
+    display: flex;
+    flex-direction: column;
+    height: 4em;
+    justify-content: space-around;
+    overflow: hidden;
+  }
+
+  .search-card-panel {
+    border-bottom: 1px dotted #222;
+  }
+
+  .search-card-results {
+    margin-top: 0.25em;
+
+    .gu-transit.gu-hidden {
+      display: none;
+    }
+  }
+
+  .search-input-group {
+    margin: 0.125em 0;
+    padding-left: 1.25em;
+
+    .search-label {
+      font-weight: bold;
+      padding-top: 0.5em;
+    }
+
+    .search-input {
+      padding: 0 1.25em;
+    }
+  }
+
+  .search-progress {
+    margin: 0.25em 0;
+  }
+
+  .simple-search-form {
+    .Select-loading {
+      margin-bottom: 5px;
+      margin-right: 25px;
+    }
+
+    .search-form-icon {
+      color: #444;
+      cursor: pointer;
+      position: absolute;
+      right: 2em;
+      top: 0.75em;
+    }
+  }
+}
+
+.board-panel, .card-draggable, .card-draggable-spoiler {
+  .panel-heading {
+    border: none;
+    text-align: left;
+  }
+}
+
+.board-panel, .options-panel {
+  border: 1px solid black;
+  margin: 5px 0;
+
+  .inv-only-row {
+    margin-top: 5px;
+    text-align: right;
+  }
+
+  .toggler {
+    line-height: 0;
+
+    label {
+      font-weight: bold;
+      color: #FFFEFB;
+      position: relative;
+      bottom: 0.55em;
+      margin: 0 0.25em;
+    }
+  }
+}
+
+.card-color__black {
+  @include card-color($mtg-dark-black, $mtg-light-black);
+}
+
+.card-color__blue {
+  @include card-color($mtg-dark-blue, $mtg-light-blue);
+}
+
+.card-color__colorless {
+  @include card-color($mtg-dark-colorless, $mtg-light-colorless);
+}
+
+.card-color__green {
+  @include card-color($mtg-dark-green, $mtg-light-green);
+}
+
+.card-color__gold {
+  @include card-color($mtg-dark-gold, $mtg-light-gold);
+}
+
+.card-color__red {
+  @include card-color($mtg-dark-red, $mtg-light-red);
+}
+
+.card-color__white {
+  @include card-color($mtg-dark-white, $mtg-light-white);
+}
+
+.card-draggable {
+  @include card-draggable(false);
+}
+
+.card-draggable-spoiler {
+  @include card-draggable(true);
+}
+
+.categories-board-tabs {
+  ul.nav.nav-tabs {
+    border-bottom: 1px solid black;
+    margin-bottom: 5px;
+
+    li {
+      margin-right: 0.1em;
+      margin-top: 0.25em;
+
+      a {
+        background-color: white;
+        border: 1px solid black;
+        color: #555;
+        cursor: pointer;
+
+        &:hover {
+          background-color: black;
+          color: white;
+        }
+      }
+    }
+
+    li.active a {
+      background-color: $primary-light;
+      border: 1px solid $primary-dark;
+      color: white;
+    }
+  }
+}
+
+.desktop-boards {
+  .side-buttons {
+    padding-left: 1px;
+
+    .side-buttons-boards-collapse {
+      margin: 5px 0;
+
+      button {
+        color: #fff;
+        background-color: $primary-light;
+        border-color: $primary-dark;
+
+        &:hover {
+          background-color: $primary-hover-light;
+          border-color: $primary-hover-dark;
+        }
+      }
+    }
+  }
+}
+
+form.form-horizontal {
+  .form-group {
+    margin: 0.5em 0;
+  }
+}
+
+.gu-mirror {
+  opacity: 0.8;
+  border-style: solid;
+  cursor: move;
+  @include grabbing-cursor();
+
+  &.card-draggable-spoiler {
+    border: none;
+    opacity: 1;
+
+    .card-color__black {
+      @include card-color($mtg-dark-black, $mtg-light-black-mirror);
+    }
+
+    .card-color__blue {
+      @include card-color($mtg-dark-blue, $mtg-light-blue-mirror);
+    }
+
+    .card-color__colorless {
+      @include card-color($mtg-dark-colorless, $mtg-light-colorless-mirror);
+    }
+
+    .card-color__green {
+      @include card-color($mtg-dark-green, $mtg-light-green-mirror);
+    }
+
+    .card-color__gold {
+      @include card-color($mtg-dark-gold, $mtg-light-gold-mirror);
+    }
+
+    .card-color__red {
+      @include card-color($mtg-dark-red, $mtg-light-red-mirror);
+    }
+
+    .card-color__white {
+      @include card-color($mtg-dark-white, $mtg-light-white-mirror);
+    }
+  }
+}
+
+.highlighted {
+  &.board-droppable {
+    background-color: #5b5146 !important;
+  }
+
+  &.trash-droppable {
+    background-color: #c9302c !important;
+    border-color: #ac2925 !important;
+  }
+}
+
+.modal-footer.card-edit-modal-footer {
+  .btn {
+    margin-bottom: 0;
+  }
+}
+
+.options-panel {
+  &.options-panel-spoiler-view {
+    @include border-top-radius(4px);
+    border-top: 1px solid black;
+  }
+
+  .panel-body {
+    .slider-container {
+      display: block;
+      line-height: 1em;
+      text-align: center;
+
+      label {
+        margin: 0;
+      }
+
+      .rangeslider-horizontal {
+        height: 0.25em;
+        margin: 0.5em 0;
+
+        .rangeslider__handle {
+          width: 1em;
+          height: 1em;
+
+          &:after {
+            content: none;
+          }
+        }
+      }
+    }
+
+    .trash-droppable {
+      .glyphicon {
+        top: .15em;
+        right: .05em;
+      }
+    }
+  }
+}
+
+.suppress-shadow {
+  .gu-transit {
+    display: none;
+  }
+}
+
+.card-shadow {
+  opacity: 0.2
+}
+
+.top-borderless-panel {
+  border-top: 0;
+  margin-top: 0;
+  @include border-top-radius(0);
+}
+
+.search-panel, .top-panel {
+  border-bottom: 1px solid #222;
+  margin-bottom: 0;
+  @include border-bottom-radius(0);
+}
+
+.accordion-panel {
+  border: 0 solid black !important;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.board-panel-heading {
+  border-color: black!important;
+  padding-left: 28px
+}
+
+.board-panel-body {
+  padding: 5px!important;
+}
+
+.qty-box {
+  position: absolute;
+  top: 11%;
+  right: 7%;
+  background-color: black;
+  border: 2px solid grey;
+  border-radius: 4px;
+  padding: 4px 10px;
+  color: white;
+}
+
+.board-e-well {
+  border: 1px solid black;
+}
+
+.type-chart-container {
+  padding-top: 20px;
+}
+
+.card-stack {
+  display: inline-block;
+  position: relative;
+}
+
+.card-stack-elem {
+  position: absolute;
+  left: 0;
+}
+
+.card-stack-elem-first {
+  position: relative;
+}
+
+.card-zindex {
+  z-index: 999;
+}
+
+.sec-boards-container {
+  padding-left: 0;
+  margin-top: 6px
+}
+
+.nav > li > a:hover, .nav > li > a:focus {
+  text-decoration: none;
+  background-color: #000;
+ }
+
+.nav-tabs > li.active > a {
+  text-decoration: none;
+  background-color: #FFF;
+ }

@@ -133,19 +133,21 @@ export default class CardEditModal extends React.Component {
                   <option value="maybe">Maybe</option>
                 </select>
               </div>
-              <div className={"form-group" +
-              `${card.hasErrors.includes('tla') ? " has-error" : ""}`}>
-                <label htmlFor="card-tla">Printing:</label>
-                <select id="card-tla" name="tla" value={this.state.card.tla}
-                        className="form-control"
-                        onChange={this.handleInputChange}>
-                  <option value=''>Latest</option>
-                  { this.state.card.all_printings.map((printing, idx) =>
+              {!!this.state.card.all_printings.length &&
+                <div className={"form-group" +
+                  `${card.hasErrors.includes('tla') ? " has-error" : ""}`}>
+                  <label htmlFor="card-tla">Printing:</label>
+                  <select id="card-tla" name="tla" value={this.state.card.tla}
+                          className="form-control"
+                          onChange={this.handleInputChange}>
+                    <option value=''>Latest</option>
+                    {this.state.card.all_printings.map((printing, idx) =>
                       <option key={idx} value={printing.tla}>
                         {printing.name}</option>)
-                  }
-                </select>
-              </div>
+                    }
+                  </select>
+                </div>
+              }
               {variations &&
                 <div className="form-group">
                   <label htmlFor="card-tla">Variations:</label>

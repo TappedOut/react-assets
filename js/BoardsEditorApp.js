@@ -613,6 +613,12 @@ export default class BoardsEditorApp extends React.Component {
     this.setState({foundCards: {}, simpleSearchInput, searchInput});
   };
 
+  clearSearchInput = () => {
+    let simpleSearchInput = {...this.state.simpleSearchInput};
+    simpleSearchInput["name"] = "";
+    this.setState({simpleSearchInput});
+  }
+
   handleSearchInput = (event) => {
     event.preventDefault();
     let target = event.target;
@@ -1344,6 +1350,7 @@ export default class BoardsEditorApp extends React.Component {
         <div className="col-md-12">
           <NewCardsBoard
             cards={Object.values(this.state.foundCards)}
+            clearSearchInput={this.clearSearchInput}
             droppablesRef={d => this.addDroppable(d)}
             handleAdvancedSearch={this.handleAdvancedSearchStart}
             handleCardMoveStart={this.handleCardMoveStart}

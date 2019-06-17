@@ -1418,7 +1418,8 @@ export default class BoardsEditorApp extends React.Component {
                             "options-panel-spoiler-view"}>
               <div className="panel-body">
                 <div className="row">
-                  <div className="col-sm-3">
+                  <div className="col-md-1 field-label">Arrange by:</div>
+                  <div className="col-sm-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedCategoryType &&
@@ -1428,8 +1429,9 @@ export default class BoardsEditorApp extends React.Component {
                       options={this.categoryChoices}
                     />
                   </div>
+                  {this.state.toggleImages && <div className="col-md-1 field-label">Stack by:</div>}
                   {this.state.toggleImages &&
-                  <div className="col-md-3">
+                  <div className="col-md-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedStackType &&
@@ -1479,7 +1481,8 @@ export default class BoardsEditorApp extends React.Component {
             <div className="panel panel-default options-panel top-borderless-panel">
               <div className="panel-body">
                 <div className="row">
-                  <div className="col-md-3">
+                  <div className="col-md-1 field-label">Arrange by:</div>
+                  <div className="col-md-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedCategoryType &&
@@ -1489,8 +1492,9 @@ export default class BoardsEditorApp extends React.Component {
                       options={this.categoryChoices}
                     />
                   </div>
+                  {this.state.toggleImages && <div className="col-md-1 field-label">Stack by:</div>}
                   {this.state.toggleImages &&
-                  <div className="col-md-3">
+                  <div className="col-md-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedStackType &&
@@ -1533,7 +1537,8 @@ export default class BoardsEditorApp extends React.Component {
                             "options-panel-spoiler-view"}>
               <div className="panel-body">
                 <div className="row">
-                  <div className="col-sm-3">
+                  <div className="col-md-1 field-label">Arrange by:</div>
+                  <div className="col-sm-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedCategoryType &&
@@ -1543,8 +1548,9 @@ export default class BoardsEditorApp extends React.Component {
                       options={this.categoryChoices}
                     />
                   </div>
+                  {this.state.toggleImages && <div className="col-md-1 field-label">Stack by:</div>}
                   {this.state.toggleImages &&
-                  <div className="col-md-3">
+                  <div className="col-md-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedStackType &&

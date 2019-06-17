@@ -497,6 +497,13 @@ form.form-horizontal {
   }
 
   .panel-body {
+    .field-label {
+      font-size: 2rem;
+      font-weight: 600;
+      line-height: 3rem;
+      text-align: center;
+    }
+
     .slider-container {
       display: block;
       line-height: 1em;

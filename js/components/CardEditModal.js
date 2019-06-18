@@ -80,6 +80,9 @@ export default class CardEditModal extends React.Component {
     let current_print = this.state.card.all_printings.find(
       printing => printing.tla === this.state.card.tla
     );
+    let latest_print = this.state.card.all_printings.find(
+      printing => printing.tla === this.state.card.latest_set
+    );
     if (current_print && current_print.variations && current_print.variations.length) {
       variations = current_print.variations.map(
         variation => {
@@ -91,6 +94,19 @@ export default class CardEditModal extends React.Component {
         }
       );
       if (current_print.set_number) set_number = current_print.set_number
+    }
+
+    let foil_options = [
+      <option value="">Not foil</option>,
+      <option value="foil">Foil</option>,
+      <option value="fnm">FNM</option>,
+      <option value="judge">Judge</option>,
+      <option value="pre">Pre-release</option>
+    ];
+    if (current_print && current_print.foil_only) {
+      foil_options.shift()
+    } else if (!current_print && latest_print && latest_print.foil_only) {
+      foil_options.shift()
     }
 
     return (
@@ -200,11 +216,7 @@ export default class CardEditModal extends React.Component {
                 <select id="card-foil" name="foil" value={this.state.card.foil}
                         className="form-control"
                         onChange={this.handleInputChange}>
-                  <option value="">Not foil</option>
-                  <option value="foil">Foil</option>
-                  <option value="fnm">FNM</option>
-                  <option value="judge">Judge</option>
-                  <option value="pre">Pre-release</option>
+                  {foil_options}
                 </select>
               </div>
             </div>

@@ -47,6 +47,7 @@ function cardSetup(originalCard, board='none', created=true) {
   card.hasErrors = [];
   card.need_qty = card.need_qty || 0;
   card.tla = !created && card.fixed_tla ? card.tla : '';
+  card.original_tla = card.tla;
   card.updated = false;
   card.updateCount = 0;  // Forces re-rendering when needed
 
@@ -348,6 +349,12 @@ export default class BoardsEditorApp extends React.Component {
   handleBoardsAdd = (sourceCardId, targetBoardName,
                      qty=null, siblingCardId=null) => {
     let sourceCard = {...this.state.foundCards[sourceCardId]};
+
+    let latest_print = sourceCard.all_printings.find(
+      printing => printing.tla === sourceCard.latest_set
+    );
+
+    if (latest_print.foil_only) sourceCard['foil'] = 'foil';
 
     let {deck, deckByPositions, deckByCategories} =
       this.handleBoardsMove(sourceCard, targetBoardName, qty, siblingCardId);

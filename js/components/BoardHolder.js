@@ -51,6 +51,7 @@ export default class BoardHolder extends React.Component {
     if (!stacksGroup) return '';
     return Object.keys(stacksGroup).map((cat, idx) => (
         <CardStack
+          key={`${cat}:${idx}`}
           cards={boardCards}
           handleCardDelete={handleCardDelete}
           handleCardEditStart={handleCardEditStart}

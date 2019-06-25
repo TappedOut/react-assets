@@ -124,100 +124,106 @@ export default class CardEditModal extends React.Component {
                   id="card-edit-modal-label">Card Editor: {card.name}</h4>
             </div>
             <div className="modal-body">
-              <div className={"form-group" +
-                `${card.hasErrors.includes('qty') ? " has-error" : ""}`}>
-                <label htmlFor="card-qty">Quantity:</label>
-                <input id="card-qty" type="number" name="qty"
-                       value={this.state.card.qty} className="form-control"
-                       onChange={this.handleQtyChange}/>
-              </div>
-              <div className={"form-group" +
-                `${card.hasErrors.includes('need_qty') ? " has-error" : ""}`}>
-                <label htmlFor="card-needed-qty">Needed:</label>
-                <input id="card-needed-qty" type="number" name="need_qty"
-                       value={this.state.card.need_qty} className="form-control"
-                       onChange={this.handleInputChange}/>
-              </div>
-              <div className="form-group">
-                <label htmlFor="card-board">Board:</label>
-                <select id="card-board" name="b"
-                        value={this.state.card.b}
-                        className="form-control"
-                        onChange={this.handleInputChange}>
-                  <option value="main">Main</option>
-                  <option value="side">Side</option>
-                  <option value="maybe">Maybe</option>
-                </select>
-              </div>
-              {!!this.state.card.all_printings.length &&
-                <div className={"form-group" +
-                  `${card.hasErrors.includes('tla') ? " has-error" : ""}`}>
-                  <label htmlFor="card-tla">Printing:</label>
-                  <select id="card-tla" name="tla" value={this.state.card.tla}
-                          className="form-control"
-                          onChange={this.handleInputChange}>
-                    <option value=''>Latest</option>
-                    {this.state.card.all_printings.map((printing, idx) =>
-                      <option key={idx} value={printing.tla}>
-                        {printing.name}</option>)
-                    }
-                  </select>
+              <div className="row">
+                <div className="col-lg-6">
+                  <div className={"form-group" +
+                    `${card.hasErrors.includes('qty') ? " has-error" : ""}`}>
+                    <label htmlFor="card-qty">Quantity:</label>
+                    <input id="card-qty" type="number" name="qty"
+                          value={this.state.card.qty} className="form-control"
+                          onChange={this.handleQtyChange}/>
+                  </div>
+                  <div className={"form-group" +
+                    `${card.hasErrors.includes('need_qty') ? " has-error" : ""}`}>
+                    <label htmlFor="card-needed-qty">Needed:</label>
+                    <input id="card-needed-qty" type="number" name="need_qty"
+                          value={this.state.card.need_qty} className="form-control"
+                          onChange={this.handleInputChange}/>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="card-board">Board:</label>
+                    <select id="card-board" name="b"
+                            value={this.state.card.b}
+                            className="form-control"
+                            onChange={this.handleInputChange}>
+                      <option value="main">Main</option>
+                      <option value="side">Side</option>
+                      <option value="maybe">Maybe</option>
+                    </select>
+                  </div>
+                  {!!this.state.card.all_printings.length &&
+                    <div className={"form-group" +
+                      `${card.hasErrors.includes('tla') ? " has-error" : ""}`}>
+                      <label htmlFor="card-tla">Printing:</label>
+                      <select id="card-tla" name="tla" value={this.state.card.tla}
+                              className="form-control"
+                              onChange={this.handleInputChange}>
+                        <option value=''>Latest</option>
+                        {this.state.card.all_printings.map((printing, idx) =>
+                          <option key={idx} value={printing.tla}>
+                            {printing.name}</option>)
+                        }
+                      </select>
+                    </div>
+                  }
                 </div>
-              }
-              {variations &&
-                <div className="form-group">
-                  <label htmlFor="card-tla">Variations:</label>
-                  <select id="card-variation" name="variation" value={this.state.card.variation}
-                          className="form-control"
-                          onChange={this.handleInputChange}>
-                    <option value=''>{set_number}</option>
-                    { variations.map((variation, idx) =>
-                      <option key={idx} value={variation.identifier}>
-                        {variation.display}</option>)
-                    }
-                  </select>
+                <div className="col-lg-6">
+                  {variations &&
+                    <div className="form-group">
+                      <label htmlFor="card-tla">Variations:</label>
+                      <select id="card-variation" name="variation" value={this.state.card.variation}
+                              className="form-control"
+                              onChange={this.handleInputChange}>
+                        <option value=''>{set_number}</option>
+                        { variations.map((variation, idx) =>
+                          <option key={idx} value={variation.identifier}>
+                            {variation.display}</option>)
+                        }
+                      </select>
+                    </div>
+                  }
+                  <div className={"form-group" +
+                  `${card.hasErrors.includes('language') ? " has-error" : ""}`}>
+                    <label htmlFor="card-language">Language:</label>
+                    <select id="card-language" name="language"
+                            value={this.state.card.language}
+                            className="form-control"
+                            onChange={this.handleInputChange}>
+                      <option value="EN">English</option>
+                      <option value="FR">French</option>
+                      <option value="IT">Italian</option>
+                      <option value="CN">Chinese Simplified</option>
+                      <option value="PR">Portuguese</option>
+                      <option value="GE">German</option>
+                      <option value="SP">Spanish</option>
+                      <option value="RS">Russian</option>
+                      <option value="KO">Korean</option>
+                      <option value="JA">Japanese</option>
+                    </select>
+                  </div>
+                  <div className={"form-group" +
+                  `${card.hasErrors.includes('condition') ? " has-error" : ""}`}>
+                    <label htmlFor="card-condition">Condition:</label>
+                    <select id="card-condition" name="condition"
+                            value={this.state.card.condition}
+                            className="form-control"
+                            onChange={this.handleInputChange}>
+                      <option value="NM">Near Mint/Mint</option>
+                      <option value="SL">Slightly Played</option>
+                      <option value="MP">Medium Played</option>
+                      <option value="HP">Heavily Played</option>
+                    </select>
+                  </div>
+                  <div className={"form-group" +
+                  `${card.hasErrors.includes('foil') ? " has-error" : ""}`}>
+                    <label htmlFor="card-foil">Foil:</label>
+                    <select id="card-foil" name="foil" value={this.state.card.foil}
+                            className="form-control"
+                            onChange={this.handleInputChange}>
+                      {foil_options}
+                    </select>
+                  </div>
                 </div>
-              }
-              <div className={"form-group" +
-              `${card.hasErrors.includes('language') ? " has-error" : ""}`}>
-                <label htmlFor="card-language">Language:</label>
-                <select id="card-language" name="language"
-                        value={this.state.card.language}
-                        className="form-control"
-                        onChange={this.handleInputChange}>
-                  <option value="EN">English</option>
-                  <option value="FR">French</option>
-                  <option value="IT">Italian</option>
-                  <option value="CN">Chinese Simplified</option>
-                  <option value="PR">Portuguese</option>
-                  <option value="GE">German</option>
-                  <option value="SP">Spanish</option>
-                  <option value="RS">Russian</option>
-                  <option value="KO">Korean</option>
-                  <option value="JA">Japanese</option>
-                </select>
-              </div>
-              <div className={"form-group" +
-              `${card.hasErrors.includes('condition') ? " has-error" : ""}`}>
-                <label htmlFor="card-condition">Condition:</label>
-                <select id="card-condition" name="condition"
-                        value={this.state.card.condition}
-                        className="form-control"
-                        onChange={this.handleInputChange}>
-                  <option value="NM">Near Mint/Mint</option>
-                  <option value="SL">Slightly Played</option>
-                  <option value="MP">Medium Played</option>
-                  <option value="HP">Heavily Played</option>
-                </select>
-              </div>
-              <div className={"form-group" +
-              `${card.hasErrors.includes('foil') ? " has-error" : ""}`}>
-                <label htmlFor="card-foil">Foil:</label>
-                <select id="card-foil" name="foil" value={this.state.card.foil}
-                        className="form-control"
-                        onChange={this.handleInputChange}>
-                  {foil_options}
-                </select>
               </div>
             </div>
             <div className="modal-footer card-edit-modal-footer">

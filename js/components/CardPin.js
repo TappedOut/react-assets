@@ -132,6 +132,7 @@ export default class CardPin extends React.Component {
               `${ card.foil ? 'card-thumbnail-foil' : '' }`}
               onClick={() => this.handleCardClick(card.cardId)}
               aria-expanded={this.state.showHandlers}
+              style={{width: `${imagesMaxWidth}px`}}
           >
             {card.foil &&
             <img src={`${STATIC_URL}img/foil-card-overlay-2.png`}
@@ -139,8 +140,7 @@ export default class CardPin extends React.Component {
             }
             { card.qty > 1 && <div className="qty-box">x{card.qty}</div> }
             <img src={cardDataImage} alt={card.name}
-                 className="card-thumbnail-img"
-                 style={{width: `${imagesMaxWidth}px`}}/>
+                 className="card-thumbnail-img"/>
           </div>
         }
         <Collapse in={this.state.showHandlers}>

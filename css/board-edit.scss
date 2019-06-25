@@ -173,7 +173,6 @@ $primary-hover-dark: #204d74;
     position: relative;
 
     @if ($spoiler-view) {
-
       .card-info-spoiler {
         bottom: 0.25em;
         left: 1em;
@@ -188,6 +187,10 @@ $primary-hover-dark: #204d74;
           top: 0.1em;
         }
       }
+    }
+
+    .card-thumbnail-img {
+      width: 100%;
     }
   }
 

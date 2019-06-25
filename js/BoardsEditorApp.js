@@ -98,7 +98,7 @@ export default class BoardsEditorApp extends React.Component {
       deckHash: '',
       deletedCards: [],
       foundCards: {},
-      imagesMaxWidth: 195,
+      imagesMaxWidth: 200,
       loading: true,
       nextSearchPage: 1,
       searchOnScroll: false,

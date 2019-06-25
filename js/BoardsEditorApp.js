@@ -1425,14 +1425,14 @@ export default class BoardsEditorApp extends React.Component {
                             "options-panel-spoiler-view"}>
               <div className="panel-body">
                 <div className="row">
-                  <div className="col-md-1 field-label">Arrange by:</div>
+                  <div className="col-md-1 field-label">Group by:</div>
                   <div className="col-sm-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedCategoryType &&
                       this.state.selectedCategoryType.value}
                       onChange={this.handleCategorySelect}
-                      placeholder="Arrange by"
+                      placeholder="Group by"
                       options={this.categoryChoices}
                     />
                   </div>
@@ -1488,14 +1488,14 @@ export default class BoardsEditorApp extends React.Component {
             <div className="panel panel-default options-panel top-borderless-panel">
               <div className="panel-body">
                 <div className="row">
-                  <div className="col-md-1 field-label">Arrange by:</div>
+                  <div className="col-md-1 field-label">Group by:</div>
                   <div className="col-md-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedCategoryType &&
                       this.state.selectedCategoryType.value}
                       onChange={this.handleCategorySelect}
-                      placeholder="Arrange by"
+                      placeholder="Group by"
                       options={this.categoryChoices}
                     />
                   </div>
@@ -1544,14 +1544,14 @@ export default class BoardsEditorApp extends React.Component {
                             "options-panel-spoiler-view"}>
               <div className="panel-body">
                 <div className="row">
-                  <div className="col-md-1 field-label">Arrange by:</div>
+                  <div className="col-md-1 field-label">Group by:</div>
                   <div className="col-sm-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedCategoryType &&
                       this.state.selectedCategoryType.value}
                       onChange={this.handleCategorySelect}
-                      placeholder="Arrange by"
+                      placeholder="Group by"
                       options={this.categoryChoices}
                     />
                   </div>

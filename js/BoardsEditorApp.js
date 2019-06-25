@@ -443,7 +443,7 @@ export default class BoardsEditorApp extends React.Component {
 
       this.setState({ cardToEdit: null, deck, deckByPositions, deckByCategories });
     } else if (card !== null && remove) {
-      this.handleCardDelete(card.cardId);
+      this.setState({ cardToEdit: null }, () => this.handleCardDelete(card.cardId) );
     } else {
       this.setState({ cardToEdit: null });
     }

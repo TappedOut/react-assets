@@ -97,11 +97,11 @@ export default class CardEditModal extends React.Component {
     }
 
     let foil_options = [
-      <option value="">Not foil</option>,
-      <option value="foil">Foil</option>,
-      <option value="fnm">FNM</option>,
-      <option value="judge">Judge</option>,
-      <option value="pre">Pre-release</option>
+      <option key={0} value="">Not foil</option>,
+      <option key={1} value="foil">Foil</option>,
+      <option key={2} value="fnm">FNM</option>,
+      <option key={3} value="judge">Judge</option>,
+      <option key={4} value="pre">Pre-release</option>
     ];
     if (current_print && current_print.foil_only) {
       foil_options.shift()
@@ -151,7 +151,7 @@ export default class CardEditModal extends React.Component {
                       <option value="maybe">Maybe</option>
                     </select>
                   </div>
-                  {!!this.state.card.all_printings.length &&
+                  { !!this.state.card.all_printings.length &&
                     <div className={"form-group" +
                       `${card.hasErrors.includes('tla') ? " has-error" : ""}`}>
                       <label htmlFor="card-tla">Printing:</label>
@@ -168,7 +168,7 @@ export default class CardEditModal extends React.Component {
                   }
                 </div>
                 <div className="col-lg-6">
-                  {variations &&
+                  { variations &&
                     <div className="form-group">
                       <label htmlFor="card-tla">Variations:</label>
                       <select id="card-variation" name="variation" value={this.state.card.variation}

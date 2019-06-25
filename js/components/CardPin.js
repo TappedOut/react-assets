@@ -146,6 +146,7 @@ export default class CardPin extends React.Component {
         <Collapse in={this.state.showHandlers}>
           <div>
             <div className={panelClass}>
+              { !toggleImages && cardName }
               <div className="card-handlers">
                 { !window.django.is_mobile ?
                   [

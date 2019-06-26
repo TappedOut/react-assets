@@ -47,6 +47,14 @@ export default class NewCardsBoard extends React.Component {
     }
   };
 
+  handleInputChange = (inputValue) => {
+    if (inputValue === "") {
+      this.props.clearSearchInput();
+    }
+
+    return inputValue;
+  }
+
   renderSearch = () => {
     return (
       <form role="form" className="form-horizontal simple-search-form"
@@ -74,6 +82,7 @@ export default class NewCardsBoard extends React.Component {
                    loadingPlaceholder="Searching..."
                    onBlur={this.props.handleSearchInput}
                    onBlurResetsInput={false}
+                   onInputChange={this.handleInputChange}
                    onInputKeyDown={this.handleEnterSearch}
                    onChange={this.props.handleSearchCardSelect}
                    onCloseResetsInput={false}
@@ -168,4 +177,3 @@ export default class NewCardsBoard extends React.Component {
     )
   }
 }
-

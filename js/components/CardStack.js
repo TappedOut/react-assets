@@ -24,7 +24,7 @@ export default class CardStack extends React.Component {
       card.qty > 1 ? imagesMaxWidth/2 : imagesMaxWidth/4.5
     ));
     let minHeight = _.sum(heights) + imagesMaxWidth*1.35;
-    let stackStyle = {"min-height": minHeight};
+    let stackStyle = {"minHeight": minHeight};
     if (!cards) return '';
 
     return (

@@ -443,7 +443,7 @@ export default class BoardsEditorApp extends React.Component {
 
       this.setState({ cardToEdit: null, deck, deckByPositions, deckByCategories });
     } else if (card !== null && remove) {
-      this.handleCardDelete(card.cardId);
+      this.setState({ cardToEdit: null }, () => this.handleCardDelete(card.cardId) );
     } else {
       this.setState({ cardToEdit: null });
     }
@@ -619,6 +619,12 @@ export default class BoardsEditorApp extends React.Component {
       invOnly: false, order: 'name_sort' };
     this.setState({foundCards: {}, simpleSearchInput, searchInput});
   };
+
+  clearSearchInput = () => {
+    let simpleSearchInput = {...this.state.simpleSearchInput};
+    simpleSearchInput["name"] = "";
+    this.setState({simpleSearchInput});
+  }
 
   handleSearchInput = (event) => {
     event.preventDefault();
@@ -1351,6 +1357,7 @@ export default class BoardsEditorApp extends React.Component {
         <div className="col-md-12">
           <NewCardsBoard
             cards={Object.values(this.state.foundCards)}
+            clearSearchInput={this.clearSearchInput}
             droppablesRef={d => this.addDroppable(d)}
             handleAdvancedSearch={this.handleAdvancedSearchStart}
             handleCardMoveStart={this.handleCardMoveStart}
@@ -1418,18 +1425,20 @@ export default class BoardsEditorApp extends React.Component {
                             "options-panel-spoiler-view"}>
               <div className="panel-body">
                 <div className="row">
-                  <div className="col-sm-3">
+                  <div className="col-md-1 field-label">Group by:</div>
+                  <div className="col-sm-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedCategoryType &&
                       this.state.selectedCategoryType.value}
                       onChange={this.handleCategorySelect}
-                      placeholder="Arrange by"
+                      placeholder="Group by"
                       options={this.categoryChoices}
                     />
                   </div>
+                  {this.state.toggleImages && <div className="col-md-1 field-label">Stack by:</div>}
                   {this.state.toggleImages &&
-                  <div className="col-md-3">
+                  <div className="col-md-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedStackType &&
@@ -1479,18 +1488,20 @@ export default class BoardsEditorApp extends React.Component {
             <div className="panel panel-default options-panel top-borderless-panel">
               <div className="panel-body">
                 <div className="row">
-                  <div className="col-md-3">
+                  <div className="col-md-1 field-label">Group by:</div>
+                  <div className="col-md-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedCategoryType &&
                       this.state.selectedCategoryType.value}
                       onChange={this.handleCategorySelect}
-                      placeholder="Arrange by"
+                      placeholder="Group by"
                       options={this.categoryChoices}
                     />
                   </div>
+                  {this.state.toggleImages && <div className="col-md-1 field-label">Stack by:</div>}
                   {this.state.toggleImages &&
-                  <div className="col-md-3">
+                  <div className="col-md-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedStackType &&
@@ -1533,18 +1544,20 @@ export default class BoardsEditorApp extends React.Component {
                             "options-panel-spoiler-view"}>
               <div className="panel-body">
                 <div className="row">
-                  <div className="col-sm-3">
+                  <div className="col-md-1 field-label">Group by:</div>
+                  <div className="col-sm-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedCategoryType &&
                       this.state.selectedCategoryType.value}
                       onChange={this.handleCategorySelect}
-                      placeholder="Arrange by"
+                      placeholder="Group by"
                       options={this.categoryChoices}
                     />
                   </div>
+                  {this.state.toggleImages && <div className="col-md-1 field-label">Stack by:</div>}
                   {this.state.toggleImages &&
-                  <div className="col-md-3">
+                  <div className="col-md-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedStackType &&

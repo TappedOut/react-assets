@@ -149,10 +149,16 @@ export default class CardPin extends React.Component {
               { !toggleImages && cardName }
               <div className="card-handlers">
                 { !window.django.is_mobile ?
-                  <a onClick={() => handleCardEditStart(card.cardId)}
-                     href="javascript: void(0)">
-                    <span className="glyphicon glyphicon-wrench pull-right card-settings"/>
-                  </a> :
+                  [
+                    <a key={0} onClick={() => handleCardEditStart(card.cardId)}
+                        href="javascript: void(0)">
+                      <span className="glyphicon glyphicon-wrench pull-right card-settings"/>
+                    </a>,
+                    <a key={1} onClick={() => handleCardDelete(card.cardId)}
+                        href="javascript: void(0)">
+                      <span className="glyphicon glyphicon-trash pull-right"/>
+                    </a>
+                  ] :
                   <a onClick={() => handleCardDelete(card.cardId)}
                      href="javascript: void(0)">
                     <span className="glyphicon glyphicon-trash pull-right"/>

@@ -160,13 +160,13 @@ export default class CardPin extends React.Component {
                     </a>,
                     <a key={2} onClick={() => handleCardChangeQty(card.cardId, true)}
                         href="javascript: void(0)">
-                      <span className="glyphicon glyphicon-arrow-up pull-right"/>
+                      <span className="qty-modifier pull-right">+1</span>
                     </a>,
                     <a key={3} onClick={() => card.qty > 1 &&
                                               handleCardChangeQty(card.cardId, false)}
                         href="javascript: void(0)">
-                        <span className={`glyphicon glyphicon-arrow-down pull-right ` +
-                            `${card.qty == 1 && "disabled-arrow"}`}/>
+                        <span className={`pull-right qty-modifier ` +
+                                         `${card.qty == 1 && "disabled-modifier"}`}>-1</span>
                     </a>
                   ] :
                   <a onClick={() => handleCardDelete(card.cardId)}

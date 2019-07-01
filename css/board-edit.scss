@@ -114,12 +114,12 @@ $primary-hover-dark: #204d74;
     .card-handlers {
       .qty-modifier {
         font-size: larger;
-        margin: 0.2em;
+        margin: 0.25em;
         position: relative;
-        top: 1px;
+        top: 0.15em;
         display: inline-block;
         font-style: normal;
-        font-weight: 400;
+        font-weight: bold;
         line-height: 1;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;

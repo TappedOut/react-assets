@@ -111,6 +111,13 @@ $primary-hover-dark: #204d74;
       }
     }
 
+    .card-handlers {
+      .disabled-arrow {
+        color: gray;
+        cursor: auto;
+      }
+    }
+
     .card-info {
       position: relative;
       bottom: 0.2em;
@@ -168,9 +175,10 @@ $primary-hover-dark: #204d74;
   }
 
   .card-thumbnail {
+    margin: auto;
     padding: 0.25em;
-    text-align: center;
     position: relative;
+    text-align: center;
 
     @if ($spoiler-view) {
       .card-info-spoiler {

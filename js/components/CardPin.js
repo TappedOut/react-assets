@@ -157,6 +157,15 @@ export default class CardPin extends React.Component {
                     <a key={1} onClick={() => handleCardDelete(card.cardId)}
                         href="javascript: void(0)">
                       <span className="glyphicon glyphicon-trash pull-right"/>
+                    </a>,
+                    <a key={2} onClick={() => javascript.void()}
+                        href="javascript: void(0)">
+                      <span className="glyphicon glyphicon-arrow-up pull-right"/>
+                    </a>,
+                    <a key={3} onClick={() => javascript.void()}
+                        href="javascript: void(0)">
+                        <span className={`glyphicon glyphicon-arrow-down pull-right ` +
+                            `${card.qty == 1 && "disabled-arrow"}`}/>
                     </a>
                   ] :
                   <a onClick={() => handleCardDelete(card.cardId)}

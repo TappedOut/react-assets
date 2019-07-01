@@ -23,9 +23,9 @@ export default class BoardHolder extends React.Component {
   };
 
   renderCards() {
-    let { boardCards, handleCardDelete, boardName, droppablesRef,
-          handleCardEditStart, handleCardMoveStart, imagesMaxWidth,
-          spoilerView, toggleImages, stackBy,
+    let { boardCards, handleCardChangeQty, handleCardDelete, boardName,
+          droppablesRef, handleCardEditStart, handleCardMoveStart,
+          imagesMaxWidth, spoilerView, toggleImages, stackBy,
           mobileCardOnTop, handleMobileCardClick } = this.props;
     if (!toggleImages || !stackBy) {
       return boardCards.map((card, idx) => (
@@ -38,6 +38,7 @@ export default class BoardHolder extends React.Component {
           <CardPin
             key={`${card.cardId}:${card.updateCount}:${idx}`}
             card={card}
+            handleCardChangeQty={handleCardChangeQty}
             handleCardDelete={handleCardDelete}
             handleCardEditStart={handleCardEditStart}
             handleCardMoveStart={handleCardMoveStart}

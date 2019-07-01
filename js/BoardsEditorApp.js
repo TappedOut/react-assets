@@ -372,6 +372,21 @@ export default class BoardsEditorApp extends React.Component {
     this.setState({ deck, deckByCategories, deckByPositions });
   };
 
+  handleCardChangeQty = (cardId, increment=true) => {
+    let deck = {...this.state.deck};
+
+    if (increment)
+      deck[cardId].qty++;
+    else if (deck[cardId].qty > 1)
+      deck[cardId].qty--;
+    else  // No update if qty is equal to 1 and the user wants to decrement (it shouldn't be possible)
+      return;
+
+    deck[cardId].updated = true;
+
+    this.setState({ deck });
+  }
+
   handleCardDelete = (cardId) => {
     let deck = {...this.state.deck};
     let deletedCards = [...this.state.deletedCards];
@@ -1163,6 +1178,7 @@ export default class BoardsEditorApp extends React.Component {
         boardName={boardName}
         boardCards={boardCards}
         droppablesRef={d => this.addDroppable(d)}
+        handleCardChangeQty={this.handleCardChangeQty}
         handleCardDelete={this.handleCardDelete}
         handleCardEditStart={this.handleCardEditStart}
         handleCardMoveStart={this.handleCardMoveStart}

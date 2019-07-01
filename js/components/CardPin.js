@@ -43,7 +43,7 @@ export default class CardPin extends React.Component {
   };
 
   render() {
-    let { card, handleCardDelete, handleCardEditStart, handleCardMoveStart,
+    let { card, handleCardChangeQty, handleCardDelete, handleCardEditStart, handleCardMoveStart,
           imagesMaxWidth, toggleImages, stackBy, stackTop, mobileCardOnTop } = this.props;
 
     let cardSpanClass = `${toggleImages ? '' : 'board-card'} ${card.tags}`;
@@ -158,11 +158,12 @@ export default class CardPin extends React.Component {
                         href="javascript: void(0)">
                       <span className="glyphicon glyphicon-trash pull-right"/>
                     </a>,
-                    <a key={2} onClick={() => javascript.void()}
+                    <a key={2} onClick={() => handleCardChangeQty(card.cardId, true)}
                         href="javascript: void(0)">
                       <span className="glyphicon glyphicon-arrow-up pull-right"/>
                     </a>,
-                    <a key={3} onClick={() => javascript.void()}
+                    <a key={3} onClick={() => card.qty > 1 &&
+                                              handleCardChangeQty(card.cardId, false)}
                         href="javascript: void(0)">
                         <span className={`glyphicon glyphicon-arrow-down pull-right ` +
                             `${card.qty == 1 && "disabled-arrow"}`}/>

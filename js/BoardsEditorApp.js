@@ -788,9 +788,9 @@ export default class BoardsEditorApp extends React.Component {
         _.pick(
           card,
           ['alter', 'alter_pk', 'b', 'cardId', 'categories', 'cmdr',
-            'condition', 'created', 'foil', 'ihash', 'language', 'name',
-            'need_qty', 'qty', 'signed', 'tla', 'variation', 'updated',
-            'alt_cmc', 'alt_rarity', 'alt_color', 'alt_mana_cost'
+           'condition', 'created', 'foil', 'ihash', 'language', 'name',
+           'need_qty', 'qty', 'signed', 'tla', 'variation', 'updated',
+           'alt_cmc', 'alt_rarity', 'alt_color', 'alt_mana_cost'
           ]
         )
       ).filter(specs =>

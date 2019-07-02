@@ -17,6 +17,26 @@ export default class CardPin extends React.Component {
     window.jQuery('[data-toggle="tooltip"]').tooltip();
   }
 
+  cardAlter = (card) => {
+    let symbols = [];
+
+    if (card.alter)
+      symbols.push(<img key={0} className="card-icon" src={`${STATIC_URL}img/alter-icon.png`}/>);
+
+    if (card.signed)
+      symbols.push(<img key={1} className="card-icon" src={`${STATIC_URL}img/signed-icon.png`}
+                        title="Signed/Autographed card"/>);
+
+    if (card.alter_pk)
+      return (
+          <a href={window.django.card_alter_url.replace(/\/0\/$/, `/${card.alter_pk}/`)}>
+            { symbols }
+          </a>
+      );
+    else
+      return symbols;
+  }
+
   handleCardClick = (cardId) => {
     if (this.props.stackBy) {
       if (!window.django.is_mobile ||
@@ -209,18 +229,7 @@ export default class CardPin extends React.Component {
                   ]
                 }
                 <span className="card-info">
-                  { card.alter_pk &&
-                    <a
-                      href={window.django.card_alter_url.replace(/\/0\/$/,
-                        `/${card.alter_pk}/`)}>
-                      { card.alter &&
-                        <img className="card-icon"
-                             src={`${STATIC_URL}img/alter-icon.png`}/> }
-                      { card.signed &&
-                        <img className="card-icon"
-                             src={`${STATIC_URL}img/signed-icon.png`}
-                             title="Signed/Autographed card"/> }
-                    </a> }
+                  { this.cardAlter(card) }
                   { card.foil &&
                     <img className="card-icon"
                          src={`${STATIC_URL}img/foil-icon.jpg`}/> }

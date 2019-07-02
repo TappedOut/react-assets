@@ -170,10 +170,23 @@ export default class CardPin extends React.Component {
                                          `${card.qty == 1 && "disabled-modifier"}`}>-1</span>
                     </a>
                   ] :
-                  <a onClick={() => handleCardDelete(card.cardId)}
-                     href="javascript: void(0)">
-                    <span className="glyphicon glyphicon-trash pull-right"/>
-                  </a>
+                  [
+                    <a key={0} onClick={() => confirm(`Do you want to delete ${card.name}?`) &&
+                                              handleCardDelete(card.cardId)}
+                        href="javascript: void(0)">
+                      <span className="glyphicon glyphicon-trash pull-right"/>
+                    </a>,
+                    <a key={1} onClick={() => handleCardChangeQty(card.cardId, true)}
+                        href="javascript: void(0)">
+                      <span className="qty-modifier pull-right">+1</span>
+                    </a>,
+                    <a key={2} onClick={() => card.qty > 1 &&
+                                              handleCardChangeQty(card.cardId, false)}
+                        href="javascript: void(0)">
+                        <span className={`pull-right qty-modifier ` +
+                                         `${card.qty == 1 && "disabled-modifier"}`}>-1</span>
+                    </a>
+                  ]
                 }
                 { !window.django.is_mobile ?
                   [

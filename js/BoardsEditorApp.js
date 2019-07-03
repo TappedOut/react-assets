@@ -98,7 +98,7 @@ export default class BoardsEditorApp extends React.Component {
       deckHash: '',
       deletedCards: [],
       foundCards: {},
-      imagesMaxWidth: 195,
+      imagesMaxWidth: 200,
       loading: true,
       nextSearchPage: 1,
       searchOnScroll: false,
@@ -371,6 +371,21 @@ export default class BoardsEditorApp extends React.Component {
 
     this.setState({ deck, deckByCategories, deckByPositions });
   };
+
+  handleCardChangeQty = (cardId, increment=true) => {
+    let deck = {...this.state.deck};
+
+    if (increment)
+      deck[cardId].qty++;
+    else if (deck[cardId].qty > 1)
+      deck[cardId].qty--;
+    else  // No update if qty is equal to 1 and the user wants to decrement (it shouldn't be possible)
+      return;
+
+    deck[cardId].updated = true;
+
+    this.setState({ deck });
+  }
 
   handleCardDelete = (cardId) => {
     let deck = {...this.state.deck};
@@ -773,9 +788,9 @@ export default class BoardsEditorApp extends React.Component {
         _.pick(
           card,
           ['alter', 'alter_pk', 'b', 'cardId', 'categories', 'cmdr',
-            'condition', 'created', 'foil', 'ihash', 'language', 'name',
-            'need_qty', 'qty', 'signed', 'tla', 'variation', 'updated',
-            'alt_cmc', 'alt_rarity', 'alt_color', 'alt_mana_cost'
+           'condition', 'created', 'foil', 'ihash', 'language', 'name',
+           'need_qty', 'qty', 'signed', 'tla', 'variation', 'updated',
+           'alt_cmc', 'alt_rarity', 'alt_color', 'alt_mana_cost'
           ]
         )
       ).filter(specs =>
@@ -1163,6 +1178,7 @@ export default class BoardsEditorApp extends React.Component {
         boardName={boardName}
         boardCards={boardCards}
         droppablesRef={d => this.addDroppable(d)}
+        handleCardChangeQty={this.handleCardChangeQty}
         handleCardDelete={this.handleCardDelete}
         handleCardEditStart={this.handleCardEditStart}
         handleCardMoveStart={this.handleCardMoveStart}

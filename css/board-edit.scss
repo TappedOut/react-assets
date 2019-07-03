@@ -111,6 +111,26 @@ $primary-hover-dark: #204d74;
       }
     }
 
+    .card-handlers {
+      .qty-modifier {
+        font-size: larger;
+        margin: 0.25em;
+        position: relative;
+        top: 0.15em;
+        display: inline-block;
+        font-style: normal;
+        font-weight: bold;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+
+        &.disabled-modifier {
+          color: gray;
+          cursor: auto;
+        }
+      }
+    }
+
     .card-info {
       position: relative;
       bottom: 0.2em;
@@ -168,12 +188,12 @@ $primary-hover-dark: #204d74;
   }
 
   .card-thumbnail {
+    margin: auto;
     padding: 0.25em;
-    text-align: center;
     position: relative;
+    text-align: center;
 
     @if ($spoiler-view) {
-
       .card-info-spoiler {
         bottom: 0.25em;
         left: 1em;
@@ -188,6 +208,10 @@ $primary-hover-dark: #204d74;
           top: 0.1em;
         }
       }
+    }
+
+    .card-thumbnail-img {
+      width: 100%;
     }
   }
 

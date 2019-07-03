@@ -18,10 +18,10 @@ export default function NewCardPin(props) {
                     ` card-color__${card.color_category}`}
          data-card={card.cardId}>
       { toggleImages &&
-        <div className="panel-heading card-thumbnail">
+        <div className="panel-heading card-thumbnail"
+             style={{width: `${imagesMaxWidth}px`}}>
           <img src={cardDataImage} alt={card.name}
-               className="card-thumbnail-img"
-               style={{maxWidth: `${imagesMaxWidth}px`}}/>
+               className="card-thumbnail-img"/>
         </div>
       }
       <div className="panel-body new-card">

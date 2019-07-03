@@ -31,14 +31,14 @@ export default class CardPinSpoiler extends React.Component {
       <div className={`panel panel-default card-color__${card.color_category}` +
                       `${card.hasErrors.length > 0 ? " card-error" : ""}`} >
         <div className={'panel-heading card-thumbnail ' +
-                        `${ card.foil ? 'card-thumbnail-foil' : '' }`}>
+                        `${ card.foil ? 'card-thumbnail-foil' : '' }`}
+             style={{width: `${imagesMaxWidth}px`}}>
           { card.foil &&
             <img src={`${STATIC_URL}img/foil-card-overlay-2.png`}
                  className="overlay-foil"/>
           }
           <img src={cardDataImage} alt={card.name}
-               className="card-thumbnail-img"
-               style={{width: `${imagesMaxWidth}px`}}/>
+               className="card-thumbnail-img"/>
           <span className="card-info-spoiler">
             { card.alter_pk &&
               <a href={window.django.card_alter_url.replace(/\/0\/$/, `/${card.alter_pk}/`)}>

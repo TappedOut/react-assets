@@ -26,8 +26,19 @@ export default class CardEditModal extends React.Component {
     let value = target.value.trim();
     if (target.name === "need_qty" && (parseInt(value) < 0 || isNaN(value)))
       return;
+
+    if (target.name === "alter_pk" && (parseInt(value) < 0 || isNaN(value)))
+      return;
+
     let card = {...this.state.card};
-    card[target.name] = target.value;
+
+    if (target.type === "checkbox")
+      card[target.name] = target.checked;
+    else if (target.name === "alter_pk" && !parseInt(value))
+      delete card.alter_pk;
+    else
+      card[target.name] = value;
+
     this.setState({card});
   };
 
@@ -166,8 +177,6 @@ export default class CardEditModal extends React.Component {
                       </select>
                     </div>
                   }
-                </div>
-                <div className="col-lg-6">
                   { variations &&
                     <div className="form-group">
                       <label htmlFor="card-tla">Variations:</label>
@@ -182,6 +191,8 @@ export default class CardEditModal extends React.Component {
                       </select>
                     </div>
                   }
+                </div>
+                <div className="col-lg-6">
                   <div className={"form-group" +
                   `${card.hasErrors.includes('language') ? " has-error" : ""}`}>
                     <label htmlFor="card-language">Language:</label>
@@ -222,6 +233,27 @@ export default class CardEditModal extends React.Component {
                             onChange={this.handleInputChange}>
                       {foil_options}
                     </select>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-2">
+                      <div className={"form-group" +
+                          `${card.hasErrors.includes('alter') ? " has-error" : ""}`}>
+                        <label htmlFor="card-alter">Alter:
+                          <input id="card-alter" type="checkbox" name="alter"
+                                checked={this.state.card.alter} className="form-control"
+                                onChange={this.handleInputChange}/>
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-10">
+                      <div className={"form-group" +
+                          `${card.hasErrors.includes('alter_pk') ? " has-error" : ""}`}>
+                        <label htmlFor="card-alter-pk">Alter code:</label>
+                        <input id="card-alter-pk" type="number" name="alter_pk"
+                              value={this.state.card.alter_pk} className="form-control"
+                              onChange={this.handleInputChange}/>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

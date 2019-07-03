@@ -17,6 +17,26 @@ export default class CardPin extends React.Component {
     window.jQuery('[data-toggle="tooltip"]').tooltip();
   }
 
+  cardAlter = (card) => {
+    let symbols = [];
+
+    if (card.alter)
+      symbols.push(<img key={0} className="card-icon" src={`${STATIC_URL}img/alter-icon.png`}/>);
+
+    if (card.signed)
+      symbols.push(<img key={1} className="card-icon" src={`${STATIC_URL}img/signed-icon.png`}
+                        title="Signed/Autographed card"/>);
+
+    if (card.alter_pk)
+      return (
+          <a href={window.django.card_alter_url.replace(/\/0\/$/, `/${card.alter_pk}/`)}>
+            { symbols }
+          </a>
+      );
+    else
+      return symbols;
+  }
+
   handleCardClick = (cardId) => {
     if (this.props.stackBy) {
       if (!window.django.is_mobile ||
@@ -43,7 +63,7 @@ export default class CardPin extends React.Component {
   };
 
   render() {
-    let { card, handleCardDelete, handleCardEditStart, handleCardMoveStart,
+    let { card, handleCardChangeQty, handleCardDelete, handleCardEditStart, handleCardMoveStart,
           imagesMaxWidth, toggleImages, stackBy, stackTop, mobileCardOnTop } = this.props;
 
     let cardSpanClass = `${toggleImages ? '' : 'board-card'} ${card.tags}`;
@@ -132,6 +152,7 @@ export default class CardPin extends React.Component {
               `${ card.foil ? 'card-thumbnail-foil' : '' }`}
               onClick={() => this.handleCardClick(card.cardId)}
               aria-expanded={this.state.showHandlers}
+              style={{width: `${imagesMaxWidth}px`}}
           >
             {card.foil &&
             <img src={`${STATIC_URL}img/foil-card-overlay-2.png`}
@@ -139,8 +160,7 @@ export default class CardPin extends React.Component {
             }
             { card.qty > 1 && <div className="qty-box">x{card.qty}</div> }
             <img src={cardDataImage} alt={card.name}
-                 className="card-thumbnail-img"
-                 style={{width: `${imagesMaxWidth}px`}}/>
+                 className="card-thumbnail-img"/>
           </div>
         }
         <Collapse in={this.state.showHandlers}>
@@ -154,15 +174,39 @@ export default class CardPin extends React.Component {
                         href="javascript: void(0)">
                       <span className="glyphicon glyphicon-wrench pull-right card-settings"/>
                     </a>,
-                    <a key={1} onClick={() => handleCardDelete(card.cardId)}
+                    <a key={1} onClick={() => confirm(`Do you want to delete ${card.name}?`) &&
+                                              handleCardDelete(card.cardId)}
                         href="javascript: void(0)">
                       <span className="glyphicon glyphicon-trash pull-right"/>
+                    </a>,
+                    <a key={2} onClick={() => handleCardChangeQty(card.cardId, true)}
+                        href="javascript: void(0)">
+                      <span className="qty-modifier pull-right">+1</span>
+                    </a>,
+                    <a key={3} onClick={() => card.qty > 1 &&
+                                              handleCardChangeQty(card.cardId, false)}
+                        href="javascript: void(0)">
+                        <span className={`pull-right qty-modifier ` +
+                                         `${card.qty == 1 && "disabled-modifier"}`}>-1</span>
                     </a>
                   ] :
-                  <a onClick={() => handleCardDelete(card.cardId)}
-                     href="javascript: void(0)">
-                    <span className="glyphicon glyphicon-trash pull-right"/>
-                  </a>
+                  [
+                    <a key={0} onClick={() => confirm(`Do you want to delete ${card.name}?`) &&
+                                              handleCardDelete(card.cardId)}
+                        href="javascript: void(0)">
+                      <span className="glyphicon glyphicon-trash pull-right"/>
+                    </a>,
+                    <a key={1} onClick={() => handleCardChangeQty(card.cardId, true)}
+                        href="javascript: void(0)">
+                      <span className="qty-modifier pull-right">+1</span>
+                    </a>,
+                    <a key={2} onClick={() => card.qty > 1 &&
+                                              handleCardChangeQty(card.cardId, false)}
+                        href="javascript: void(0)">
+                        <span className={`pull-right qty-modifier ` +
+                                         `${card.qty == 1 && "disabled-modifier"}`}>-1</span>
+                    </a>
+                  ]
                 }
                 { !window.django.is_mobile ?
                   [
@@ -185,18 +229,7 @@ export default class CardPin extends React.Component {
                   ]
                 }
                 <span className="card-info">
-                  { card.alter_pk &&
-                    <a
-                      href={window.django.card_alter_url.replace(/\/0\/$/,
-                        `/${card.alter_pk}/`)}>
-                      { card.alter &&
-                        <img className="card-icon"
-                             src={`${STATIC_URL}img/alter-icon.png`}/> }
-                      { card.signed &&
-                        <img className="card-icon"
-                             src={`${STATIC_URL}img/signed-icon.png`}
-                             title="Signed/Autographed card"/> }
-                    </a> }
+                  { this.cardAlter(card) }
                   { card.foil &&
                     <img className="card-icon"
                          src={`${STATIC_URL}img/foil-icon.jpg`}/> }

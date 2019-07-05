@@ -50,6 +50,7 @@ function cardSetup(originalCard, board='none', created=true) {
   card.original_tla = card.tla;
   card.updated = false;
   card.updateCount = 0;  // Forces re-rendering when needed
+  if (card.foil === true) card.foil = 'foil';
 
   let cardId = get_card_id(card, board);
   card.cardId = cardId;

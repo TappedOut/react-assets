@@ -50,6 +50,7 @@ function cardSetup(originalCard, board='none', created=true) {
   card.original_tla = card.tla;
   card.updated = false;
   card.updateCount = 0;  // Forces re-rendering when needed
+  if ([true, 'fnm'].indexOf(card.foil) > -1) card.foil = 'foil';
 
   let cardId = get_card_id(card, board);
   card.cardId = cardId;
@@ -79,6 +80,11 @@ export default class BoardsEditorApp extends React.Component {
     let categoryChoices = window.django.category_choices.map(
       (category) => {
         return {value: category[0], label: category[1]}
+      }
+    );
+    let foilChoices = window.django.foil_choices.map(
+      (foil) => {
+        return {value: foil[0], label: foil[1]}
       }
     );
 
@@ -134,6 +140,7 @@ export default class BoardsEditorApp extends React.Component {
     };
 
     this.categoryChoices = categoryChoices;
+    this.foilChoices = foilChoices;
     this.droppables = [];
     this.loadingModal = null;
   }
@@ -1714,7 +1721,8 @@ export default class BoardsEditorApp extends React.Component {
         { this.renderCharts() }
         { !this.props.spoilerView && cardToEdit &&
           <CardEditModal card={cardToEdit}
-                         handleCardEditEnd={this.handleCardEditEnd} />
+                         handleCardEditEnd={this.handleCardEditEnd}
+                         foilChoices={this.foilChoices} />
         }
         { !this.props.spoilerView && cardToMove &&
           <CardMoveModal card={cardToMove} source={sourceToMove}

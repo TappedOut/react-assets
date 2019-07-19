@@ -109,11 +109,8 @@ export default class CardEditModal extends React.Component {
 
     let foil_options = [
       <option key={0} value="">Not foil</option>,
-      <option key={1} value="foil">Foil</option>,
-      <option key={2} value="fnm">FNM</option>,
-      <option key={3} value="judge">Judge</option>,
-      <option key={4} value="pre">Pre-release</option>
     ];
+    this.props.foilChoices.map((foil) => foil_options.push(<option value={foil.value}>{foil.label}</option>));
     if (current_print && current_print.foil_only) {
       foil_options.shift()
     } else if (!current_print && latest_print && latest_print.foil_only) {

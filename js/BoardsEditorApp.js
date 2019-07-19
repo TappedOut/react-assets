@@ -17,7 +17,7 @@ import { get_card_id } from "./utils";
 import { buildColorSeries, buildLandColorSeries,
   buildTypeSeries, buildCurveSeries } from './utils/charts';
 import deck_group from './utils/deck_grouping';
-import { Collapse, Tab, Nav, NavItem } from 'react-bootstrap';
+import { Tab, Nav, NavItem } from 'react-bootstrap';
 import CurveChartWrapper from "./components/CurveChart";
 const _ = require('lodash');
 
@@ -112,7 +112,6 @@ export default class BoardsEditorApp extends React.Component {
       redirectAfterSave: false,
       savingInBackground: false,
       searchingCards: false,
-      showAddCards: false,
       initializedRecommendations: false,
       simpleSearchInput: {
         name: '',
@@ -250,13 +249,15 @@ export default class BoardsEditorApp extends React.Component {
     return this.state.deckHash !== deckHash.digest('hex');
   };
 
-  handleAddCardsToggle = () => {
-    this.setState({ showAddCards: !this.state.showAddCards });
-    if (!this.state.initializedRecommendations) {
-      this.initRecommendations();
-      this.setState({ initializedRecommendations: true })
-    }
-  };
+  /* FIXME: This gets removed since the collapse is no more.
+            What happens with the recommendations? */
+  // handleAddCardsToggle = () => {
+  //   this.setState({ showAddCards: !this.state.showAddCards });
+  //   if (!this.state.initializedRecommendations) {
+  //     this.initRecommendations();
+  //     this.setState({ initializedRecommendations: true })
+  //   }
+  // };
 
   handleAdvancedSearchStart = () => {
     this.setState({ advancedSearch: true });
@@ -1349,25 +1350,11 @@ export default class BoardsEditorApp extends React.Component {
   };
 
   renderNewCardsToggle = () => {
-    const { showAddCards } = this.state;
-    const addLegend = ' Add Cards';
     return (
       <div className="row">
         <div className="col-md-12">
           <div className="panel panel-default accordion-panel">
-            <div className="panel-heading board-panel-heading"
-              onClick={this.handleAddCardsToggle}
-              aria-controls="add-cards-body"
-              aria-expanded={showAddCards}
-            >
-              <h3 className="panel-title">
-                <span className="glyphicon glyphicon-plus"/>
-                {addLegend}
-              </h3>
-            </div>
-            <Collapse in={showAddCards}>
             {this.renderNewCards()}
-            </Collapse>
           </div>
         </div>
       </div>

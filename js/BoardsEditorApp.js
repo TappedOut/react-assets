@@ -89,6 +89,7 @@ export default class BoardsEditorApp extends React.Component {
     );
 
     this.state = {
+      activeBoardPill: 'side',
       advancedSearch: false,
       cardToEdit: null,
       cardToMove: null,
@@ -99,7 +100,6 @@ export default class BoardsEditorApp extends React.Component {
         value: 'cost',
         label: 'Converted cost'
       },
-      activeBoardPill: 'side',
       isGrabbing: false,
       deckHash: '',
       deletedCards: [],
@@ -109,6 +109,7 @@ export default class BoardsEditorApp extends React.Component {
       nextSearchPage: 1,
       searchOnScroll: false,
       newCard: false,
+      noCardsFound: '',
       redirectAfterSave: false,
       savingInBackground: false,
       searchingCards: false,
@@ -132,7 +133,6 @@ export default class BoardsEditorApp extends React.Component {
       },
       selectedCategory: 0,
       selectedCategoryType: '',
-      // timerSaving: null,
       toggleImages: true,
       warnings: [],
       mobileCardOnTop: null
@@ -149,10 +149,6 @@ export default class BoardsEditorApp extends React.Component {
     this.toggleLoadingModal();
     this.loadDeckData();
     TAPPED.observeBoardCards();
-    // TODO: Deactivated for now
-    // this.setState(
-    //   {timerSaving: setInterval(this.handleDeckSaveAuto, 60 * 5 * 1000)}
-    // );
     window.addEventListener("load", this.normalizeBoardsHeight);
     window.addEventListener("beforeunload", this.handleUnload);
 
@@ -187,8 +183,6 @@ export default class BoardsEditorApp extends React.Component {
   }
 
   componentWillUnmount() {
-    // TODO: Deactivated for now
-    // this.clearInverval(this.state.timerSaving);
     window.removeEventListener("beforeunload", this.handleUnload);
   }
 
@@ -640,7 +634,7 @@ export default class BoardsEditorApp extends React.Component {
     let searchInput = { name: '', type: '', subtype: '', rarity: '',
       keywords: '', formats: '', sets: '', block: '', color: '', rules: '',
       invOnly: false, order: 'name_sort' };
-    this.setState({foundCards: {}, simpleSearchInput, searchInput});
+    this.setState({foundCards: {}, noCardsFound: '', simpleSearchInput, searchInput});
   };
 
   clearSearchInput = () => {
@@ -725,7 +719,6 @@ export default class BoardsEditorApp extends React.Component {
           },
           {}
         );
-
 
         // Check if it's the first time loading the deck
         let deckByPositions = [...this.state.deckByPositions];
@@ -871,7 +864,6 @@ export default class BoardsEditorApp extends React.Component {
             (foundCards, card) => {
               let foundCard = cardSetup(card);
               foundCards[foundCard.cardId] = foundCard;
-
               return foundCards;
             },
             {}
@@ -880,10 +872,17 @@ export default class BoardsEditorApp extends React.Component {
           if (this.state.nextSearchPage > 1)
             foundCards = {...this.state.foundCards, ...foundCards};
 
+          let noCardsFound = _.size(foundCards) > 0 ? '' : searchInput.name.slice();
           let nextSearchPage = response.data.next !== null ?
             this.state.nextSearchPage + 1 : null;
 
-          this.setState({foundCards, nextSearchPage, searchingCards: false, searchOnScroll: true});
+          this.setState({
+            foundCards,
+            nextSearchPage,
+            noCardsFound,
+            searchingCards: false,
+            searchOnScroll: true
+          });
         },
         error => {
           if (error.response && error.response.status >= 500) {
@@ -1377,6 +1376,7 @@ export default class BoardsEditorApp extends React.Component {
             handleSearchScroll={this.handleSearchScroll}
             handleSearchSelect={this.handleSearchSelect}
             imagesMaxWidth={this.state.imagesMaxWidth}
+            noCardsFound={this.state.noCardsFound}
             searching={this.state.searchingCards}
             searchCards={this.searchCards}
             searchInput={this.state.simpleSearchInput}

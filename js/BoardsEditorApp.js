@@ -62,7 +62,7 @@ function cardSetup(originalCard, board='none', created=true) {
 
   let cardCost = card.effective_cost;
 
-  if (cardCost.trim().match(/^\s*$/)) {
+  if (!cardCost || cardCost.trim().match(/^\s*$/)) {
     card.color_category = "colorless";
   } else if (cardCost.trim().split(/\s+/).length > 1) {
     card.color_category = "gold";

@@ -1,0 +1,44 @@
+{% block css %}
+{% render_bundle 'boardEdit2019' 'css' %}
+{% endblock %}
+
+<script type="text/javascript">
+  {% if request.is_mobile %}
+    var is_mobile = true;
+  {% else %}
+    var is_mobile = !!navigator.userAgent.match(/Tablet|iPad/i);
+  {% endif %}
+
+  window.django = {
+    autocomplete_search: "{% url "api_card_autocomplete" %}",
+    card_alter_url: "{% url 'alter_detail' 0 %}",
+    cards_search_url: "{% url 'api_card_page_search' %}",
+    deck_get_url: "{% url 'collection_board' 'deck' object.slug %}",
+    deck_save_url: "{% url 'deck_board_edit_save' object.slug %}",
+    deck_url: "{% url 'deck_detail' object.slug %}",
+    deck_recommendations_url: "{% url 'api_deck_recommendations' %}",
+    deck_slug: "{{ object.slug }}",
+    deck_cards: "{{ cards_string }}",
+    deck_format: "{{ deck_format }}",
+    deck_colors: "{{ deck_colors }}",
+    category_choices: JSON.parse("{{ category_choices | escapejs }}"),
+    type_choices: JSON.parse("{{ type_choices | escapejs }}"),
+    rarity_choices: JSON.parse("{{ rarity_choices | escapejs }}"),
+    keywords_choices: JSON.parse("{{ keywords_choices | escapejs }}"),
+    formats_choices: JSON.parse("{{ formats_choices | escapejs }}"),
+    sets_choices: JSON.parse("{{ sets_choices | escapejs }}"),
+    block_choices: JSON.parse("{{ block_choices | escapejs }}"),
+    color_choices: JSON.parse("{{ color_choices | escapejs }}"),
+    order_choices: JSON.parse("{{ order_choices | escapejs }}"),
+    foil_choices: JSON.parse("{{ foil_choices | escapejs }}"),
+    is_mobile: is_mobile
+  };
+</script>
+
+<html>
+        <div id="board-edit-root" class="container-fluid margin-top-18"></div>
+</html>
+
+{% block react_scripts %}
+{% render_bundle 'boardEdit2019' 'js' %}
+{% endblock %}

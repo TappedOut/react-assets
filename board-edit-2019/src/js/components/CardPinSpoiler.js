@@ -34,7 +34,7 @@ export default class CardPinSpoiler extends React.Component {
                         `${ card.foil ? 'card-thumbnail-foil' : '' }`}
              style={{width: `${imagesMaxWidth}px`}}>
           { card.foil &&
-            <img src={`${STATIC_URL}img/foil-card-overlay-2.png`}
+            <img src={`${process.env.STATIC_URL}img/foil-card-overlay-2.png`}
                  className="overlay-foil"/>
           }
           <img src={cardDataImage} alt={card.name}
@@ -44,15 +44,15 @@ export default class CardPinSpoiler extends React.Component {
               <a href={window.django.card_alter_url.replace(/\/0\/$/, `/${card.alter_pk}/`)}>
                 { card.alter &&
                   <img className="card-icon"
-                       src={`${STATIC_URL}img/alter-icon.png`}/> }
+                       src={`${process.env.STATIC_URL}img/alter-icon.png`}/> }
                 { card.signed &&
                   <img className="card-icon"
-                       src={`${STATIC_URL}img/signed-icon.png`}
+                       src={`${process.env.STATIC_URL}img/signed-icon.png`}
                        title="Signed/Autographed card"/> }
               </a> }
             { card.language && card.language !== 'EN' &&
               <img className="card-icon"
-                   src={`${STATIC_URL}img/flag-icons/${card.language}.png`}
+                   src={`${process.env.STATIC_URL}img/flag-icons/${card.language}.png`}
                    alt={card.language}/> }
             { card.condition && card.condition !== 'NM' &&
               <span className="card-condition">{card.condition}</span> }

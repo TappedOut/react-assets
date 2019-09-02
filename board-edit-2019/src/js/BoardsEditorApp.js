@@ -21,7 +21,7 @@ import { Tab, Nav, NavItem } from 'react-bootstrap';
 import CurveChartWrapper from "./components/CurveChart";
 
 const _ = require('lodash');
-const STATIC_URL = 'http://static.tappedout.net/s/';
+const process.env.STATIC_URL = 'http://static.tappedout.net/s/';
 
 const COLORS = {
   'W': 'White',

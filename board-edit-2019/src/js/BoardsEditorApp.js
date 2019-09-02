@@ -1201,13 +1201,13 @@ export default class BoardsEditorApp extends React.Component {
   toggleLoadingModal = () => {
     if (this.loadingModal !== null) {
       if (this.state.loading)
-        jQuery(this.loadingModal).modal({
+        window.jQuery(this.loadingModal).modal({
           backdrop: 'static',
           keyboard: false,
           show: true
         });
       else
-        jQuery(this.loadingModal).modal('hide');
+        window.jQuery(this.loadingModal).modal('hide');
     }
   };
 

@@ -117,7 +117,7 @@ setupTemplate = function(elem, templateId, user_vendors, longname){
     data.foil = data.foil && !data.animatedImage;
     var context = {
         data: data,
-        STATIC_URL: STATIC_URL,
+        STATIC_URL: process.env.STATIC_URL,
         url: $(elem).attr('href'),
         vendors: vendors
     };

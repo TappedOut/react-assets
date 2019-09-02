@@ -73,6 +73,29 @@ function cardSetup(originalCard, board='none', created=true) {
   return card;
 }
 
+my.observeBoardCards = function(params){
+  params = params ? params : {};
+  var attr = params.attr ? params.attr : 'body';
+  if (!params.vendors || params.vendors.length === 0){
+      params.vendors = ['TCG', 'CH']
+  }
+  $(attr).popover({
+      html: true,
+      trigger: 'hover',
+      content: function(){
+          if($(this).data('rendering') == undefined){
+              var render = my.setupTemplate($(this).find(".board-card-hover"), "#card-hover-template", params.vendors);
+              $(this).data('rendering', render);
+          }
+          return $(this).data('rendering');
+      },
+      title: function(){
+          return $(this).children('a.board-card-hover').text();
+      },
+      selector: 'span.board-card',
+      container: 'body'
+  });
+}
 
 export default class BoardsEditorApp extends React.Component {
   constructor(props) {

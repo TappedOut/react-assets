@@ -19,8 +19,9 @@ import { buildColorSeries, buildLandColorSeries,
 import deck_group from './utils/deck_grouping';
 import { Tab, Nav, NavItem } from 'react-bootstrap';
 import CurveChartWrapper from "./components/CurveChart";
-const _ = require('lodash');
 
+const _ = require('lodash');
+const STATIC_URL = 'http://static.tappedout.net/s/';
 
 const COLORS = {
   'W': 'White',

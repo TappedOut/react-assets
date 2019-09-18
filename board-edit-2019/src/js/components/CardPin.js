@@ -21,10 +21,10 @@ export default class CardPin extends React.Component {
     let symbols = [];
 
     if (card.alter)
-      symbols.push(<img key={0} className="card-icon" src={`${STATIC_URL}img/alter-icon.png`}/>);
+      symbols.push(<img key={0} className="card-icon" src={`${process.env.STATIC_URL}img/alter-icon.png`}/>);
 
     if (card.signed)
-      symbols.push(<img key={1} className="card-icon" src={`${STATIC_URL}img/signed-icon.png`}
+      symbols.push(<img key={1} className="card-icon" src={`${process.env.STATIC_URL}img/signed-icon.png`}
                         title="Signed/Autographed card"/>);
 
     if (card.alter_pk)
@@ -155,7 +155,7 @@ export default class CardPin extends React.Component {
               style={{width: `${imagesMaxWidth}px`}}
           >
             {card.foil &&
-            <img src={`${STATIC_URL}img/foil-card-overlay-2.png`}
+            <img src={`${process.env.STATIC_URL}img/foil-card-overlay-2.png`}
                  className="overlay-foil"/>
             }
             { card.qty > 1 && <div className="qty-box">x{card.qty}</div> }
@@ -174,7 +174,7 @@ export default class CardPin extends React.Component {
                         href="javascript: void(0)">
                       <span className="glyphicon glyphicon-wrench pull-right card-settings"/>
                     </a>,
-                    <a key={1} onClick={() => confirm(`Do you want to delete ${card.name}?`) &&
+                    <a key={1} onClick={() => window.confirm(`Do you want to delete ${card.name}?`) &&
                                               handleCardDelete(card.cardId)}
                         href="javascript: void(0)">
                       <span className="glyphicon glyphicon-trash pull-right"/>
@@ -191,7 +191,7 @@ export default class CardPin extends React.Component {
                     </a>
                   ] :
                   [
-                    <a key={0} onClick={() => confirm(`Do you want to delete ${card.name}?`) &&
+                    <a key={0} onClick={() => window.confirm(`Do you want to delete ${card.name}?`) &&
                                               handleCardDelete(card.cardId)}
                         href="javascript: void(0)">
                       <span className="glyphicon glyphicon-trash pull-right"/>
@@ -232,10 +232,10 @@ export default class CardPin extends React.Component {
                   { this.cardAlter(card) }
                   { card.foil &&
                     <img className="card-icon"
-                         src={`${STATIC_URL}img/foil-icon.jpg`}/> }
+                         src={`${process.env.STATIC_URL}img/foil-icon.jpg`}/> }
                   { card.language && card.language !== 'EN' &&
                     <img className="card-icon"
-                         src={`${STATIC_URL}img/flag-icons/${card.language}.png`}
+                         src={`${process.env.STATIC_URL}img/flag-icons/${card.language}.png`}
                          alt={card.language}/>}
                   { card.condition && card.condition !== 'NM' &&
                     <span className="card-condition">{card.condition}</span>}

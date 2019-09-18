@@ -1,7 +1,7 @@
 import React from 'react';
 import CardPin from './CardPin';
 import CardPinSpoiler from "./CardPinSpoiler";
-
+const _ = require('lodash');
 
 export default class CardStack extends React.Component {
   constructor(props) {

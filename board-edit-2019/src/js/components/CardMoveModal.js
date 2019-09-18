@@ -1,5 +1,5 @@
 import React from 'react';
-
+import jQuery from 'jquery';
 export default class CardMoveModal extends React.Component {
   constructor(props) {
     super(props);

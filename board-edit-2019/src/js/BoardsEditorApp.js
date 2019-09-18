@@ -19,8 +19,9 @@ import { buildColorSeries, buildLandColorSeries,
 import deck_group from './utils/deck_grouping';
 import { Tab, Nav, NavItem } from 'react-bootstrap';
 import CurveChartWrapper from "./components/CurveChart";
-const _ = require('lodash');
 
+const _ = require('lodash');
+const process.env.STATIC_URL = 'http://static.tappedout.net/s/';
 
 const COLORS = {
   'W': 'White',
@@ -73,6 +74,78 @@ function cardSetup(originalCard, board='none', created=true) {
   return card;
 }
 
+setupTemplate = function(elem, templateId, user_vendors, longname){
+    var source = $(templateId).html();
+    var template = Handlebars.compile(source);
+    var data = $(elem).data();
+    var vendors = [];
+    var longname_map = {
+        tcg: 'TCG Player NM',
+        ch: 'CardHoarder (MTGO)',
+        ck: 'Card Kingdom',
+        cc: 'Chaos Cards'
+    };
+    $.each(user_vendors, function(index, vendor){
+        var lower = vendor.toLowerCase();
+        var price = data.foil && data[lower + 'FoilPrice'] ? data[lower + 'FoilPrice'] : data[lower + 'Price'];
+        var url = data.foil && data[lower + 'FoilUrl'] ? data[lower + 'FoilUrl'] : data[lower + 'Url'];
+        if (!price && lower==='ch') {
+            price = data.foil && data['cardhoarderFoilPrice'] ? data['cardhoarderFoilPrice'] : data['cardhoarderPrice'];
+            url = data.foil && data[lower + 'cardhoarderFoilUrl'] ? data[lower + 'cardhoarderFoilUrl'] : data[lower + 'cardhoarderUrl'];
+        }
+        if (price){
+            if (lower === 'ch'){
+                price += ' TIX'
+            } else if (lower ==='cc'){
+                price = '£' + price
+            } else {
+                price = '$' + price
+            }
+            vendor = longname && lower in longname_map ? longname_map[lower] : vendor;
+            vendors.push({
+                'name': vendor,
+                'price': price,
+                'url': url
+            })
+        }
+    });
+    $.each(vendors, function(index, elem){
+        if (index+1 < vendors.length){
+            elem['next'] = true
+        }
+    });
+    data.foil = data.foil && !data.animatedImage;
+    var context = {
+        data: data,
+        STATIC_URL: process.env.STATIC_URL,
+        url: $(elem).attr('href'),
+        vendors: vendors
+    };
+    return template(context);
+}
+observeCards = function(params){
+  params = params ? params : {};
+  var attr = params.attr ? params.attr : 'body';
+  if (!params.vendors || params.vendors.length === 0){
+      params.vendors = ['TCG', 'CH']
+  }
+  $(attr).popover({
+      html: true,
+      trigger: 'hover',
+      content: function(){
+          if($(this).data('rendering') == undefined){
+              var render = setupTemplate($(this).find(".board-card-hover"), "#card-hover-template", params.vendors);
+              $(this).data('rendering', render);
+          }
+          return $(this).data('rendering');
+      },
+      title: function(){
+          return $(this).children('a.board-card-hover').text();
+      },
+      selector: 'span.board-card',
+      container: 'body'
+  });
+}
 
 export default class BoardsEditorApp extends React.Component {
   constructor(props) {
@@ -1128,13 +1201,13 @@ export default class BoardsEditorApp extends React.Component {
   toggleLoadingModal = () => {
     if (this.loadingModal !== null) {
       if (this.state.loading)
-        jQuery(this.loadingModal).modal({
+        window.jQuery(this.loadingModal).modal({
           backdrop: 'static',
           keyboard: false,
           show: true
         });
       else
-        jQuery(this.loadingModal).modal('hide');
+        window.jQuery(this.loadingModal).modal('hide');
     }
   };
 

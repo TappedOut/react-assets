@@ -1,4 +1,4 @@
-_ = require('lodash');
+const _ = require('lodash');
 
 const COLORS = {
   'W': 'White',

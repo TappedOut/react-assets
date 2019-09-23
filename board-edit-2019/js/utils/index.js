@@ -9,7 +9,7 @@ export function slugify(text)
 {
   return text.toString().toLowerCase()
     .replace(/\s+/g, '-')           // Replace spaces with -
-    .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+    .replace(/[^\w\-_]+/g, '')       // Remove all non-word chars
     .replace(/\-\-+/g, '-')         // Replace multiple - with single -
     .replace(/^-+/, '')             // Trim - from start of text
     .replace(/-+$/, '');            // Trim - from end of text
@@ -37,6 +37,19 @@ export function get_card_id(card, board) {
   if (card.variation) hash.update(`var-${card.variation}`);
 
   if (card.alter_pk) hash.update(`alter-${card.alter_pk}`);
+
+  if (card.alt_mana_cost) hash.update(`alt-mc-${card.alt_mana_cost}`);
+
+  if (card.alt_cmc) hash.update(`alt-cmc-${card.alt_cmc}`);
+
+  if (card.alt_color) hash.update(`alt-color-${card.alt_color}`);
+
+  if (card.alt_rarity) hash.update(`alt-rarity-${card.alt_rarity}`);
+
+  if (card.categories && card.categories.length > 0) {
+    card.categories.sort();
+    hash.update(slugify(card.categories.sort().join('-')))
+  }
 
   hash.update(`token-${slugify(card.name)}`);
 

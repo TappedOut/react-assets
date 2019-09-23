@@ -73,20 +73,18 @@ function cardSetup(originalCard, board='none', created=true) {
   return card;
 }
 
+function choicesFromDjango(choices) {
+  return choices.map(
+    (category) => {
+      return {value: category[0], label: category[1]}
+    }
+  );
+}
+
 
 export default class BoardsEditorApp extends React.Component {
   constructor(props) {
     super(props);
-    let categoryChoices = window.django.category_choices.map(
-      (category) => {
-        return {value: category[0], label: category[1]}
-      }
-    );
-    let foilChoices = window.django.foil_choices.map(
-      (foil) => {
-        return {value: foil[0], label: foil[1]}
-      }
-    );
 
     this.state = {
       activeBoardPill: 'side',
@@ -138,8 +136,10 @@ export default class BoardsEditorApp extends React.Component {
       mobileCardOnTop: null
     };
 
-    this.categoryChoices = categoryChoices;
-    this.foilChoices = foilChoices;
+    this.categoryChoices = choicesFromDjango(window.django.category_choices);
+    this.foilChoices = choicesFromDjango(window.django.foil_choices);
+    this.rarityChoices = choicesFromDjango(window.django.rarity_choices);
+    this.colorChoices = choicesFromDjango(window.django.alt_color_choices);
     this.droppables = [];
     this.loadingModal = null;
   }
@@ -450,10 +450,10 @@ export default class BoardsEditorApp extends React.Component {
 
       let deckByPositions = [...this.state.deckByPositions];
 
-      if (newCard) {
-        deckByCategories = rehashDeckByCategories(deck,
+      deckByCategories = rehashDeckByCategories(deck,
           this.state.selectedCategoryType);
 
+      if (newCard) {
         // Only setup new position if the card is new, if it exists then let the original position intact
         deckByPositions = this.handleBoardsChangePosition(newId, originalId);
       }
@@ -785,7 +785,7 @@ export default class BoardsEditorApp extends React.Component {
   saveDeck = () => {
     return axios.post(
       window.django.deck_save_url,
-      Object.values(this.state.deck).map(card =>
+      {'changes': Object.values(this.state.deck).map(card =>
         _.pick(
           card,
           ['alter', 'alter_pk', 'b', 'cardId', 'categories', 'cmdr',
@@ -800,7 +800,7 @@ export default class BoardsEditorApp extends React.Component {
         specs.foil ? specs : _.omit(specs, ['foil'])
       ).map(specs =>
         specs.tla ? specs : _.omit(specs, ['tla'])
-      ),
+      )},
       { headers: { 'X-CSRFToken': Cookies.get('csrftoken') } }
     );
   };
@@ -1709,7 +1709,10 @@ export default class BoardsEditorApp extends React.Component {
         { !this.props.spoilerView && cardToEdit &&
           <CardEditModal card={cardToEdit}
                          handleCardEditEnd={this.handleCardEditEnd}
-                         foilChoices={this.foilChoices} />
+                         foilChoices={this.foilChoices}
+                         colorChoices={this.colorChoices}
+                         rarityChoices={this.rarityChoices}
+          />
         }
         { !this.props.spoilerView && cardToMove &&
           <CardMoveModal card={cardToMove} source={sourceToMove}

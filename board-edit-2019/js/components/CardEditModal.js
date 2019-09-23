@@ -1,13 +1,23 @@
 import React from 'react';
+import Select from "react-select";
 
 export default class CardEditModal extends React.Component {
   constructor(props) {
     super(props);
 
+    let show_values = [props.card.alt_cmc, props.card.alt_color,
+      props.card.alt_mana_cost, props.card.alt_rarity].some((val) => val !== undefined);
+
+    let card = {...props.card};
+    if (card.alt_color) card.alt_color = card.alt_color.join(',');
+
     this.state = {
-      card: props.card,
+      card: card,
       remove: false,
-      save: false
+      save: false,
+      showCatSelect: false,
+      newCategory: '',
+      showAltValues: show_values
     };
   }
 
@@ -20,6 +30,16 @@ export default class CardEditModal extends React.Component {
             (this.state.save || this.state.remove) ? this.state.card : null,
              this.state.remove));
   }
+
+  handleAltColorSelectChange = (value) => {
+    value = value.trim();
+    let card = {...this.state.card};
+    if (value)
+      card['alt_color'] = value;
+    else
+      delete card['alt_color'];
+    this.setState({card})
+  };
 
   handleInputChange = (event) => {
     let target = event.target;
@@ -34,12 +54,19 @@ export default class CardEditModal extends React.Component {
 
     if (target.type === "checkbox")
       card[target.name] = target.checked;
-    else if (target.name === "alter_pk" && !parseInt(value))
-      delete card.alter_pk;
+    else if (["alter_pk", "alt_cmc"].includes(target.name) && !parseInt(value))
+      delete card[target.name];
+    else if (["alt_color", "alt_mana_cost", "alt_rarity"].includes(target.name) && !value)
+      delete card[target.name];
     else
       card[target.name] = value;
 
     this.setState({card});
+  };
+
+  handleCategoryChange = (event) => {
+    let val = event.target.value.replace(' ', '_').replace(/[^\w_0-9]+/g, '');
+    this.setState({newCategory: val})
   };
 
   handleQtyChange = (event) => {
@@ -53,6 +80,35 @@ export default class CardEditModal extends React.Component {
   handleRemove = () => {
     this.setState({remove: true}, () =>
       jQuery(this.modalReference).modal('hide'));
+  };
+
+  handleAddCatClick = () => {
+    this.setState({showCatSelect: !this.state.showCatSelect})
+  };
+
+  handleAltValuesClick = () => {
+    this.setState({showAltValues: !this.state.showAltValues})
+  };
+
+  handleAddCatKeypress = (event) => {
+    if(event.keyCode === 13){
+     this.handleConfirmCatClick()
+    }
+  };
+
+  handleConfirmCatClick = () => {
+    let card = {...this.state.card};
+    if (!card.categories) card.categories = [];
+    if (this.state.newCategory && card.categories.indexOf(this.state.newCategory) < 0) {
+      card.categories.push(this.state.newCategory);
+    }
+    this.setState({card, showCatSelect: false, newCategory: ''})
+  };
+
+  handleDismissCategory = (event) => {
+    let card = {...this.state.card};
+    card.categories = card.categories.filter((cat) => cat !== event.target.dataset.category);
+    this.setState({card})
   };
 
   handleSaveChanges = () => {
@@ -78,6 +134,10 @@ export default class CardEditModal extends React.Component {
           card.image_large = current_print.image_large
         }
       }
+    }
+
+    if (card.alt_color) {
+      card.alt_color = card.alt_color.split(',')
     }
 
     this.setState({card, save: true}, () =>
@@ -111,10 +171,23 @@ export default class CardEditModal extends React.Component {
       <option key={0} value="">Not foil</option>,
     ];
     this.props.foilChoices.map((foil) => foil_options.push(<option value={foil.value}>{foil.label}</option>));
+    let rarity_options = this.props.rarityChoices.map((rarity) => <option value={rarity.value}>{rarity.label}</option>);
     if (current_print && current_print.foil_only) {
       foil_options.shift()
     } else if (!current_print && latest_print && latest_print.foil_only) {
       foil_options.shift()
+    }
+    let categories = [];
+    if (card.categories) {
+      card.categories.map((cat) => categories.push(
+        <button className="btn btn-xs btn-primary btn-category" type="button">
+          {cat}
+          <button type="button" className="close btn-category-dismiss"
+                  aria-label="Close" onClick={this.handleDismissCategory}>
+            <span aria-hidden="true" data-category={cat}>&times;</span>
+          </button>
+        </button>
+      ));
     }
 
     return (
@@ -252,6 +325,106 @@ export default class CardEditModal extends React.Component {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-lg-12">
+                  <div className="row">
+                    <div className="col-lg-12">
+                      <label>Categories:</label>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-lg-12">
+                      {categories}
+                      {!this.state.showCatSelect &&
+                        <button onClick={this.handleAddCatClick} className="btn btn-xs btn-success btn-category">
+                          <span className="glyphicon glyphicon-plus" aria-hidden="true"/>
+                        </button>
+                      }
+                      {this.state.showCatSelect &&
+                      <div className="row">
+                        <div className="col-lg-6 col-xs-12">
+                          <div className="input-group">
+                            <input id="add-category" type="text" autoFocus onKeyDown={this.handleAddCatKeypress}
+                                     name="add_category" value={this.state.newCategory}
+                                     className="form-control" onChange={this.handleCategoryChange}/>
+                            <span className="input-group-btn">
+                              <button className="btn btn-success" type="button"
+                                      onClick={this.handleConfirmCatClick}>Add</button>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-lg-12">
+                  <div className="row">
+                    <div className="col-lg-12">
+                      <label>Alternate Values
+                        <a id="card-add-alts" className="btn btn-primary btn-xs modal-btn" role="button"
+                           onClick={this.handleAltValuesClick}>
+                        <span className={"glyphicon glyphicon-chevron-" + `${this.state.showAltValues ? "down" : "right"}`} aria-hidden="true"/>
+                      </a></label>
+                      <p> (Control how your cards appear in boards, charts, etc.)</p>
+                    </div>
+                  </div>
+                  {this.state.showAltValues &&
+                  <div>
+                    <div className="row">
+                      <div className="col-lg-6">
+                        <div className={"form-group" +
+                        `${card.hasErrors.includes('alt_cmc') ? " has-error" : ""}`}>
+                          <label htmlFor="card-alt-cmc">Alternate CMC:</label>
+                          <input id="card-alt-cmc" name="alt_cmc" value={this.state.card.alt_cmc}
+                                 className="form-control" type="number"
+                                 onChange={this.handleInputChange}>
+                          </input>
+                        </div>
+                      </div>
+                      <div className="col-lg-6">
+                        <div className={"form-group" +
+                        `${card.hasErrors.includes('alt_rarity') ? " has-error" : ""}`}>
+                          <label htmlFor="card-alt-rarity">Alternate rarity:</label>
+                          <select id="card-alt-rarity" name="alt_rarity" value={this.state.card.alt_rarity}
+                                  className="form-control"
+                                  onChange={this.handleInputChange}>
+                            <option value="" />
+                            {rarity_options}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col-lg-6">
+                        <div className={"form-group" +
+                        `${card.hasErrors.includes('alt_mana_cost') ? " has-error" : ""}`}>
+                          <label htmlFor="card-atl-mana-cost">Alternate mana cost:</label>
+                          <input id="card-alt-mana-cost" name="alt_mana_cost" value={this.state.card.alt_mana_cost}
+                                 className="form-control" type="text"
+                                 onChange={this.handleInputChange}>
+                          </input>
+                        </div>
+                      </div>
+                      <div className="col-lg-6">
+                        <label htmlFor="card-alt-color">Alternate color:</label>
+                        <Select
+                          multi
+                          id="card-alt-color"
+                          name="alt_color"
+                          onChange={(v) => this.handleAltColorSelectChange(v)}
+                          options={this.props.colorChoices}
+                          simpleValue
+                          value={this.state.card.alt_color}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  }
                 </div>
               </div>
             </div>

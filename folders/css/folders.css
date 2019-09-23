@@ -1,0 +1,35 @@
+.deck-snippet {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.no-overflow {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.no-margin-top {
+  margin-top: 0px;
+}
+
+.sm-p-well {
+  padding: 15px
+}
+
+.folder-header {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.deck-featured {
+  top: -33px;
+  left: 0px;
+  clip: rect(33px, 197px, 166px, 20px);
+  position: absolute;
+}
+
+.feat-container > div {
+  height: 144px;
+  position: relative;
+}

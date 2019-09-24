@@ -36,7 +36,7 @@ const MAX_CONFIG_STORE_DAYS = 15 * 24 * 60 * 60 * 1000;
 
 const DEFAULT_NAMESPACE = 'http://33.33.33.11:8000';
 const DECK_SLUG = window.location.href.split('/')[4];
-const INIT_URL = `${DEFAULT_NAMESPACE}/mtg-decks/${DECK_SLUG}/board_update/init/`;
+const INIT_URL = `${DEFAULT_NAMESPACE}/mtg-decks/${DECK_SLUG}/board-update/init/`;
 
 
 function rehashDeckByCategories(deck, selectedCategoryType) {

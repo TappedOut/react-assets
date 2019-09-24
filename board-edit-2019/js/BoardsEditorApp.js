@@ -34,6 +34,10 @@ const COLORS = {
 // The constant is expressed in milliseconds = DAYS * HOURS * MINUTES * SECONDS * 1000
 const MAX_CONFIG_STORE_DAYS = 15 * 24 * 60 * 60 * 1000;
 
+const DEFAULT_NAMESPACE = 'http://tappedout.net';
+const DECK_SLUG = window.location.href.split('/')[4];
+const INIT_URL = `${DEFAULT_NAMESPACE}/mtg-decks/${DECK_SLUG}/board_update/init/`;
+
 
 function rehashDeckByCategories(deck, selectedCategoryType) {
   let category = selectedCategoryType ? selectedCategoryType.value : 'board';
@@ -73,7 +77,7 @@ function cardSetup(originalCard, board='none', created=true) {
   return card;
 }
 
-function choicesFromDjango(choices) {
+function choicesFromAPI(choices) {
   return choices.map(
     (category) => {
       return {value: category[0], label: category[1]}
@@ -85,6 +89,18 @@ function choicesFromDjango(choices) {
 export default class BoardsEditorApp extends React.Component {
   constructor(props) {
     super(props);
+    let errorInit = false;
+
+    axios.get(
+      INIT_URL
+    ).then(
+      response => {
+        console.log(response)
+      },
+      error => {
+        errorInit = true;
+      },
+    );
 
     this.state = {
       activeBoardPill: 'side',
@@ -133,13 +149,16 @@ export default class BoardsEditorApp extends React.Component {
       selectedCategoryType: '',
       toggleImages: true,
       warnings: [],
-      mobileCardOnTop: null
+      mobileCardOnTop: null,
+      errorInitializing: errorInit
     };
 
-    this.categoryChoices = choicesFromDjango(window.django.category_choices);
-    this.foilChoices = choicesFromDjango(window.django.foil_choices);
-    this.rarityChoices = choicesFromDjango(window.django.rarity_choices);
-    this.colorChoices = choicesFromDjango(window.django.alt_color_choices);
+
+
+    this.categoryChoices = choicesFromAPI(window.django.category_choices);
+    this.foilChoices = choicesFromAPI(window.django.foil_choices);
+    this.rarityChoices = choicesFromAPI(window.django.rarity_choices);
+    this.colorChoices = choicesFromAPI(window.django.alt_color_choices);
     this.droppables = [];
     this.loadingModal = null;
   }

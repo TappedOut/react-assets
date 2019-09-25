@@ -131,6 +131,7 @@ export default class BoardsEditorApp extends React.Component {
       errorInitializing: false,
       isMobile: isMobile
     };
+    this.droppables = [];
   }
 
   componentDidMount() {
@@ -225,7 +226,6 @@ export default class BoardsEditorApp extends React.Component {
         this.foilChoices = choicesFromAPI(response.data.foil_choices);
         this.rarityChoices = choicesFromAPI(response.data.rarity_choices);
         this.colorChoices = choicesFromAPI(response.data.alt_color_choices);
-        this.droppables = [];
         this.loadingModal = null;
       },
       error => {

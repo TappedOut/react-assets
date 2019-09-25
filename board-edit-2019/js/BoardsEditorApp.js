@@ -138,7 +138,6 @@ export default class BoardsEditorApp extends React.Component {
     this.getInitData();
     this.setupDragula();
     this.toggleLoadingModal();
-    this.loadDeckData();
     TAPPED.observeBoardCards();
     window.addEventListener("load", this.normalizeBoardsHeight);
     window.addEventListener("beforeunload", this.handleUnload);
@@ -227,6 +226,7 @@ export default class BoardsEditorApp extends React.Component {
         this.rarityChoices = choicesFromAPI(response.data.rarity_choices);
         this.colorChoices = choicesFromAPI(response.data.alt_color_choices);
         this.loadingModal = null;
+        this.loadDeckData()
       },
       error => {
         this.setState({errorInit: true});

@@ -121,19 +121,7 @@ export default class BoardsEditorApp extends React.Component {
         name: '',
         invOnly: false
       },
-      searchInput: {
-        name: '',
-        type: '',
-        subtype: '',
-        rarity: '',
-        keywords: '',
-        formats: initData.deck_format,
-        sets: '',
-        block: '',
-        color: initData.deck_colors,
-        rules: '',
-        order: 'name_sort'
-      },
+      searchInput: {},
       selectedCategory: 0,
       selectedCategoryType: '',
       toggleImages: true,
@@ -217,7 +205,22 @@ export default class BoardsEditorApp extends React.Component {
       INIT_URL
     ).then(
       response => {
-        this.setState({initData: response.data});
+        this.setState({
+          initData: response.data,
+          searchInput: {
+            name: '',
+            type: '',
+            subtype: '',
+            rarity: '',
+            keywords: '',
+            formats: response.data.deck_format,
+            sets: '',
+            block: '',
+            color: response.data.deck_colors,
+            rules: '',
+            order: 'name_sort'
+          },
+        });
         this.categoryChoices = choicesFromAPI(response.data.category_choices);
         this.foilChoices = choicesFromAPI(response.data.foil_choices);
         this.rarityChoices = choicesFromAPI(response.data.rarity_choices);
@@ -727,7 +730,7 @@ export default class BoardsEditorApp extends React.Component {
 
   loadDeckData = () => {
     axios.get(
-      this.state.initData
+      this.state.initData.deck_get_url
     ).then(
       response => {
         let deck = response.data.results.reduce(

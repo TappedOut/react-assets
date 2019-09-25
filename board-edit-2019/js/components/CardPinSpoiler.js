@@ -41,7 +41,7 @@ export default class CardPinSpoiler extends React.Component {
                className="card-thumbnail-img"/>
           <span className="card-info-spoiler">
             { card.alter_pk &&
-              <a href={window.django.card_alter_url.replace(/\/0\/$/, `/${card.alter_pk}/`)}>
+              <a href={this.props.cardAlterUrl.replace(/\/0\/$/, `/${card.alter_pk}/`)}>
                 { card.alter &&
                   <img className="card-icon"
                        src={`${STATIC_URL}img/alter-icon.png`}/> }

@@ -6,6 +6,7 @@ import Slider from 'react-rangeslider';
 import Select from 'react-select';
 import Toggle from 'react-toggle';
 import Rusha from 'rusha';
+import {isMobile} from 'react-device-detect';
 import BoardHolder from './components/BoardHolder';
 import CardEditModal from './components/CardEditModal';
 import CardMoveModal from './components/CardMoveModal';
@@ -90,12 +91,13 @@ export default class BoardsEditorApp extends React.Component {
   constructor(props) {
     super(props);
     let errorInit = false;
+    let initData = {};
 
     axios.get(
       INIT_URL
     ).then(
       response => {
-        console.log(response)
+        initData = response.data
       },
       error => {
         errorInit = true;
@@ -138,10 +140,10 @@ export default class BoardsEditorApp extends React.Component {
         subtype: '',
         rarity: '',
         keywords: '',
-        formats: window.django.deck_format,
+        formats: initData.deck_format,
         sets: '',
         block: '',
-        color: window.django.deck_colors,
+        color: initData.deck_colors,
         rules: '',
         order: 'name_sort'
       },
@@ -150,17 +152,21 @@ export default class BoardsEditorApp extends React.Component {
       toggleImages: true,
       warnings: [],
       mobileCardOnTop: null,
-      errorInitializing: errorInit
+      initData: initData,
+      errorInitializing: errorInit,
+      isMobile: isMobile
     };
 
 
 
-    this.categoryChoices = choicesFromAPI(window.django.category_choices);
-    this.foilChoices = choicesFromAPI(window.django.foil_choices);
-    this.rarityChoices = choicesFromAPI(window.django.rarity_choices);
-    this.colorChoices = choicesFromAPI(window.django.alt_color_choices);
-    this.droppables = [];
-    this.loadingModal = null;
+    if (initData) {
+      this.categoryChoices = choicesFromAPI(initData.category_choices);
+      this.foilChoices = choicesFromAPI(initData.foil_choices);
+      this.rarityChoices = choicesFromAPI(initData.rarity_choices);
+      this.colorChoices = choicesFromAPI(initData.alt_color_choices);
+      this.droppables = [];
+      this.loadingModal = null;
+    }
   }
 
   componentDidMount() {
@@ -526,7 +532,7 @@ export default class BoardsEditorApp extends React.Component {
           this.saveDeck().then(
             () => {
               if (this.state.redirectAfterSave) {
-                window.location.href = window.django.deck_url;
+                window.location.href = this.state.initData.deck_url;
               } else {
                 this.loadDeckData();
                 this.appendWarnings([{
@@ -725,7 +731,7 @@ export default class BoardsEditorApp extends React.Component {
 
   loadDeckData = () => {
     axios.get(
-      window.django.deck_get_url
+      this.state.initData
     ).then(
       response => {
         let deck = response.data.results.reduce(
@@ -803,7 +809,7 @@ export default class BoardsEditorApp extends React.Component {
 
   saveDeck = () => {
     return axios.post(
-      window.django.deck_save_url,
+      this.state.initData.deck_save_url,
       {'changes': Object.values(this.state.deck).map(card =>
         _.pick(
           card,
@@ -825,8 +831,8 @@ export default class BoardsEditorApp extends React.Component {
   };
 
   initRecommendations = () => {
-    let recommendUrl = `${window.django.deck_recommendations_url}` +
-                       `?deck=${window.django.deck_slug}&cards=${window.django.deck_cards}`;
+    let recommendUrl = `${this.state.initData.deck_recommendations_url}` +
+                       `?deck=${this.state.initData.deck_slug}&cards=${this.state.initData.deck_cards}`;
     axios.get(
         recommendUrl
       ).then(
@@ -872,7 +878,7 @@ export default class BoardsEditorApp extends React.Component {
     if (searchTerms.trim() !== '' && !this.state.searchingCards) {
       let nextSearchPage = newSearch ? 1 : this.state.nextSearchPage;
 
-      let searchUrl = `${window.django.cards_search_url}` +
+      let searchUrl = `${this.state.initData.cards_search_url}` +
         `?page=${nextSearchPage}&${searchTerms}`;
 
       axios.get(
@@ -940,7 +946,7 @@ export default class BoardsEditorApp extends React.Component {
   };
 
   setupDragula = () => {
-    if (window.django.is_mobile) return; // No drag on mobile
+    if (this.state.isMobile) return; // No drag on mobile
 
     let options = {
       accepts: (el, target, source) => {
@@ -1215,6 +1221,8 @@ export default class BoardsEditorApp extends React.Component {
         stackBy={this.isStacked() ? this.state.selectedStackType : null}
         mobileCardOnTop={this.state.mobileCardOnTop}
         handleMobileCardClick={this.handleMobileCardClick}
+        isMobile={this.state.isMobile}
+        cardAlterUrl={this.state.initData.card_alter_url}
       />
     )
   };
@@ -1335,6 +1343,7 @@ export default class BoardsEditorApp extends React.Component {
         handleSearchSelect={this.handleSearchSelect}
         handleSearch={this.handleAdvancedSearchEnd}
         searchInput={this.state.searchInput}
+        initData={this.state.initData}
       />
     );
   };
@@ -1400,6 +1409,7 @@ export default class BoardsEditorApp extends React.Component {
             searchCards={this.searchCards}
             searchInput={this.state.simpleSearchInput}
             toggleImages={this.state.toggleImages}
+            autocompleteUrl={this.state.initData.autocomplete_search}
           />
         </div>
       </div>
@@ -1503,7 +1513,7 @@ export default class BoardsEditorApp extends React.Component {
   renderOptions = () => {
     let deleteLegend = '';
 
-    if (window.django.is_mobile)
+    if (this.state.isMobile)
       deleteLegend = 'Click to undo last delete';
     else if (this.state.deletedCards.length >= 1)
       deleteLegend = 'Drag to delete card/Click to undo last delete';
@@ -1721,7 +1731,7 @@ export default class BoardsEditorApp extends React.Component {
         { this.renderImgOptions() }
         { !this.props.spoilerView && this.renderNewCardsToggle() }
         { this.renderOptions() }
-        { window.django.is_mobile ?
+        { this.state.isMobile ?
           this.renderBoards(this.renderMobileBoards()) :
           this.renderBoards(this.renderDesktopBoards()) }
         { this.renderCharts() }

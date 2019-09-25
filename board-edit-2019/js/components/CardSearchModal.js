@@ -15,14 +15,14 @@ export default class CardSearchModal extends React.Component {
       search: false
     };
 
-    this.typeChoices = window.django.type_choices.map(setupChoice);
-    this.rarityChoices = window.django.rarity_choices.map(setupChoice);
-    this.keywordsChoices = window.django.keywords_choices.map(setupChoice);
-    this.formatsChoices = window.django.formats_choices.map(setupChoice);
-    this.setsChoices = window.django.sets_choices.map(setupChoice);
-    this.blockChoices = window.django.block_choices.map(setupChoice);
-    this.colorChoices = window.django.color_choices.map(setupChoice);
-    this.orderChoices = window.django.order_choices.map(setupChoice);
+    this.typeChoices = this.props.initData.type_choices.map(setupChoice);
+    this.rarityChoices = this.props.initData.rarity_choices.map(setupChoice);
+    this.keywordsChoices = this.props.initData.keywords_choices.map(setupChoice);
+    this.formatsChoices = this.props.initData.formats_choices.map(setupChoice);
+    this.setsChoices = this.props.initData.sets_choices.map(setupChoice);
+    this.blockChoices = this.props.initData.block_choices.map(setupChoice);
+    this.colorChoices = this.props.initData.color_choices.map(setupChoice);
+    this.orderChoices = this.props.initData.order_choices.map(setupChoice);
   }
 
   componentDidMount() {

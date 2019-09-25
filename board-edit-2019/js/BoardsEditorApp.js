@@ -90,19 +90,6 @@ function choicesFromAPI(choices) {
 export default class BoardsEditorApp extends React.Component {
   constructor(props) {
     super(props);
-    let errorInit = false;
-    let initData = {};
-
-    axios.get(
-      INIT_URL
-    ).then(
-      response => {
-        initData = response.data
-      },
-      error => {
-        errorInit = true;
-      },
-    );
 
     this.state = {
       activeBoardPill: 'side',
@@ -152,24 +139,14 @@ export default class BoardsEditorApp extends React.Component {
       toggleImages: true,
       warnings: [],
       mobileCardOnTop: null,
-      initData: initData,
-      errorInitializing: errorInit,
+      initData: {},
+      errorInitializing: false,
       isMobile: isMobile
     };
-
-
-
-    if (initData) {
-      this.categoryChoices = choicesFromAPI(initData.category_choices);
-      this.foilChoices = choicesFromAPI(initData.foil_choices);
-      this.rarityChoices = choicesFromAPI(initData.rarity_choices);
-      this.colorChoices = choicesFromAPI(initData.alt_color_choices);
-      this.droppables = [];
-      this.loadingModal = null;
-    }
   }
 
   componentDidMount() {
+    this.getInitData();
     this.setupDragula();
     this.toggleLoadingModal();
     this.loadDeckData();
@@ -233,6 +210,25 @@ export default class BoardsEditorApp extends React.Component {
     for (i = 0; i < boards.length; i++)
       boards[i].style.height = `${boards[i].classList.contains('board-main') ?
         maxBoardHeight : maxBoardHeight + 9}px`;
+  };
+
+  getInitData = () => {
+    axios.get(
+      INIT_URL
+    ).then(
+      response => {
+        this.setState({initData: response.data});
+        this.categoryChoices = choicesFromAPI(response.data.category_choices);
+        this.foilChoices = choicesFromAPI(response.data.foil_choices);
+        this.rarityChoices = choicesFromAPI(response.data.rarity_choices);
+        this.colorChoices = choicesFromAPI(response.data.alt_color_choices);
+        this.droppables = [];
+        this.loadingModal = null;
+      },
+      error => {
+        this.setState({errorInit: true});
+      },
+    );
   };
 
   handleBoardPillChange = (pill) => {

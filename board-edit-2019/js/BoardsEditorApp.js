@@ -35,9 +35,9 @@ const COLORS = {
 // The constant is expressed in milliseconds = DAYS * HOURS * MINUTES * SECONDS * 1000
 const MAX_CONFIG_STORE_DAYS = 15 * 24 * 60 * 60 * 1000;
 
-const DEFAULT_NAMESPACE = 'http://33.33.33.11:8000';
+const DEFAULT_NAMESPACE = 'http://tappedout.net/';
 const DECK_SLUG = window.location.href.split('/')[4];
-const INIT_URL = `${DEFAULT_NAMESPACE}/mtg-decks/${DECK_SLUG}/board-update/init/`;
+const INIT_URL = `${DEFAULT_NAMESPACE}mtg-decks/${DECK_SLUG}/board-update/init/`;
 
 
 function rehashDeckByCategories(deck, selectedCategoryType) {

@@ -9,8 +9,7 @@ export default class CardPin extends React.Component {
     super(props);
     this.state = {
       showHandlers: !props.toggleImages,
-      showOnTop: false,
-      cardAlterUrl: props.cardAlterUrl
+      showOnTop: false
     }
   }
 
@@ -28,9 +27,9 @@ export default class CardPin extends React.Component {
       symbols.push(<img key={1} className="card-icon" src={`${STATIC_URL}img/signed-icon.png`}
                         title="Signed/Autographed card"/>);
 
-    if (card.alter_pk)
+    if (card.alter_pk && this.props.cardAlterUrl)
       return (
-          <a href={this.state.cardAlterUrl.replace(/\/0\/$/, `/${card.alter_pk}/`)}>
+          <a href={this.props.cardAlterUrl.replace(/\/0\/$/, `/${card.alter_pk}/`)}>
             { symbols }
           </a>
       );

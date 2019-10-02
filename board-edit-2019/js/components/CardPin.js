@@ -10,6 +10,7 @@ export default class CardPin extends React.Component {
     this.state = {
       showHandlers: !props.toggleImages,
       showOnTop: false,
+      cardAlterUrl: props.cardAlterUrl
     }
   }
 
@@ -29,7 +30,7 @@ export default class CardPin extends React.Component {
 
     if (card.alter_pk)
       return (
-          <a href={this.props.cardAlterUrl.replace(/\/0\/$/, `/${card.alter_pk}/`)}>
+          <a href={this.state.cardAlterUrl.replace(/\/0\/$/, `/${card.alter_pk}/`)}>
             { symbols }
           </a>
       );

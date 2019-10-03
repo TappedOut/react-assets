@@ -77,7 +77,7 @@ export default class CardPin extends React.Component {
             } {cardSet}
           </h5>
           <div className="card-handlers">
-            { !window.django.is_mobile ?
+            { !this.props.isMobile ?
               <a onClick={() => handleCardEditStart(card.cardId)}
                  href="javascript: void(0)">
                 <span className="glyphicon glyphicon-wrench pull-right card-settings"/>
@@ -87,7 +87,7 @@ export default class CardPin extends React.Component {
                 <span className="glyphicon glyphicon-trash pull-right"/>
               </a>
             }
-            { !window.django.is_mobile ?
+            { !this.props.isMobile ?
               [
                 <span key={0} className="glyphicon glyphicon-stop"
                       data-toggle="tooltip" data-placement="bottom"
@@ -108,9 +108,9 @@ export default class CardPin extends React.Component {
               ]
             }
             <span className="card-info">
-              { card.alter_pk &&
+              { card.alter_pk && this.props.cardAlterUrl &&
                 <a
-                  href={window.django.card_alter_url.replace(/\/0\/$/,
+                  href={this.props.cardAlterUrl.replace(/\/0\/$/,
                     `/${card.alter_pk}/`)}>
                   { card.alter &&
                     <img className="card-icon"

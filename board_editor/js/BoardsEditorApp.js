@@ -6,6 +6,7 @@ import Slider from 'react-rangeslider';
 import Select from 'react-select';
 import Toggle from 'react-toggle';
 import Rusha from 'rusha';
+import { isMobile } from 'react-device-detect';
 import BoardHolder from './components/BoardHolder';
 import CardEditModal from './components/CardEditModal';
 import CardMoveModal from './components/CardMoveModal';
@@ -28,6 +29,10 @@ const COLORS = {
 // The board config is saved at most 2 weeks without changes.
 // The constant is expressed in milliseconds = DAYS * HOURS * MINUTES * SECONDS * 1000
 const MAX_CONFIG_STORE_DAYS = 15 * 24 * 60 * 60 * 1000;
+
+const DEFAULT_NAMESPACE = '/';
+const DECK_SLUG = window.location.href.split('/')[4];
+const INIT_URL = `${DEFAULT_NAMESPACE}mtg-decks/${DECK_SLUG}/board-update/init/`;
 
 
 function rehashDeckByCategories(deck, selectedCategoryType) {
@@ -67,10 +72,19 @@ function cardSetup(originalCard, board='none', created=true) {
 }
 
 
+function choicesFromAPI(choices) {
+  return choices.map(
+    (category) => {
+      return {value: category[0], label: category[1]}
+    }
+  );
+}
+
+
 export default class BoardsEditorApp extends React.Component {
   constructor(props) {
     super(props);
-    let categoryChoices = window.django.category_choices.map(
+    let categoryChoices = this.state.initData.category_choices.map(
       (category) => {
         return {value: category[0], label: category[1]}
       }
@@ -101,24 +115,12 @@ export default class BoardsEditorApp extends React.Component {
         name: '',
         invOnly: false
       },
-      searchInput: {
-        name: '',
-        type: '',
-        subtype: '',
-        rarity: '',
-        keywords: '',
-        formats: window.django.deck_format,
-        sets: '',
-        block: '',
-        color: window.django.deck_colors,
-        rules: '',
-        order: 'name_sort'
-      },
       selectedCategory: 0,
       selectedCategoryType: '',
       // timerSaving: null,
       toggleImages: false,
-      warnings: []
+      warnings: [],
+      isMobile: isMobile
     };
 
     this.categoryChoices = categoryChoices;
@@ -127,9 +129,9 @@ export default class BoardsEditorApp extends React.Component {
   }
 
   componentDidMount() {
+    this.getInitData();
     this.setupDragula();
     this.toggleLoadingModal();
-    this.loadDeckData();
     TAPPED.observeBoardCards();
     // TODO: Deactivated for now
     // this.setState(
@@ -180,6 +182,40 @@ export default class BoardsEditorApp extends React.Component {
     this.normalizeBoardsHeight();
     this.toggleLoadingModal();
   }
+
+  getInitData = () => {
+    axios.get(
+      INIT_URL
+    ).then(
+      response => {
+        this.setState({
+          initData: response.data,
+          searchInput: {
+            name: '',
+            type: '',
+            subtype: '',
+            rarity: '',
+            keywords: '',
+            formats: response.data.deck_format,
+            sets: '',
+            block: '',
+            color: response.data.deck_colors,
+            rules: '',
+            order: 'name_sort'
+          },
+        });
+        this.categoryChoices = choicesFromAPI(response.data.category_choices);
+        this.foilChoices = choicesFromAPI(response.data.foil_choices);
+        this.rarityChoices = choicesFromAPI(response.data.rarity_choices);
+        this.colorChoices = choicesFromAPI(response.data.alt_color_choices);
+        this.loadingModal = null;
+        this.loadDeckData()
+      },
+      error => {
+        this.setState({errorInit: true});
+      },
+    );
+  };
 
   addDroppable = (d) => {
     if (d !== null && !this.droppables.includes(d)) this.droppables.push(d);
@@ -451,7 +487,7 @@ export default class BoardsEditorApp extends React.Component {
           this.saveDeck().then(
             () => {
               if (this.state.redirectAfterSave) {
-                window.location.href = window.django.deck_url;
+                window.location.href = this.state.initData.deck_url;
               } else {
                 this.loadDeckData();
                 this.appendWarnings([{
@@ -643,7 +679,7 @@ export default class BoardsEditorApp extends React.Component {
 
   loadDeckData = () => {
     axios.get(
-      window.django.deck_get_url
+      this.state.initData.deck_get_url
     ).then(
       response => {
         let deck = response.data.results.reduce(
@@ -744,7 +780,7 @@ export default class BoardsEditorApp extends React.Component {
 
   saveDeck = () => {
     return axios.post(
-      window.django.deck_save_url,
+      this.state.initData.deck_save_url,
       Object.values(this.state.deck).map(card =>
         _.pick(
           card,
@@ -766,8 +802,8 @@ export default class BoardsEditorApp extends React.Component {
   };
 
   initRecommendations = () => {
-    let recommendUrl = `${window.django.deck_recommendations_url}` +
-                       `?deck=${window.django.deck_slug}&cards=${window.django.deck_cards}`;
+    let recommendUrl = `${this.state.initData.deck_recommendations_url}` +
+                       `?deck=${DECK_SLUG}&cards=${this.state.initData.deck_cards}`;
     axios.get(
         recommendUrl
       ).then(
@@ -810,7 +846,7 @@ export default class BoardsEditorApp extends React.Component {
     if (searchTerms.trim() !== '' && !this.state.searchingCards) {
       let nextSearchPage = newSearch ? 1 : this.state.nextSearchPage;
 
-      let searchUrl = `${window.django.cards_search_url}` +
+      let searchUrl = `${this.state.initData.django.cards_search_url}` +
         `?page=${nextSearchPage}&${searchTerms}`;
 
       axios.get(
@@ -872,7 +908,7 @@ export default class BoardsEditorApp extends React.Component {
   };
 
   setupDragula = () => {
-    if (window.django.is_mobile) return; // No drag on mobile
+    if (this.state.isMobile) return; // No drag on mobile
 
     let options = {
       accepts: (el, target, source) => {
@@ -1092,6 +1128,8 @@ export default class BoardsEditorApp extends React.Component {
         imagesMaxWidth={this.state.imagesMaxWidth}
         spoilerView={this.props.spoilerView}
         toggleImages={this.state.toggleImages}
+        isMobile={this.state.isMobile}
+        cardAlterUrl={this.state.initData.card_alter_url}
       />
     )
   };
@@ -1219,6 +1257,7 @@ export default class BoardsEditorApp extends React.Component {
         handleSearchSelect={this.handleSearchSelect}
         handleSearch={this.handleAdvancedSearchEnd}
         searchInput={this.state.searchInput}
+        initData={this.state.initData}
       />
     );
   };
@@ -1297,6 +1336,7 @@ export default class BoardsEditorApp extends React.Component {
             searchCards={this.searchCards}
             searchInput={this.state.simpleSearchInput}
             toggleImages={this.state.toggleImages}
+            autocompleteUrl={this.state.initData.autocomplete_search}
           />
         </div>
       </div>
@@ -1386,7 +1426,7 @@ export default class BoardsEditorApp extends React.Component {
   renderOptions = () => {
     let deleteLegend = '';
 
-    if (window.django.is_mobile)
+    if (this.state.isMobile)
       deleteLegend = 'Click to undo last delete';
     else if (this.state.deletedCards.length >= 1)
       deleteLegend = 'Drag to delete card/Click to undo last delete';
@@ -1540,7 +1580,7 @@ export default class BoardsEditorApp extends React.Component {
         { this.renderImgOptions() }
         { !this.props.spoilerView && this.renderNewCardsToggle() }
         { this.renderOptions() }
-        { window.django.is_mobile ?
+        { this.state.isMobile ?
           this.renderBoards(this.renderMobileBoards()) :
           this.renderBoards(this.renderDesktopBoards()) }
         { !this.props.spoilerView && cardToEdit &&

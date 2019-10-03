@@ -35,7 +35,7 @@ export default class BoardHolder extends React.Component {
            className={'panel-body board-droppable ' +
            `${ this.state.compactBoard ?
                'compact-board' :
-               window.django.is_mobile ? 'mobile-board' : 'desktop-board'}`}>
+               this.props.isMobile ? 'mobile-board' : 'desktop-board'}`}>
         {
           boardCards.map((card, idx) => (
             spoilerView ?
@@ -43,6 +43,8 @@ export default class BoardHolder extends React.Component {
                 key={`${card.cardId}:${card.updateCount}:${idx}`}
                 card={card}
                 imagesMaxWidth={imagesMaxWidth}
+                isMobile={this.props.isMobile}
+                cardAlterUrl={this.props.cardAlterUrl}
               /> :
               <CardPin
                 key={`${card.cardId}:${card.updateCount}:${idx}`}
@@ -52,6 +54,8 @@ export default class BoardHolder extends React.Component {
                 handleCardMoveStart={handleCardMoveStart}
                 imagesMaxWidth={imagesMaxWidth}
                 toggleImages={toggleImages}
+                isMobile={this.props.isMobile}
+                cardAlterUrl={this.props.cardAlterUrl}
               />
             ))
         }
@@ -75,7 +79,7 @@ export default class BoardHolder extends React.Component {
               <h4 className="panel-title">{boardTitle} ({boardCount})</h4>
             </div>
             <div className="col-md-6">
-              { window.django.is_mobile &&
+              { this.props.isMobile &&
                 <span className="toggler">
                   <label htmlFor="minimizeTogglerNewCards">Minimize</label>
                   <Toggle
@@ -84,7 +88,7 @@ export default class BoardHolder extends React.Component {
                     onChange={this.handleMinimizeBoard} />
                 </span>
               }
-              { window.django.is_mobile &&
+              { this.props.isMobile &&
                 <span className="toggler">
                   <label htmlFor={`compactToggler${boardName}`}>Collapse</label>
                   <Toggle

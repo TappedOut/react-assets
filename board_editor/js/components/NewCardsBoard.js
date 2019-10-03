@@ -23,7 +23,7 @@ export default class NewCardsBoard extends React.Component {
     if (!input || input.length < 3) {
       callback(null, { options: [] });
     } else {
-      let searchUrl = `${window.django.autocomplete_search}?name=${input}` +
+      let searchUrl = `${this.state.autocompleteUrl}?name=${input}` +
         `&inv_only=${this.props.searchInput.invOnly ? 'true' : 'false'}`;
       this.throttledAutocomplete(searchUrl, callback);
     }

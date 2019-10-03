@@ -84,11 +84,6 @@ function choicesFromAPI(choices) {
 export default class BoardsEditorApp extends React.Component {
   constructor(props) {
     super(props);
-    let categoryChoices = this.state.initData.category_choices.map(
-      (category) => {
-        return {value: category[0], label: category[1]}
-      }
-    );
 
     this.state = {
       advancedSearch: false,
@@ -123,7 +118,6 @@ export default class BoardsEditorApp extends React.Component {
       isMobile: isMobile
     };
 
-    this.categoryChoices = categoryChoices;
     this.droppables = [];
     this.loadingModal = null;
   }

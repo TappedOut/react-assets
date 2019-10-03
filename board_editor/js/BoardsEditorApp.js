@@ -32,6 +32,7 @@ const MAX_CONFIG_STORE_DAYS = 15 * 24 * 60 * 60 * 1000;
 
 const DEFAULT_NAMESPACE = '/';
 const DECK_SLUG = window.location.href.split('/')[4];
+const SPOILER = window.location.href.split('/')[5] === 'spoiler';
 const INIT_URL = `${DEFAULT_NAMESPACE}mtg-decks/${DECK_SLUG}/board-update/init/`;
 const AUTOCOMPLETE_URL = `${DEFAULT_NAMESPACE}api/autocomplete/`;
 
@@ -973,7 +974,7 @@ export default class BoardsEditorApp extends React.Component {
       )
       .on('cloned',
         (clone, original, type) => {
-          if (this.props.spoilerView) {
+          if (SPOILER) {
             let clonedPartials = clone.querySelectorAll('.card-spoiler-partial');
             let originalPartials = original.querySelectorAll('.card-spoiler-partial');
             let partialsToRemove = clonedPartials.length - clone.dataset.move + 1;
@@ -1006,7 +1007,7 @@ export default class BoardsEditorApp extends React.Component {
                 `x${this.state.deck[el.dataset.card].qty - el.dataset.move}`;
             }
 
-            if (this.props.spoilerView) {
+            if (SPOILER) {
               let shadowPartials = shadow.querySelectorAll('.card-spoiler-partial');
               let partialsToRemove = el.dataset.move;
 
@@ -1032,7 +1033,7 @@ export default class BoardsEditorApp extends React.Component {
             el.classList.remove('gu-hidden');
           }
 
-          if (this.props.spoilerView) {
+          if (SPOILER) {
             let elPartials = el.querySelectorAll('.card-spoiler-partial');
             elPartials.forEach((e) => { e.style.display = "block"; });
           }
@@ -1058,7 +1059,7 @@ export default class BoardsEditorApp extends React.Component {
         'shadow',
         (shadow, container, source) => {
           if (container.dataset.boardName !== 'new-cards'
-              && !this.props.spoilerView) {
+              && !SPOILER) {
             if (container.dataset.boardName !== source.dataset.boardName) {
               shadow.querySelector('.card-qty').innerHTML =
                 `x${shadow.dataset.move}`;
@@ -1068,7 +1069,7 @@ export default class BoardsEditorApp extends React.Component {
             }
           }
 
-          if (this.props.spoilerView) {
+          if (SPOILER) {
             let shadowPartials = shadow.querySelectorAll('.card-spoiler-partial');
             let partialsToRemove = shadowPartials.length - shadow.dataset.move + 1;
 
@@ -1121,7 +1122,7 @@ export default class BoardsEditorApp extends React.Component {
         handleCardEditStart={this.handleCardEditStart}
         handleCardMoveStart={this.handleCardMoveStart}
         imagesMaxWidth={this.state.imagesMaxWidth}
-        spoilerView={this.props.spoilerView}
+        spoilerView={SPOILER}
         toggleImages={this.state.toggleImages}
         isMobile={this.state.isMobile}
         cardAlterUrl={this.state.initData ? this.state.initData.card_alter_url : ''}
@@ -1339,7 +1340,7 @@ export default class BoardsEditorApp extends React.Component {
   };
 
   renderImgOptions = () => {
-    if (!this.props.spoilerView) {
+    if (!SPOILER) {
       return (
         <div className="row">
           <div className="col-md-12">
@@ -1428,7 +1429,7 @@ export default class BoardsEditorApp extends React.Component {
     else
       deleteLegend = 'Drag to delete card';
 
-    if (!this.props.spoilerView) {
+    if (!SPOILER) {
       return (
         <div className="row">
           <div className="col-md-12">
@@ -1573,20 +1574,20 @@ export default class BoardsEditorApp extends React.Component {
       <div>
         { this.renderWarning() }
         { this.renderImgOptions() }
-        { !this.props.spoilerView && this.renderNewCardsToggle() }
+        { !SPOILER && this.renderNewCardsToggle() }
         { this.renderOptions() }
         { this.state.isMobile ?
           this.renderBoards(this.renderMobileBoards()) :
           this.renderBoards(this.renderDesktopBoards()) }
-        { !this.props.spoilerView && cardToEdit &&
+        { !SPOILER && cardToEdit &&
           <CardEditModal card={cardToEdit}
                          handleCardEditEnd={this.handleCardEditEnd} />
         }
-        { !this.props.spoilerView && cardToMove &&
+        { !SPOILER && cardToMove &&
           <CardMoveModal card={cardToMove} source={sourceToMove}
                          handleCardMoveEnd={this.handleCardMoveEnd} />
         }
-        { !this.props.spoilerView && this.state.advancedSearch &&
+        { !SPOILER && this.state.advancedSearch &&
           this.renderCardSearchModal() }
         { this.renderLoadingModal() }
         { this.renderSaveButtons() }

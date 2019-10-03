@@ -1569,36 +1569,28 @@ export default class BoardsEditorApp extends React.Component {
     if (cardToMove && !this.state.newCard)
       sourceToMove = this.state.deck[cardToMove].b;
 
-    if (this.state.loading){
-      return(
-        <div>
-          { this.renderLoadingModal() }
-        </div>
-      )
-    } else {
-      return (
-        <div>
-          { this.renderWarning() }
-          { this.renderImgOptions() }
-          { !this.props.spoilerView && this.renderNewCardsToggle() }
-          { this.renderOptions() }
-          { this.state.isMobile ?
-            this.renderBoards(this.renderMobileBoards()) :
-            this.renderBoards(this.renderDesktopBoards()) }
-          { !this.props.spoilerView && cardToEdit &&
-            <CardEditModal card={cardToEdit}
-                           handleCardEditEnd={this.handleCardEditEnd} />
-          }
-          { !this.props.spoilerView && cardToMove &&
-            <CardMoveModal card={cardToMove} source={sourceToMove}
-                           handleCardMoveEnd={this.handleCardMoveEnd} />
-          }
-          { !this.props.spoilerView && this.state.advancedSearch &&
-            this.renderCardSearchModal() }
-          { this.renderLoadingModal() }
-          { this.renderSaveButtons() }
-        </div>
-      )
-    }
+    return (
+      <div>
+        { this.renderWarning() }
+        { this.renderImgOptions() }
+        { !this.props.spoilerView && this.renderNewCardsToggle() }
+        { this.renderOptions() }
+        { this.state.isMobile ?
+          this.renderBoards(this.renderMobileBoards()) :
+          this.renderBoards(this.renderDesktopBoards()) }
+        { !this.props.spoilerView && cardToEdit &&
+          <CardEditModal card={cardToEdit}
+                         handleCardEditEnd={this.handleCardEditEnd} />
+        }
+        { !this.props.spoilerView && cardToMove &&
+          <CardMoveModal card={cardToMove} source={sourceToMove}
+                         handleCardMoveEnd={this.handleCardMoveEnd} />
+        }
+        { !this.props.spoilerView && this.state.advancedSearch &&
+          this.renderCardSearchModal() }
+        { this.renderLoadingModal() }
+        { this.renderSaveButtons() }
+      </div>
+    )
   }
 }

@@ -1595,7 +1595,7 @@ export default class BoardsEditorApp extends React.Component {
           }
           { !this.props.spoilerView && this.state.advancedSearch &&
             this.renderCardSearchModal() }
-
+          { this.renderLoadingModal() }
           { this.renderSaveButtons() }
         </div>
       )

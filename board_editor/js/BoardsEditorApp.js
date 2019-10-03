@@ -33,6 +33,7 @@ const MAX_CONFIG_STORE_DAYS = 15 * 24 * 60 * 60 * 1000;
 const DEFAULT_NAMESPACE = '/';
 const DECK_SLUG = window.location.href.split('/')[4];
 const INIT_URL = `${DEFAULT_NAMESPACE}mtg-decks/${DECK_SLUG}/board-update/init/`;
+const AUTOCOMPLETE_URL = `${DEFAULT_NAMESPACE}api/autocomplete/`;
 
 
 function rehashDeckByCategories(deck, selectedCategoryType) {
@@ -1330,7 +1331,7 @@ export default class BoardsEditorApp extends React.Component {
             searchCards={this.searchCards}
             searchInput={this.state.simpleSearchInput}
             toggleImages={this.state.toggleImages}
-            autocompleteUrl={this.state.initData.autocomplete_search}
+            autocompleteUrl={AUTOCOMPLETE_URL}
           />
         </div>
       </div>

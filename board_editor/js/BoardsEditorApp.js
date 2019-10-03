@@ -1124,7 +1124,7 @@ export default class BoardsEditorApp extends React.Component {
         spoilerView={this.props.spoilerView}
         toggleImages={this.state.toggleImages}
         isMobile={this.state.isMobile}
-        cardAlterUrl={this.state.initData.card_alter_url}
+        cardAlterUrl={this.state.initData ? this.state.initData.card_alter_url : ''}
       />
     )
   };

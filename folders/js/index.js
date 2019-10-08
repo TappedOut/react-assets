@@ -259,6 +259,9 @@ class App extends Component {
   }
 
   render() {
+    if (this.state.totalPages === 0) {
+      return <div>You don't have any folders, you can create them by adding a deck to one from that deck's page.</div>
+    }
     if (!this.state.folders.length){
       return <div>Loading...</div>
     }

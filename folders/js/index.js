@@ -30,6 +30,7 @@ class App extends Component {
       errorOnDeckAction: null,
       foldersPage: 1,
       totalPages: null,
+      totalFolders: null,
       hasNextPage: null,
       hasPreviousPage: null,
       authenticated: window.django.authenticated,
@@ -67,6 +68,7 @@ class App extends Component {
           folders: response.data.results,
           foldersOpt: response.data.allFolders,
           totalPages: response.data.totalPages,
+          totalFolders: response.totalFolders,
           errorGettingFolders: false
         })
       },
@@ -259,7 +261,7 @@ class App extends Component {
   }
 
   render() {
-    if (this.state.totalPages === 0) {
+    if (this.state.totalFolders === 0) {
       return <div>You don't have any folders, you can create them by adding a deck to one from that deck's page.</div>
     }
     if (!this.state.folders.length){

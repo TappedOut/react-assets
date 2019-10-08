@@ -23,7 +23,7 @@ export default class NewCardsBoard extends React.Component {
     if (!input || input.length < 3) {
       callback(null, { options: [] });
     } else {
-      let searchUrl = `${this.props.autocompleteUrl}?name=${input}` +
+      let searchUrl = `${this.state.autocompleteUrl}?name=${input}` +
         `&inv_only=${this.props.searchInput.invOnly ? 'true' : 'false'}`;
       this.throttledAutocomplete(searchUrl, callback);
     }
@@ -120,14 +120,14 @@ export default class NewCardsBoard extends React.Component {
   };
 
   render() {
-    const { cards, droppablesRef, handleCardMoveStart, handleSearchScroll, imagesMaxWidth,
-       toggleImages, noCardsFound, searching } = this.props;
+    const { cards, droppablesRef, handleCardMoveStart, handleSearchScroll,
+            imagesMaxWidth, toggleImages, searching } = this.props;
 
     return (
       <div className="panel panel-default board-panel search-panel top-borderless-panel">
         <div className="panel-body">
           <div className={"row " +
-              `${(cards.length > 0 || searching || noCardsFound) ? 'search-card-panel' : ''}`}
+              `${cards.length > 0 || searching ? 'search-card-panel' : ''}`}
                 key={1}>
             <div className="col-md-12 text-center">
               { this.renderSearch() }
@@ -169,16 +169,6 @@ export default class NewCardsBoard extends React.Component {
                     <strong>Searching...</strong>
                   </div>
                 </div>
-              </div>
-            </div>
-          }
-          {
-            noCardsFound && !searching &&
-            <div className="row" key={4}>
-              <div className="col-md-12">
-                <h3 className="text-center">
-                  There were no cards found for &quot;{noCardsFound}&quot;
-                </h3>
               </div>
             </div>
           }

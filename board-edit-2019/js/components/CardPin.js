@@ -9,7 +9,7 @@ export default class CardPin extends React.Component {
     super(props);
     this.state = {
       showHandlers: !props.toggleImages,
-      showOnTop: false,
+      showOnTop: false
     }
   }
 
@@ -27,9 +27,9 @@ export default class CardPin extends React.Component {
       symbols.push(<img key={1} className="card-icon" src={`${STATIC_URL}img/signed-icon.png`}
                         title="Signed/Autographed card"/>);
 
-    if (card.alter_pk)
+    if (card.alter_pk && this.props.cardAlterUrl)
       return (
-          <a href={window.django.card_alter_url.replace(/\/0\/$/, `/${card.alter_pk}/`)}>
+          <a href={this.props.cardAlterUrl.replace(/\/0\/$/, `/${card.alter_pk}/`)}>
             { symbols }
           </a>
       );
@@ -39,12 +39,12 @@ export default class CardPin extends React.Component {
 
   handleCardClick = (cardId) => {
     if (this.props.stackBy) {
-      if (!window.django.is_mobile ||
+      if (!this.props.isMobile ||
           cardId === this.props.mobileCardOnTop ||
           (this.props.lastCard && this.props.mobileCardOnTop === null)) {
         this.props.handleCardEditStart(cardId)
       }
-      if (window.django.is_mobile) {
+      if (this.props.isMobile) {
         this.props.handleMobileCardClick(cardId);
       }
 
@@ -74,8 +74,8 @@ export default class CardPin extends React.Component {
     let cardSet = card.tla ? ` (${card.tla})` : '';
     let panelClass = `panel-body ${toggleImages ? '' : 'full-panel'}`;
     let divClass = `card-draggable panel panel-default card-color__${card.color_category}`;
-    if ((!window.django.is_mobile && this.state.showOnTop) ||
-        (window.django.is_mobile && card.cardId === mobileCardOnTop)) {
+    if ((!this.props.isMobile && this.state.showOnTop) ||
+        (this.props.isMobile && card.cardId === mobileCardOnTop)) {
       divClass += ' card-zindex';
     }
     let divStyle = {};
@@ -140,7 +140,7 @@ export default class CardPin extends React.Component {
       style: divStyle
     };
 
-    if (stackBy && !window.django.is_mobile) {
+    if (stackBy && !this.props.isMobile) {
       cardOpts['onMouseOver'] = this.onCardMouseOver;
       cardOpts['onMouseOut'] = this.onCardMouseOut;
     }
@@ -168,7 +168,7 @@ export default class CardPin extends React.Component {
             <div className={panelClass}>
               { !toggleImages && cardName }
               <div className="card-handlers">
-                { !window.django.is_mobile ?
+                { !this.props.isMobile ?
                   [
                     <a key={0} onClick={() => handleCardEditStart(card.cardId)}
                         href="javascript: void(0)">
@@ -208,7 +208,7 @@ export default class CardPin extends React.Component {
                     </a>
                   ]
                 }
-                { !window.django.is_mobile ?
+                { !this.props.isMobile ?
                   [
                     <span key={0} className="glyphicon glyphicon-stop"
                           data-toggle="tooltip" data-placement="bottom"

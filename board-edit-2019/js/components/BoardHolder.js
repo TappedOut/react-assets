@@ -34,6 +34,8 @@ export default class BoardHolder extends React.Component {
             key={`${card.cardId}:${card.updateCount}:${idx}`}
             card={card}
             imagesMaxWidth={imagesMaxWidth}
+            isMobile={this.props.isMobile}
+            cardAlterUrl={this.props.cardAlterUrl}
           /> :
           <CardPin
             key={`${card.cardId}:${card.updateCount}:${idx}`}
@@ -44,6 +46,8 @@ export default class BoardHolder extends React.Component {
             handleCardMoveStart={handleCardMoveStart}
             imagesMaxWidth={imagesMaxWidth}
             toggleImages={toggleImages}
+            isMobile={this.props.isMobile}
+            cardAlterUrl={this.props.cardAlterUrl}
           />
       ))
     }
@@ -80,9 +84,9 @@ export default class BoardHolder extends React.Component {
     if (collapseKey) panelOpts["eventKey"] = collapseKey;
     let bodyOpts = {className: "board-panel-body"};
     if (collapseKey) bodyOpts["collapsible"] = true;
-    if (window.django.is_mobile) bodyOpts["onClick"] = (e) => this.handleBoardClick(e);
+    if (this.props.isMobile) bodyOpts["onClick"] = (e) => this.handleBoardClick(e);
     let bodyClass = `board-droppable  board-${boardName}`;
-    if (!window.django.is_mobile) bodyClass += " desktop-board-body";
+    if (!this.props.isMobile) bodyClass += " desktop-board-body";
     if (boardName !== 'main') bodyClass += " well board-e-well";
 
     if (boardName === 'main') {

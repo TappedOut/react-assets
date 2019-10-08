@@ -6,20 +6,15 @@ import Slider from 'react-rangeslider';
 import Select from 'react-select';
 import Toggle from 'react-toggle';
 import Rusha from 'rusha';
-import {isMobile} from 'react-device-detect';
+import { isMobile } from 'react-device-detect';
 import BoardHolder from './components/BoardHolder';
 import CardEditModal from './components/CardEditModal';
 import CardMoveModal from './components/CardMoveModal';
 import CardSearchModal from './components/CardSearchModal';
 import NewCardsBoard from './components/NewCardsBoard';
-import ColorChartWrapper from './components/ColorChart';
-import TypeChartWrapper from './components/TypeChart';
 import { get_card_id } from "./utils";
-import { buildColorSeries, buildLandColorSeries,
-  buildTypeSeries, buildCurveSeries } from './utils/charts';
 import deck_group from './utils/deck_grouping';
-import { Tab, Nav, NavItem } from 'react-bootstrap';
-import CurveChartWrapper from "./components/CurveChart";
+import { Collapse } from 'react-bootstrap';
 const _ = require('lodash');
 
 
@@ -37,7 +32,9 @@ const MAX_CONFIG_STORE_DAYS = 15 * 24 * 60 * 60 * 1000;
 
 const DEFAULT_NAMESPACE = '/';
 const DECK_SLUG = window.location.href.split('/')[4];
+const SPOILER = window.location.href.split('/')[5] === 'spoiler';
 const INIT_URL = `${DEFAULT_NAMESPACE}mtg-decks/${DECK_SLUG}/board-update/init/`;
+const AUTOCOMPLETE_URL = `${DEFAULT_NAMESPACE}api/autocomplete/`;
 
 
 function rehashDeckByCategories(deck, selectedCategoryType) {
@@ -52,10 +49,8 @@ function cardSetup(originalCard, board='none', created=true) {
   card.hasErrors = [];
   card.need_qty = card.need_qty || 0;
   card.tla = !created && card.fixed_tla ? card.tla : '';
-  card.original_tla = card.tla;
   card.updated = false;
   card.updateCount = 0;  // Forces re-rendering when needed
-  if ([true, 'fnm'].indexOf(card.foil) > -1) card.foil = 'foil';
 
   let cardId = get_card_id(card, board);
   card.cardId = cardId;
@@ -67,7 +62,7 @@ function cardSetup(originalCard, board='none', created=true) {
 
   let cardCost = card.effective_cost;
 
-  if (!cardCost || cardCost.trim().match(/^\s*$/)) {
+  if (cardCost.trim().match(/^\s*$/)) {
     card.color_category = "colorless";
   } else if (cardCost.trim().split(/\s+/).length > 1) {
     card.color_category = "gold";
@@ -77,6 +72,7 @@ function cardSetup(originalCard, board='none', created=true) {
 
   return card;
 }
+
 
 function choicesFromAPI(choices) {
   return choices.map(
@@ -92,46 +88,40 @@ export default class BoardsEditorApp extends React.Component {
     super(props);
 
     this.state = {
-      activeBoardPill: 'side',
       advancedSearch: false,
       cardToEdit: null,
       cardToMove: null,
+      collapsedBoards: { side: true, maybe: true },
       deck: {},
       deckByCategories: {},
       deckByPositions: [],
-      selectedStackType: {
-        value: 'cost',
-        label: 'Converted cost'
-      },
-      isGrabbing: false,
       deckHash: '',
       deletedCards: [],
       foundCards: {},
-      imagesMaxWidth: 200,
+      imagesMaxWidth: 195,
       loading: true,
       nextSearchPage: 1,
       searchOnScroll: false,
       newCard: false,
-      noCardsFound: '',
       redirectAfterSave: false,
       savingInBackground: false,
       searchingCards: false,
+      showAddCards: false,
       initializedRecommendations: false,
       simpleSearchInput: {
         name: '',
         invOnly: false
       },
-      searchInput: {},
       selectedCategory: 0,
       selectedCategoryType: '',
-      toggleImages: true,
+      // timerSaving: null,
+      toggleImages: false,
       warnings: [],
-      mobileCardOnTop: null,
-      initData: {},
-      errorInitializing: false,
       isMobile: isMobile
     };
+
     this.droppables = [];
+    this.loadingModal = null;
   }
 
   componentDidMount() {
@@ -139,6 +129,10 @@ export default class BoardsEditorApp extends React.Component {
     this.setupDragula();
     this.toggleLoadingModal();
     TAPPED.observeBoardCards();
+    // TODO: Deactivated for now
+    // this.setState(
+    //   {timerSaving: setInterval(this.handleDeckSaveAuto, 60 * 5 * 1000)}
+    // );
     window.addEventListener("load", this.normalizeBoardsHeight);
     window.addEventListener("beforeunload", this.handleUnload);
 
@@ -173,32 +167,17 @@ export default class BoardsEditorApp extends React.Component {
   }
 
   componentWillUnmount() {
+    // TODO: Deactivated for now
+    // this.clearInverval(this.state.timerSaving);
     window.removeEventListener("beforeunload", this.handleUnload);
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.toggleImages !== this.state.toggleImages)
       this.setupDragula();
-    this.toggleLoadingModal();
     this.normalizeBoardsHeight();
+    this.toggleLoadingModal();
   }
-
-  normalizeBoardsHeight = () => {
-    // This function is called after every update to normalize the height of the boards
-    let i, maxBoardHeight = 0,
-      boards = document.querySelectorAll('.desktop-boards .desktop-board-body');
-
-    for (i = 0; i < boards.length; i++)
-      boards[i].style.height = null;
-
-    for (i = 0; i < boards.length; i++) {
-      if (boards[i].scrollHeight > maxBoardHeight) maxBoardHeight = boards[i].scrollHeight
-    }
-
-    for (i = 0; i < boards.length; i++)
-      boards[i].style.height = `${boards[i].classList.contains('board-main') ?
-        maxBoardHeight : maxBoardHeight + 9}px`;
-  };
 
   getInitData = () => {
     axios.get(
@@ -234,10 +213,6 @@ export default class BoardsEditorApp extends React.Component {
     );
   };
 
-  handleBoardPillChange = (pill) => {
-    this.setState({activeBoardPill: pill})
-  };
-
   addDroppable = (d) => {
     if (d !== null && !this.droppables.includes(d)) this.droppables.push(d);
   };
@@ -245,14 +220,6 @@ export default class BoardsEditorApp extends React.Component {
   appendWarnings = (warns) => {
     let warnings = [...this.state.warnings].concat(warns);
     this.setState({ warnings });
-  };
-
-  isStacked = () => {
-    return this.state.toggleImages && this.state.selectedStackType
-  };
-
-  handleMobileCardClick = (cardId) => {
-    this.setState({ mobileCardOnTop: cardId })
   };
 
   deckHasChanges = () => {
@@ -267,15 +234,13 @@ export default class BoardsEditorApp extends React.Component {
     return this.state.deckHash !== deckHash.digest('hex');
   };
 
-  /* FIXME: This gets removed since the collapse is no more.
-            What happens with the recommendations? */
-  // handleAddCardsToggle = () => {
-  //   this.setState({ showAddCards: !this.state.showAddCards });
-  //   if (!this.state.initializedRecommendations) {
-  //     this.initRecommendations();
-  //     this.setState({ initializedRecommendations: true })
-  //   }
-  // };
+  handleAddCardsToggle = () => {
+    this.setState({ showAddCards: !this.state.showAddCards });
+    if (!this.state.initializedRecommendations) {
+      this.initRecommendations();
+      this.setState({ initializedRecommendations: true })
+    }
+  };
 
   handleAdvancedSearchStart = () => {
     this.setState({ advancedSearch: true });
@@ -287,6 +252,18 @@ export default class BoardsEditorApp extends React.Component {
         this.searchCards();
       }
     })
+  };
+
+  handleBoardCollapseToggle = (boardName) => {
+    let collapsedBoards = {...this.state.collapsedBoards};
+
+    if (!collapsedBoards.hasOwnProperty(boardName)) {
+      collapsedBoards[boardName] = true;
+    } else {
+      collapsedBoards[boardName] = !collapsedBoards[boardName];
+    }
+
+    this.setState({collapsedBoards});
   };
 
   handleBoardsChangePosition = (targetCardId, siblingCardId, newCard=false) => {
@@ -376,12 +353,6 @@ export default class BoardsEditorApp extends React.Component {
                      qty=null, siblingCardId=null) => {
     let sourceCard = {...this.state.foundCards[sourceCardId]};
 
-    let latest_print = sourceCard.all_printings.find(
-      printing => printing.tla === sourceCard.latest_set
-    );
-
-    if (latest_print.foil_only) sourceCard['foil'] = 'foil';
-
     let {deck, deckByPositions, deckByCategories} =
       this.handleBoardsMove(sourceCard, targetBoardName, qty, siblingCardId);
 
@@ -397,21 +368,6 @@ export default class BoardsEditorApp extends React.Component {
 
     this.setState({ deck, deckByCategories, deckByPositions });
   };
-
-  handleCardChangeQty = (cardId, increment=true) => {
-    let deck = {...this.state.deck};
-
-    if (increment)
-      deck[cardId].qty++;
-    else if (deck[cardId].qty > 1)
-      deck[cardId].qty--;
-    else  // No update if qty is equal to 1 and the user wants to decrement (it shouldn't be possible)
-      return;
-
-    deck[cardId].updated = true;
-
-    this.setState({ deck });
-  }
 
   handleCardDelete = (cardId) => {
     let deck = {...this.state.deck};
@@ -474,17 +430,17 @@ export default class BoardsEditorApp extends React.Component {
 
       let deckByPositions = [...this.state.deckByPositions];
 
-      deckByCategories = rehashDeckByCategories(deck,
+      if (newCard) {
+        deckByCategories = rehashDeckByCategories(deck,
           this.state.selectedCategoryType);
 
-      if (newCard) {
         // Only setup new position if the card is new, if it exists then let the original position intact
         deckByPositions = this.handleBoardsChangePosition(newId, originalId);
       }
 
       this.setState({ cardToEdit: null, deck, deckByPositions, deckByCategories });
     } else if (card !== null && remove) {
-      this.setState({ cardToEdit: null }, () => this.handleCardDelete(card.cardId) );
+      this.handleCardDelete(card.cardId);
     } else {
       this.setState({ cardToEdit: null });
     }
@@ -512,10 +468,6 @@ export default class BoardsEditorApp extends React.Component {
 
     this.setState({deckByCategories, selectedCategory: 0,
                    selectedCategoryType});
-  };
-
-  handleStackSelect = (selectedStackType) => {
-    this.setState({selectedStackType})
   };
 
   handleDeckSave = (redirectAfterSave) => {
@@ -637,12 +589,6 @@ export default class BoardsEditorApp extends React.Component {
     })
   };
 
-  handleStackToggle = (event) => {
-    this.setState({
-      deckStacked: event.target.checked
-    })
-  };
-
   handleResetPosition = () => {
     let deckByPositions = _.sortBy(this.state.deck, 'slug')
       .map((card) => card.cardId);
@@ -658,7 +604,7 @@ export default class BoardsEditorApp extends React.Component {
     let searchInput = { name: '', type: '', subtype: '', rarity: '',
       keywords: '', formats: '', sets: '', block: '', color: '', rules: '',
       invOnly: false, order: 'name_sort' };
-    this.setState({foundCards: {}, noCardsFound: '', simpleSearchInput, searchInput});
+    this.setState({foundCards: {}, simpleSearchInput, searchInput});
   };
 
   clearSearchInput = () => {
@@ -711,7 +657,6 @@ export default class BoardsEditorApp extends React.Component {
     let simpleSearchInput = {...this.state.simpleSearchInput};
     if (target.type === 'checkbox') {
       simpleSearchInput.invOnly = target.checked;
-      this.searchCards(true, false, null, target.checked)
     } else {
       simpleSearchInput.name = target.value;
     }
@@ -744,6 +689,11 @@ export default class BoardsEditorApp extends React.Component {
           {}
         );
 
+        let collapsedBoards = {
+          side: !_.some(deck, c => c.b === 'side'),
+          maybe: !_.some(deck, c => c.b === 'maybe')
+        };
+
         // Check if it's the first time loading the deck
         let deckByPositions = [...this.state.deckByPositions];
         if (deckByPositions.length === 0) {
@@ -768,7 +718,7 @@ export default class BoardsEditorApp extends React.Component {
           deckHash.update(`${cardId}+${deck[cardId].qty}`);
         });
 
-        this.setState({deck, deckByPositions,
+        this.setState({collapsedBoards, deck, deckByPositions,
                        deckHash: deckHash.digest('hex'),
                        loading: false});
       },
@@ -792,8 +742,26 @@ export default class BoardsEditorApp extends React.Component {
     )
   };
 
+  normalizeBoardsHeight = () => {
+    // This function is called after every update to normalize the height of the boards
+    let i, maxBoardHeight = 0,
+      boards = document.querySelectorAll('.desktop-boards .board-droppable');
+
+    for (i = 0; i < boards.length; i++)
+      boards[i].style.height = null;
+
+    for (i = 0; i < boards.length; i++) {
+      maxBoardHeight = maxBoardHeight > boards[i].scrollHeight ?
+        maxBoardHeight : boards[i].scrollHeight;
+    }
+
+    for (i = 0; i < boards.length; i++)
+      boards[i].style.height = `${maxBoardHeight}px`;
+  };
+
   saveBoardConfig = () => {
     let boardConfig = {
+      collapsedBoards: this.state.collapsedBoards,
       imagesMaxWidth: this.state.imagesMaxWidth,
       toggleImages: this.state.toggleImages
     };
@@ -809,13 +777,13 @@ export default class BoardsEditorApp extends React.Component {
   saveDeck = () => {
     return axios.post(
       this.state.initData.deck_save_url,
-      {'changes': Object.values(this.state.deck).map(card =>
+      Object.values(this.state.deck).map(card =>
         _.pick(
           card,
           ['alter', 'alter_pk', 'b', 'cardId', 'categories', 'cmdr',
-           'condition', 'created', 'foil', 'ihash', 'language', 'name',
-           'need_qty', 'qty', 'signed', 'tla', 'variation', 'updated',
-           'alt_cmc', 'alt_rarity', 'alt_color', 'alt_mana_cost'
+            'condition', 'created', 'foil', 'ihash', 'language', 'name',
+            'need_qty', 'qty', 'signed', 'tla', 'variation', 'updated',
+            'alt_cmc', 'alt_rarity', 'alt_color', 'alt_mana_cost'
           ]
         )
       ).filter(specs =>
@@ -824,14 +792,14 @@ export default class BoardsEditorApp extends React.Component {
         specs.foil ? specs : _.omit(specs, ['foil'])
       ).map(specs =>
         specs.tla ? specs : _.omit(specs, ['tla'])
-      )},
+      ),
       { headers: { 'X-CSRFToken': Cookies.get('csrftoken') } }
     );
   };
 
   initRecommendations = () => {
     let recommendUrl = `${this.state.initData.deck_recommendations_url}` +
-                       `?deck=${this.state.initData.deck_slug}&cards=${this.state.initData.deck_cards}`;
+                       `?deck=${DECK_SLUG}&cards=${this.state.initData.deck_cards}`;
     axios.get(
         recommendUrl
       ).then(
@@ -851,9 +819,12 @@ export default class BoardsEditorApp extends React.Component {
 
   };
 
-  searchCards = (newSearch=true, simpleSearch=false, nameOverride=null, invOnly=null) => {
+  searchCards = (newSearch=true, simpleSearch=false, nameOverride=null) => {
     let searchInput = simpleSearch ? {...this.state.simpleSearchInput} :
       {...this.state.searchInput};
+    if (!simpleSearch && this.state.simpleSearchInput.invOnly) {
+      searchInput['invOnly'] = true
+    }
     let searchTerms = _.reduce(searchInput, (acc, value, key) => {
       let values = value.toString().split(',')
         .map((v) => {
@@ -868,16 +839,10 @@ export default class BoardsEditorApp extends React.Component {
       return value ? acc.concat(values) : acc;
     }, []).join('&');
 
-    if (invOnly !== null) {
-      if (invOnly) searchTerms += '&inv_only=True'
-    } else if (!simpleSearch && this.state.simpleSearchInput.invOnly) {
-      searchTerms += '&inv_only=True'
-    }
-
     if (searchTerms.trim() !== '' && !this.state.searchingCards) {
       let nextSearchPage = newSearch ? 1 : this.state.nextSearchPage;
 
-      let searchUrl = `${this.state.initData.cards_search_url}` +
+      let searchUrl = `${this.state.initData.django.cards_search_url}` +
         `?page=${nextSearchPage}&${searchTerms}`;
 
       axios.get(
@@ -888,6 +853,7 @@ export default class BoardsEditorApp extends React.Component {
             (foundCards, card) => {
               let foundCard = cardSetup(card);
               foundCards[foundCard.cardId] = foundCard;
+
               return foundCards;
             },
             {}
@@ -896,17 +862,10 @@ export default class BoardsEditorApp extends React.Component {
           if (this.state.nextSearchPage > 1)
             foundCards = {...this.state.foundCards, ...foundCards};
 
-          let noCardsFound = _.size(foundCards) > 0 ? '' : searchInput.name.slice();
           let nextSearchPage = response.data.next !== null ?
             this.state.nextSearchPage + 1 : null;
 
-          this.setState({
-            foundCards,
-            nextSearchPage,
-            noCardsFound,
-            searchingCards: false,
-            searchOnScroll: true
-          });
+          this.setState({foundCards, nextSearchPage, searchingCards: false, searchOnScroll: true});
         },
         error => {
           if (error.response && error.response.status >= 500) {
@@ -950,20 +909,18 @@ export default class BoardsEditorApp extends React.Component {
     let options = {
       accepts: (el, target, source) => {
         // Only move between boards
-        if (target.dataset.boardName === "new-cards" || target.dataset.isStack) {
+        if (target.dataset.boardName === "new-cards") {
           return false
         } else if (source.dataset.boardName === "new-cards" &&
           target.classList.contains('trash-droppable')) {
           return false
-        } else if (this.isStacked() && target.dataset.boardName === source.dataset.boardName) {
-          return false
         } else if (target.dataset.boardCategory) {
           return (target.dataset.boardCategory === source.dataset.boardCategory);
         } else {
-          return true
+          return true;
         }
       },
-      copy: !!this.isStacked(),
+      copy: false,
       moves: (el, source, handle) => {
         if (handle.classList.contains('card-settings') ||
             handle.classList.contains('card-link') ||
@@ -988,7 +945,6 @@ export default class BoardsEditorApp extends React.Component {
           this.drake.cancel(true);
 
           if (target.dataset.boardName === source.dataset.boardName) {
-            if (this.isStacked()) return;
             let deck = {...this.state.deck};
             deck[el.dataset.card].updateCount++;
             if (sibling !== null && sibling.dataset.card !== el.dataset.card) {
@@ -1018,11 +974,7 @@ export default class BoardsEditorApp extends React.Component {
       )
       .on('cloned',
         (clone, original, type) => {
-          if (this.isStacked()) {
-            original.classList.add('card-shadow');
-            return false;
-          }
-          if (this.props.spoilerView) {
+          if (SPOILER) {
             let clonedPartials = clone.querySelectorAll('.card-spoiler-partial');
             let originalPartials = original.querySelectorAll('.card-spoiler-partial');
             let partialsToRemove = clonedPartials.length - clone.dataset.move + 1;
@@ -1044,7 +996,6 @@ export default class BoardsEditorApp extends React.Component {
       .on(
         'drag',
         (el, source) => {
-          if (this.isStacked()) return false;
           if ((source.dataset.boardName === 'new-cards') ||
               (this.state.deck[el.dataset.card].qty || 1 ) > el.dataset.move) {
             let shadow = el.cloneNode(true);
@@ -1056,7 +1007,7 @@ export default class BoardsEditorApp extends React.Component {
                 `x${this.state.deck[el.dataset.card].qty - el.dataset.move}`;
             }
 
-            if (this.props.spoilerView) {
+            if (SPOILER) {
               let shadowPartials = shadow.querySelectorAll('.card-spoiler-partial');
               let partialsToRemove = el.dataset.move;
 
@@ -1076,20 +1027,13 @@ export default class BoardsEditorApp extends React.Component {
       .on(
         'cancel',
         (el, container, source) => {
-          if (this.isStacked()) {
-            let i = 0;
-            let shadows = document.querySelectorAll('.card-shadow');
-            for (i = 0; i < shadows.length; i++)
-              shadows[i].classList.remove('card-shadow');
-            return false
-          }
           let shadow = source.querySelector('#drag-shadow');
           if (shadow) { source.removeChild(shadow); }
           if (el.classList.contains('gu-hidden')) {
             el.classList.remove('gu-hidden');
           }
 
-          if (this.props.spoilerView) {
+          if (SPOILER) {
             let elPartials = el.querySelectorAll('.card-spoiler-partial');
             elPartials.forEach((e) => { e.style.display = "block"; });
           }
@@ -1098,36 +1042,24 @@ export default class BoardsEditorApp extends React.Component {
       .on(
         'over',
         (el, container) => {
-          if (container.dataset.isHeader &&
-              ['side', 'maybe'].indexOf(container.dataset.boardName) > -1) {
-            this.handleBoardPillChange(container.dataset.boardName);
-          }
-          if (['new-cards', 'side', 'maybe'].indexOf(container.dataset.boardName) < 0) {
-            container.classList.add('highlighted')
-          }
-          if (this.isStacked()) {
-            container.classList.add("suppress-shadow")
+          if (container.dataset.boardName !== 'new-cards') {
+            container.classList.add('highlighted');
           }
         }
       )
       .on(
         'out',
         (el, container) => {
-          if (['new-cards', 'side', 'maybe'].indexOf(container.dataset.boardName) < 0) {
-            container.classList.remove('highlighted')
-          }
-          if (this.isStacked() && !container.dataset.isHeader) {
-            container.classList.remove("suppress-shadow")
+          if (container.dataset.boardName !== 'new-cards') {
+            container.classList.remove('highlighted');
           }
         }
       )
       .on(
         'shadow',
         (shadow, container, source) => {
-          if (this.isStacked()) return false;
           if (container.dataset.boardName !== 'new-cards'
-              && !this.props.spoilerView
-              && shadow.querySelector('.card-qty')) {
+              && !SPOILER) {
             if (container.dataset.boardName !== source.dataset.boardName) {
               shadow.querySelector('.card-qty').innerHTML =
                 `x${shadow.dataset.move}`;
@@ -1137,7 +1069,7 @@ export default class BoardsEditorApp extends React.Component {
             }
           }
 
-          if (this.props.spoilerView) {
+          if (SPOILER) {
             let shadowPartials = shadow.querySelectorAll('.card-spoiler-partial');
             let partialsToRemove = shadowPartials.length - shadow.dataset.move + 1;
 
@@ -1162,12 +1094,11 @@ export default class BoardsEditorApp extends React.Component {
     }
   };
 
-  getCardCountForBoard = (boardName) => {
+  renderBoardHolder = (boardName, boardCollapse=false) => {
     let categoryGroup = null;
-    let selectedCategory = null;
 
     if (!_.isEmpty(this.state.deckByCategories)) {
-      selectedCategory = _.sortBy(
+      let selectedCategory = _.sortBy(
         Object.keys(this.state.deckByCategories),
         [(cat) => { return isNaN(cat) ? cat : parseInt(cat); } ])[this.state.selectedCategory];
       categoryGroup = this.state.deckByCategories[selectedCategory];
@@ -1178,50 +1109,23 @@ export default class BoardsEditorApp extends React.Component {
       .filter(card => (card.b === boardName && card.qty >= 1 &&
         (categoryGroup === null || categoryGroup.has(card.cardId)))
       );
-
-    return boardCards.reduce(
-      (acc, card) => { return (card.qty || 1) + acc; }, 0
-    );
-  };
-
-  renderBoardHolder = (boardName, collapseKey=false) => {
-    let categoryGroup = null;
-    let selectedCategory = null;
-
-    if (!_.isEmpty(this.state.deckByCategories)) {
-      selectedCategory = _.sortBy(
-        Object.keys(this.state.deckByCategories),
-        [(cat) => { return isNaN(cat) ? cat : parseInt(cat); } ])[this.state.selectedCategory];
-      categoryGroup = this.state.deckByCategories[selectedCategory];
-    }
-
-    let boardCards = this.state.deckByPositions
-      .map((cardId) => this.state.deck[cardId] || {})
-      .filter(card => (card.b === boardName && card.qty >= 1 &&
-        (categoryGroup === null || categoryGroup.has(card.cardId)))
-      );
-
-    if (selectedCategory !== null || this.isStacked())
-      boardCards = _.sortBy(boardCards, 'name');
 
     return (
       <BoardHolder
         boardName={boardName}
         boardCards={boardCards}
         droppablesRef={d => this.addDroppable(d)}
-        handleCardChangeQty={this.handleCardChangeQty}
+        handleBoardCollapseToggle={
+          boardCollapse ? this.handleBoardCollapseToggle : null
+        }
         handleCardDelete={this.handleCardDelete}
         handleCardEditStart={this.handleCardEditStart}
         handleCardMoveStart={this.handleCardMoveStart}
         imagesMaxWidth={this.state.imagesMaxWidth}
-        spoilerView={this.props.spoilerView}
+        spoilerView={SPOILER}
         toggleImages={this.state.toggleImages}
-        collapseKey={collapseKey}
-        stackBy={this.isStacked() ? this.state.selectedStackType : null}
-        mobileCardOnTop={this.state.mobileCardOnTop}
-        handleMobileCardClick={this.handleMobileCardClick}
         isMobile={this.state.isMobile}
-        cardAlterUrl={this.state.initData.card_alter_url}
+        cardAlterUrl={this.state.initData ? this.state.initData.card_alter_url : ''}
       />
     )
   };
@@ -1262,55 +1166,62 @@ export default class BoardsEditorApp extends React.Component {
   };
 
   renderDesktopBoards = () => {
+    let mainBoardSize;
+
+    let { side, maybe } = this.state.collapsedBoards;
+
+    if (side && maybe) {
+      mainBoardSize = 11;
+    } else if (side || maybe) {
+      mainBoardSize = 8;
+    } else {
+      mainBoardSize = 6;
+    }
+
+    const sideCount = this.state.deckByPositions
+      .map((cardId) => this.state.deck[cardId] || {})
+      .filter(card => (card.b === 'side' && card.qty >= 1 ))
+      .reduce((acc, card) => { return (card.qty || 1) + acc; }, 0);
+
+    const maybeCount = this.state.deckByPositions
+      .map((cardId) => this.state.deck[cardId] || {})
+      .filter(card => (card.b === 'maybe' && card.qty >= 1 ))
+      .reduce((acc, card) => { return (card.qty || 1) + acc; }, 0);
+
     return (
       <div key={`${this.state.toggleImages ? 'spoiler-view' : 'pin-view'}`}
            className="row desktop-boards">
-        <div className="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+        <div className={`col-sm-${mainBoardSize} main-board`}>
           { this.renderBoardHolder("main") }
         </div>
-        <div className="col-lg-3 col-md-3 col-sm-3 col-xs-12 sec-boards-container">
-          <Tab.Container
-            activeKey={this.state.activeBoardPill}
-            onSelect={this.handleBoardPillChange}
-          >
-            <div className="row">
-              <div className="col-lg-12 col-xs-12">
-                <Nav bsStyle="tabs" className="nav-justified">
-                  <NavItem
-                    className="board-pill"
-                    eventKey="side"
-                  >
-                    <div
-                      className="board-droppable suppress-shadow"
-                      ref={(d) => this.addDroppable(d)}
-                      data-board-name="side"
-                      data-is-header="true"
-                    >
-                      Side ({this.getCardCountForBoard('side')})
-                    </div>
-                  </NavItem>
-                  <NavItem
-                    className="board-pill"
-                    eventKey="maybe"
-                  >
-                    <div
-                      className="board-droppable suppress-shadow"
-                      ref={(d) => this.addDroppable(d)}
-                      data-board-name="maybe"
-                      data-is-header="true"
-                    >
-                      Maybe ({this.getCardCountForBoard('maybe')})
-                    </div>
-                  </NavItem>
-                </Nav>
-                <Tab.Content>
-                  { this.renderBoardHolder("side", "1") }
-                  { this.renderBoardHolder("maybe", "2") }
-                </Tab.Content>
-              </div>
+        { !side &&
+          <div className="col-sm-3 side-board">
+            { this.renderBoardHolder("side", true) }
+          </div>
+        }
+        { !maybe &&
+          <div className={`col-sm-3 maybe-board ${side ? 'has-side' : ''}`}>
+            { this.renderBoardHolder("maybe", true) }
+          </div>
+        }
+        { (side || maybe) &&
+          <div className="col-sm-1 side-buttons">
+            <div className="list-group side-buttons-boards-collapse">
+              { side &&
+                <button className="list-group-item" type="button"
+                        onClick={() => this.handleBoardCollapseToggle('side')}>
+                  Side{!!sideCount && <span> ({sideCount})</span>}
+                </button>
+              }
+              { maybe &&
+                <button className="list-group-item" type="button"
+                        onClick={() => this.handleBoardCollapseToggle('maybe')}>
+                  Maybe{!!maybeCount && <span> ({maybeCount})</span>}
+                </button>
+              }
             </div>
-          </Tab.Container>
-        </div>
+          </div>
+        }
       </div>
     );
   };
@@ -1324,12 +1235,12 @@ export default class BoardsEditorApp extends React.Component {
       </div>,
       <div key={2} className="row">
         <div className="col-md-12">
-          { this.renderBoardHolder("side", "1") }
+          { this.renderBoardHolder("side") }
         </div>
       </div>,
       <div key={3} className="row">
         <div className="col-md-12">
-          { this.renderBoardHolder("maybe", "2") }
+          { this.renderBoardHolder("maybe") }
         </div>
       </div>
     ]);
@@ -1376,11 +1287,25 @@ export default class BoardsEditorApp extends React.Component {
   };
 
   renderNewCardsToggle = () => {
+    const { showAddCards } = this.state;
+    const addLegend = ' Add Cards';
     return (
       <div className="row">
         <div className="col-md-12">
           <div className="panel panel-default accordion-panel">
+            <div className="panel-heading board-panel-heading"
+              onClick={this.handleAddCardsToggle}
+              aria-controls="add-cards-body"
+              aria-expanded={showAddCards}
+            >
+              <h3 className="panel-title">
+                <span className="glyphicon glyphicon-plus"/>
+                {addLegend}
+              </h3>
+            </div>
+            <Collapse in={showAddCards}>
             {this.renderNewCards()}
+            </Collapse>
           </div>
         </div>
       </div>
@@ -1403,12 +1328,11 @@ export default class BoardsEditorApp extends React.Component {
             handleSearchScroll={this.handleSearchScroll}
             handleSearchSelect={this.handleSearchSelect}
             imagesMaxWidth={this.state.imagesMaxWidth}
-            noCardsFound={this.state.noCardsFound}
             searching={this.state.searchingCards}
             searchCards={this.searchCards}
             searchInput={this.state.simpleSearchInput}
             toggleImages={this.state.toggleImages}
-            autocompleteUrl={this.state.initData.autocomplete_search}
+            autocompleteUrl={AUTOCOMPLETE_URL}
           />
         </div>
       </div>
@@ -1416,7 +1340,7 @@ export default class BoardsEditorApp extends React.Component {
   };
 
   renderImgOptions = () => {
-    if (!this.props.spoilerView) {
+    if (!SPOILER) {
       return (
         <div className="row">
           <div className="col-md-12">
@@ -1441,7 +1365,7 @@ export default class BoardsEditorApp extends React.Component {
                         <Slider
                           min={100}
                           tooltip={false}
-                          max={250}
+                          max={500}
                           step={1}
                           value={this.state.imagesMaxWidth}
                           onChange={this.handleImagesMaxWidth}
@@ -1463,37 +1387,23 @@ export default class BoardsEditorApp extends React.Component {
                             "options-panel-spoiler-view"}>
               <div className="panel-body">
                 <div className="row">
-                  <div className="col-md-1 field-label">Group by:</div>
-                  <div className="col-sm-2">
+                  <div className="col-sm-4">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedCategoryType &&
                       this.state.selectedCategoryType.value}
                       onChange={this.handleCategorySelect}
-                      placeholder="Group by"
+                      placeholder="Arrange by"
                       options={this.categoryChoices}
                     />
                   </div>
-                  {this.state.toggleImages && <div className="col-md-1 field-label">Stack by:</div>}
-                  {this.state.toggleImages &&
-                  <div className="col-md-2">
-                    <Select
-                      name="form-field-name"
-                      value={this.state.selectedStackType &&
-                      this.state.selectedStackType.value}
-                      onChange={this.handleStackSelect}
-                      placeholder="Stack by"
-                      options={this.categoryChoices}
-                    />
-                  </div>
-                  }
                   <div className="col-sm-2">
                     <span className="slider-container">
                       <label>Images Scaling</label>
                       <Slider
-                        min={100}
+                        min={150}
                         tooltip={false}
-                        max={250}
+                        max={300}
                         step={1}
                         value={this.state.imagesMaxWidth}
                         onChange={this.handleImagesMaxWidth}
@@ -1519,44 +1429,29 @@ export default class BoardsEditorApp extends React.Component {
     else
       deleteLegend = 'Drag to delete card';
 
-    if (!this.props.spoilerView) {
+    if (!SPOILER) {
       return (
         <div className="row">
           <div className="col-md-12">
             <div className="panel panel-default options-panel top-borderless-panel">
               <div className="panel-body">
                 <div className="row">
-                  <div className="col-md-1 field-label">Group by:</div>
-                  <div className="col-md-2">
+                  <div className="col-md-3">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedCategoryType &&
                       this.state.selectedCategoryType.value}
                       onChange={this.handleCategorySelect}
-                      placeholder="Group by"
+                      placeholder="Arrange by"
                       options={this.categoryChoices}
                     />
                   </div>
-                  {this.state.toggleImages && <div className="col-md-1 field-label">Stack by:</div>}
-                  {this.state.toggleImages &&
-                  <div className="col-md-2">
-                    <Select
-                      name="form-field-name"
-                      value={this.state.selectedStackType &&
-                      this.state.selectedStackType.value}
-                      onChange={this.handleStackSelect}
-                      placeholder="Stack by"
-                      options={this.categoryChoices}
-                    />
-                  </div>
-                  }
                   <div className="col-md-3">
                     <button
-                      className='btn btn-danger btn-block trash-droppable suppress-shadow'
+                      className='btn btn-danger btn-block trash-droppable'
                       ref={d => this.addDroppable(d)}
                       disabled={this.state.deletedCards.length < 1}
-                      onClick={this.handleCardDeleteUndo}
-                      data-is-header="true">
+                      onClick={this.handleCardDeleteUndo}>
                       <span className="glyphicon glyphicon-trash"/>
                       {' ' + deleteLegend}
                     </button>
@@ -1582,37 +1477,23 @@ export default class BoardsEditorApp extends React.Component {
                             "options-panel-spoiler-view"}>
               <div className="panel-body">
                 <div className="row">
-                  <div className="col-md-1 field-label">Group by:</div>
-                  <div className="col-sm-2">
+                  <div className="col-sm-4">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedCategoryType &&
                       this.state.selectedCategoryType.value}
                       onChange={this.handleCategorySelect}
-                      placeholder="Group by"
+                      placeholder="Arrange by"
                       options={this.categoryChoices}
                     />
                   </div>
-                  {this.state.toggleImages && <div className="col-md-1 field-label">Stack by:</div>}
-                  {this.state.toggleImages &&
-                  <div className="col-md-2">
-                    <Select
-                      name="form-field-name"
-                      value={this.state.selectedStackType &&
-                      this.state.selectedStackType.value}
-                      onChange={this.handleStackSelect}
-                      placeholder="Stack by"
-                      options={this.categoryChoices}
-                    />
-                  </div>
-                  }
                   <div className="col-sm-2">
                     <span className="slider-container">
                       <label>Images Scaling</label>
                       <Slider
-                        min={100}
+                        min={150}
                         tooltip={false}
-                        max={250}
+                        max={300}
                         step={1}
                         value={this.state.imagesMaxWidth}
                         onChange={this.handleImagesMaxWidth}
@@ -1680,41 +1561,6 @@ export default class BoardsEditorApp extends React.Component {
     )
   };
 
-  renderCharts = () => {
-    let deck = Object.values(this.state.deck).filter((card) => card.b === 'main');
-    if (!deck.length) return '';
-    let colorSeries = buildColorSeries(deck);
-    let landSeries = buildLandColorSeries(deck);
-    let typeSeries = buildTypeSeries(deck);
-    let curveSeries = buildCurveSeries(deck);
-    return (
-      <div className="row">
-        <div className="col-md-12">
-          <div className="well board-e-well">
-            <div className="row">
-              <div className="col-lg-4 col-xs-12">
-                <ColorChartWrapper
-                  colorSeries={colorSeries}
-                  landSeries={landSeries}
-                />
-              </div>
-              <div className="col-lg-4 col-xs-12 type-chart-container">
-                <TypeChartWrapper
-                  typeSeries={typeSeries}
-                />
-              </div>
-              <div className="col-lg-4 col-xs-12">
-                <CurveChartWrapper
-                  curveSeries={curveSeries}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  };
-
   render() {
     let cardToEdit = this.state.cardToEdit ?
       {...this.state.deck[this.state.cardToEdit]} : null;
@@ -1728,25 +1574,20 @@ export default class BoardsEditorApp extends React.Component {
       <div>
         { this.renderWarning() }
         { this.renderImgOptions() }
-        { !this.props.spoilerView && this.renderNewCardsToggle() }
+        { !SPOILER && this.renderNewCardsToggle() }
         { this.renderOptions() }
         { this.state.isMobile ?
           this.renderBoards(this.renderMobileBoards()) :
           this.renderBoards(this.renderDesktopBoards()) }
-        { this.renderCharts() }
-        { !this.props.spoilerView && cardToEdit &&
+        { !SPOILER && cardToEdit &&
           <CardEditModal card={cardToEdit}
-                         handleCardEditEnd={this.handleCardEditEnd}
-                         foilChoices={this.foilChoices}
-                         colorChoices={this.colorChoices}
-                         rarityChoices={this.rarityChoices}
-          />
+                         handleCardEditEnd={this.handleCardEditEnd} />
         }
-        { !this.props.spoilerView && cardToMove &&
+        { !SPOILER && cardToMove &&
           <CardMoveModal card={cardToMove} source={sourceToMove}
                          handleCardMoveEnd={this.handleCardMoveEnd} />
         }
-        { !this.props.spoilerView && this.state.advancedSearch &&
+        { !SPOILER && this.state.advancedSearch &&
           this.renderCardSearchModal() }
         { this.renderLoadingModal() }
         { this.renderSaveButtons() }

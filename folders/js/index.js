@@ -68,7 +68,7 @@ class App extends Component {
           folders: response.data.results,
           foldersOpt: response.data.allFolders,
           totalPages: response.data.totalPages,
-          totalFolders: response.totalFolders,
+          totalFolders: response.data.totalFolders,
           errorGettingFolders: false
         })
       },

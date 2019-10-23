@@ -1429,84 +1429,45 @@ export default class BoardsEditorApp extends React.Component {
     else
       deleteLegend = 'Drag to delete card';
 
-    if (!SPOILER) {
-      return (
-        <div className="row">
-          <div className="col-md-12">
-            <div className="panel panel-default options-panel top-borderless-panel">
-              <div className="panel-body">
-                <div className="row">
-                  <div className="col-md-3">
-                    <Select
-                      name="form-field-name"
-                      value={this.state.selectedCategoryType &&
-                      this.state.selectedCategoryType.value}
-                      onChange={this.handleCategorySelect}
-                      placeholder="Arrange by"
-                      options={this.categoryChoices}
-                    />
-                  </div>
-                  <div className="col-md-3">
-                    <button
-                      className='btn btn-danger btn-block trash-droppable'
-                      ref={d => this.addDroppable(d)}
-                      disabled={this.state.deletedCards.length < 1}
-                      onClick={this.handleCardDeleteUndo}>
-                      <span className="glyphicon glyphicon-trash"/>
-                      {' ' + deleteLegend}
-                    </button>
-                  </div>
-                  <div className="col-md-2">
-                    <button
-                      className='btn btn-warning btn-block'
-                      onClick={this.handleResetPosition}>
-                      Reset Cards Positions
-                    </button>
-                  </div>
+    return (
+      <div className="row">
+        <div className="col-md-12">
+          <div className="panel panel-default options-panel top-borderless-panel">
+            <div className="panel-body">
+              <div className="row">
+                <div className="col-md-3">
+                  <Select
+                    name="form-field-name"
+                    value={this.state.selectedCategoryType &&
+                    this.state.selectedCategoryType.value}
+                    onChange={this.handleCategorySelect}
+                    placeholder="Arrange by"
+                    options={this.categoryChoices}
+                  />
+                </div>
+                <div className="col-md-3">
+                  <button
+                    className='btn btn-danger btn-block trash-droppable'
+                    ref={d => this.addDroppable(d)}
+                    disabled={this.state.deletedCards.length < 1}
+                    onClick={this.handleCardDeleteUndo}>
+                    <span className="glyphicon glyphicon-trash"/>
+                    {' ' + deleteLegend}
+                  </button>
+                </div>
+                <div className="col-md-2">
+                  <button
+                    className='btn btn-warning btn-block'
+                    onClick={this.handleResetPosition}>
+                    Reset Cards Positions
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      )
-    } else {
-      return (
-        <div className="row">
-          <div className="col-md-12">
-            <div className={"panel panel-default options-panel " +
-                            "options-panel-spoiler-view"}>
-              <div className="panel-body">
-                <div className="row">
-                  <div className="col-sm-4">
-                    <Select
-                      name="form-field-name"
-                      value={this.state.selectedCategoryType &&
-                      this.state.selectedCategoryType.value}
-                      onChange={this.handleCategorySelect}
-                      placeholder="Arrange by"
-                      options={this.categoryChoices}
-                    />
-                  </div>
-                  <div className="col-sm-2">
-                    <span className="slider-container">
-                      <label>Images Scaling</label>
-                      <Slider
-                        min={150}
-                        tooltip={false}
-                        max={300}
-                        step={1}
-                        value={this.state.imagesMaxWidth}
-                        onChange={this.handleImagesMaxWidth}
-                      />
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
-    }
+      </div>
+    )
   };
 
   renderSaveButtons = () => {
@@ -1575,7 +1536,7 @@ export default class BoardsEditorApp extends React.Component {
         { this.renderWarning() }
         { this.renderImgOptions() }
         { !SPOILER && this.renderNewCardsToggle() }
-        { this.renderOptions() }
+        { !SPOILER && this.renderOptions() }
         { this.state.isMobile ?
           this.renderBoards(this.renderMobileBoards()) :
           this.renderBoards(this.renderDesktopBoards()) }

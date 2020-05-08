@@ -1,0 +1,22 @@
+$deck-space-background: #000;
+$mtg-black: #150B00;
+$mtg-blue: #0E68AB;
+$mtg-colorless: #43464b;
+$mtg-green: #00733E;
+$mtg-red: #D3202A;
+$mtg-white: #F8E7B9;
+
+.deck-space-graph {
+  .btn-center-graph {
+    margin-left: 30px;
+    margin-bottom: -65px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .deck-space {
+    background-color: $deck-space-background;
+    height: 500px;
+    margin-left: 25px;
+  }
+}

@@ -19,11 +19,11 @@ function group_by_parameter(deck, parameter) {
 }
 
 
-function group_by_price(deck) {
+function group_by_price(deck, reg_key, foil_key) {
   return _.groupBy(
     _.mapValues(deck,
       card => {
-        let price = (card.foil ? card.tcg_foil_price : card.tcg_avg_price) || 0.0;
+        let price = (card.foil ? card[reg_key] : card[foil_key]) || 0.0;
 
         if (price === 0) {
           return {
@@ -59,6 +59,36 @@ function group_by_price(deck) {
       }),
     'price'
   )
+}
+
+
+function group_by_tcg_avg(deck) {
+  return group_by_price(deck, 'tcg_avg_price', 'tcg_foil_price')
+}
+
+
+function group_by_tcg_high(deck) {
+  return group_by_price(deck, 'tcg_high_price', 'tcg_foil_price')
+}
+
+
+function group_by_tcg_low(deck) {
+  return group_by_price(deck, 'tcg_low_price', 'tcg_foil_price')
+}
+
+
+function group_by_chaos(deck) {
+  return group_by_price(deck, 'chaos_price', 'chaos_foil_price')
+}
+
+
+function group_by_ck(deck) {
+  return group_by_price(deck, 'ck_price', 'ck_foil_price')
+}
+
+
+function group_by_ch(deck) {
+  return group_by_price(deck, 'cardhoarder_price', 'cardhoarder_foil_price')
 }
 
 
@@ -136,7 +166,12 @@ let deck_group = {
   'cost': (deck) => { return clean_groups(group_by_parameter(deck, 'mana_cost_converted')) },
   'stackCost': (deck) => { return clean_groups(group_by_stack_cost(deck)) },
   'keyword': (deck) => { return group_by_multicategories(deck, 'keywords', 'None') },
-  'price': (deck) => { return clean_groups(group_by_price(deck)) },
+  'tcg_avg_price': (deck) => { return clean_groups(group_by_tcg_avg(deck)) },
+  'tcg_high_price': (deck) => { return clean_groups(group_by_tcg_high(deck)) },
+  'tcg_low_price': (deck) => { return clean_groups(group_by_tcg_low(deck)) },
+  'chaos_price': (deck) => { return clean_groups(group_by_chaos(deck)) },
+  'ck_price': (deck) => { return clean_groups(group_by_ck(deck)) },
+  'ch_price': (deck) => { return clean_groups(group_by_ch(deck)) },
   'custom': (deck) => { return group_by_multicategories(deck, 'categories', 'Other') }
 };
 

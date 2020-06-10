@@ -235,7 +235,8 @@ export default class BoardsEditorApp extends React.Component {
   };
 
   handleBoardPillChange = (pill) => {
-    this.setState({activeBoardPill: pill})
+    this.setState({activeBoardPill: pill});
+    setTimeout(this.normalizeBoardsHeight, 500);
   };
 
   addDroppable = (d) => {

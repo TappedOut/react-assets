@@ -453,6 +453,11 @@ export default class BoardsEditorApp extends React.Component {
       let deckByCategories = {...this.state.deckByCategories};
       let newCard = false;
 
+      if (originalId === newId && card.qty === deck[originalId].qty) {
+        this.setState({ cardToEdit: null });
+        return;
+      }
+
       if (deck.hasOwnProperty(newId)) {
         /* Merge if the card already exists and is not the original card else
            update to new value of quantity */

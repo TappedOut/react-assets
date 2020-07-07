@@ -36,6 +36,8 @@ export function get_card_id(card, board) {
 
   if (card.variation) hash.update(`var-${card.variation}`);
 
+  if (card.alter) hash.update(`alter`);
+
   if (card.alter_pk) hash.update(`alter-${card.alter_pk}`);
 
   if (card.alt_mana_cost) hash.update(`alt-mc-${card.alt_mana_cost}`);

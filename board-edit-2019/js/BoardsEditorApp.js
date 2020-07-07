@@ -535,9 +535,13 @@ export default class BoardsEditorApp extends React.Component {
       this.setState({loading: true, redirectAfterSave},
         () => {
           this.saveDeck().then(
-            () => {
+            (response) => {
               if (this.state.redirectAfterSave) {
-                window.location.href = this.state.initData.deck_url;
+                let redir = this.state.initData.deck_url;
+                if (response.data && response.data.cb) {
+                  redir = `${redir}?cb=${response.data.cb}`
+                }
+                window.location.href = redir;
               } else {
                 this.loadDeckData();
                 this.appendWarnings([{

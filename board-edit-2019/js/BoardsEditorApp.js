@@ -6,7 +6,7 @@ import Slider from 'react-rangeslider';
 import Select from 'react-select';
 import Toggle from 'react-toggle';
 import Rusha from 'rusha';
-import {isMobile} from 'react-device-detect';
+import {isMobileOnly} from 'react-device-detect';
 import BoardHolder from './components/BoardHolder';
 import CardEditModal from './components/CardEditModal';
 import CardMoveModal from './components/CardMoveModal';
@@ -129,7 +129,7 @@ export default class BoardsEditorApp extends React.Component {
       mobileCardOnTop: null,
       initData: {},
       errorInitializing: false,
-      isMobile: isMobile
+      isMobile: isMobileOnly
     };
     this.droppables = [];
   }

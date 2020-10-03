@@ -33,5 +33,9 @@
 }
 
 .deck-square-card-img {
-    object-position: -35px -59px !important;
+    object-position: -35px -66px !important;
+}
+
+.deck-group {
+  margin-bottom: 15px;
 }

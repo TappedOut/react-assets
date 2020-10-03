@@ -66,47 +66,49 @@ class Deck extends Component {
       )
     }
     return (
-      <div className="col-md-3 col-xs-12 col-sm-6">
-        <div className="deck-square-container">
-          <a href={deck.url}>
-            <div className="deck-square-caption">
-              <div className="row">
-                <div className="col-md-12">
-                  <p>
-                    <a href={deck.url}><span className="deck-square-name">{deck.name}</span></a>
-                    <br />
-                    <span className="deck-square-user">by <span dangerouslySetInnerHTML={{__html: deck.user}}/></span>
-                  </p>
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-xs-4">
-                  <div className="deck-square-mana-chart">
-                    <a href={deck.url}>
-                      <img className="mana-chart" src={deck.pieChart}/>
-                    </a>
+      <div className="col-md-3 col-xs-12 col-sm-6 deck-group">
+        <div className="row">
+          <div className="deck-square-container">
+            <a href={deck.url}>
+              <div className="deck-square-caption">
+                <div className="row">
+                  <div className="col-md-12">
+                    <p>
+                      <a href={deck.url}><span className="deck-square-name">{deck.name}</span></a>
+                      <br />
+                      <span className="deck-square-user">by <span dangerouslySetInnerHTML={{__html: deck.user}}/></span>
+                    </p>
                   </div>
                 </div>
-                <div className="col-xs-8 deck-square-badges text-right">
-                  <span className={formatClass}>{deck.formatTLA}</span>
-                  <span className="badge badge-tiny" data-toggle="tooltip" title="Upvotes/Comments">
-                    {deck.upvotes}
-                      <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span> / {deck.comments} <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
-                  </span>
+                <div className="row">
+                  <div className="col-xs-4">
+                    <div className="deck-square-mana-chart">
+                      <a href={deck.url}>
+                        <img className="mana-chart" src={deck.pieChart}/>
+                      </a>
+                    </div>
+                  </div>
+                  <div className="col-xs-8 deck-square-badges text-right">
+                    <span className={formatClass}>{deck.formatTLA}</span>
+                    <span className="badge badge-tiny" data-toggle="tooltip" title="Upvotes/Comments">
+                      {deck.upvotes}
+                        <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span> / {deck.comments} <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </a>
-          <a href={deck.url}>
-              <div class="deck-square-card">
-                  <img class="deck-square-card-img img-responsive"
-                       src={deck.featuredImage}
-                       onError="this.onerror=null;$(this).hide();"
-                  />
-              </div>
-          </a>
+            </a>
+            <a href={deck.url}>
+                <div class="deck-square-card">
+                    <img class="deck-square-card-img img-responsive"
+                         src={deck.featuredImage}
+                         onError="this.onerror=null;$(this).hide();"
+                    />
+                </div>
+            </a>
+          </div>
+          {deckBtns}
         </div>
-        {deckBtns}
       </div>
     );
   }

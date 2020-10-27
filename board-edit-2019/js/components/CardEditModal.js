@@ -44,8 +44,10 @@ export default class CardEditModal extends React.Component {
   handleInputChange = (event) => {
     let target = event.target;
     let value = target.value.trim();
-    if (target.name === "need_qty" && (parseInt(value) < 0 || isNaN(value)))
-      return;
+    if (target.name === "need_qty"){
+      if (parseInt(value) < 0 || isNaN(value)) return;
+      if (parseInt(value) > 599) value = 599;
+    }
 
     if (target.name === "alter_pk" && (parseInt(value) < 0 || isNaN(value)))
       return;
@@ -72,6 +74,7 @@ export default class CardEditModal extends React.Component {
   handleQtyChange = (event) => {
     let value = event.target.value.trim();
     if (parseInt(value) < 1 || isNaN(value)) return;
+    if (parseInt(value) > 599) value = 599;
     let card = {...this.state.card};
     card.qty = value;
     this.setState({card});
@@ -210,14 +213,14 @@ export default class CardEditModal extends React.Component {
                   <div className={"form-group" +
                     `${card.hasErrors.includes('qty') ? " has-error" : ""}`}>
                     <label htmlFor="card-qty">Quantity:</label>
-                    <input id="card-qty" type="number" name="qty"
+                    <input id="card-qty" type="number" name="qty" max="599"
                           value={this.state.card.qty} className="form-control"
                           onChange={this.handleQtyChange}/>
                   </div>
                   <div className={"form-group" +
                     `${card.hasErrors.includes('need_qty') ? " has-error" : ""}`}>
                     <label htmlFor="card-needed-qty">Needed:</label>
-                    <input id="card-needed-qty" type="number" name="need_qty"
+                    <input id="card-needed-qty" type="number" name="need_qty" max="599"
                           value={this.state.card.need_qty} className="form-control"
                           onChange={this.handleInputChange}/>
                   </div>

@@ -16,8 +16,7 @@ class Deck extends Component {
     if (this.props.authenticated) {
       deckBtns = (
         <div>
-          <hr className="no-margin-top"/>
-          <div className="row">
+          <div className="row deck-btn-group">
             <div className="col-md-4 col-sm-4 col-xs-4 col-md-offset-4">
               <btn onClick={this.handleCopyBtnClick.bind(this)}
                    className="btn btn-block btn-primary"
@@ -34,8 +33,7 @@ class Deck extends Component {
     if (this.props.canEdit) {
       deckBtns = (
         <div>
-          <hr className="no-margin-top"/>
-          <div className="row">
+          <div className="row deck-btn-group">
             <div className="col-md-4 col-sm-4 col-xs-4">
               <btn onClick={this.handleMoveBtnClick.bind(this)}
                    className="btn btn-block btn-primary"
@@ -68,29 +66,46 @@ class Deck extends Component {
       )
     }
     return (
-      <div className="col-md-3 col-sm-4 col-xs-12 deck-snippet">
-        <div className="well sm-p-well">
-          <div className="row feat-container hidden-xs">
-            <div className="col-md-12">
-              <a href={deck.url}><img className="img-responsive deck-featured" src={deck.featuredImage}/></a>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-md-12">
-              <p className="no-overflow"><a href={deck.url}>{deck.name}</a></p>
-              <p className="no-overflow">by <span dangerouslySetInnerHTML={{__html: deck.user}}/></p>
-              <p>
-                <img src={deck.pieChart}/>
-                <span className={formatClass}>{deck.formatTLA}</span>&nbsp;
-                <span className="badge badge-tiny" data-toggle="tooltip" title="Upvotes/Comments">
-                    {deck.upvotes}&nbsp;
-                  <span className="glyphicon glyphicon-arrow-up" aria-hidden="true"/>
-                  &nbsp;/&nbsp;
-                  {deck.comments}&nbsp;
-                  <span className="glyphicon glyphicon-comment" aria-hidden="true"/>
-                </span>
-              </p>
-            </div>
+      <div className="col-md-3 col-xs-12 col-sm-6 deck-group">
+        <div className="row">
+          <div className="deck-square-container">
+            <a href={deck.url}>
+              <div className="deck-square-caption">
+                <div className="row">
+                  <div className="col-md-12">
+                    <p>
+                      <a href={deck.url}><span className="deck-square-name">{deck.name}</span></a>
+                      <br />
+                      <span className="deck-square-user">by <span dangerouslySetInnerHTML={{__html: deck.user}}/></span>
+                    </p>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-xs-4">
+                    <div className="deck-square-mana-chart">
+                      <a href={deck.url}>
+                        <img className="mana-chart" src={deck.pieChart}/>
+                      </a>
+                    </div>
+                  </div>
+                  <div className="col-xs-8 deck-square-badges text-right">
+                    <span className={formatClass}>{deck.formatTLA}</span>
+                    <span className="badge badge-tiny" data-toggle="tooltip" title="Upvotes/Comments">
+                      {deck.upvotes}
+                        <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span> / {deck.comments} <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </a>
+            <a href={deck.url}>
+                <div class="deck-square-card">
+                    <img class="deck-square-card-img img-responsive"
+                         src={deck.featuredImage}
+                         onError="this.onerror=null;$(this).hide();"
+                    />
+                </div>
+            </a>
           </div>
           {deckBtns}
         </div>

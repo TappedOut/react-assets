@@ -22,14 +22,20 @@
   padding-right: 8px;
 }
 
-.deck-featured {
-  top: -33px;
-  left: 0px;
-  clip: rect(33px, 197px, 166px, 20px);
-  position: absolute;
+.deck-btn-group {
+  margin: 6px
 }
 
-.feat-container > div {
-  height: 144px;
-  position: relative;
+@media (max-width: 990px) and (min-width: 426px) {
+    .deck-square-card-img {
+        object-position: -48px -89px !important;
+    }
+}
+
+.deck-square-card-img {
+    object-position: -35px -66px !important;
+}
+
+.deck-group {
+  margin-bottom: 15px;
 }

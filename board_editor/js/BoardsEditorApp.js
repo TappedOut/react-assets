@@ -35,6 +35,7 @@ const DECK_SLUG = window.location.href.split('/')[4];
 const SPOILER = window.location.href.split('/')[5] === 'spoiler';
 const INIT_URL = `${DEFAULT_NAMESPACE}mtg-decks/${DECK_SLUG}/board-update/init/`;
 const AUTOCOMPLETE_URL = `${DEFAULT_NAMESPACE}api/autocomplete/`;
+const AUTOCOMPLETE_URL_INV = `${DEFAULT_NAMESPACE}api/autocomplete/inv-only/`;
 
 
 function rehashDeckByCategories(deck, selectedCategoryType) {
@@ -1333,6 +1334,7 @@ export default class BoardsEditorApp extends React.Component {
             searchInput={this.state.simpleSearchInput}
             toggleImages={this.state.toggleImages}
             autocompleteUrl={AUTOCOMPLETE_URL}
+            autocompleteUrlInv={AUTOCOMPLETE_URL_INV}
           />
         </div>
       </div>

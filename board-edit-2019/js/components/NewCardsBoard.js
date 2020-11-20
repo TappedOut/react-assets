@@ -23,8 +23,7 @@ export default class NewCardsBoard extends React.Component {
     if (!input || input.length < 3) {
       callback(null, { options: [] });
     } else {
-      let searchUrl = `${this.props.autocompleteUrl}?name=${input}` +
-        `&inv_only=${this.props.searchInput.invOnly ? 'true' : 'false'}`;
+      let searchUrl = `${this.props.searchInput.invOnly ? this.props.autocompleteUrlInv : this.props.autocompleteUrl}?name=${input}`
       this.throttledAutocomplete(searchUrl, callback);
     }
   };

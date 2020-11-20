@@ -1419,6 +1419,7 @@ export default class BoardsEditorApp extends React.Component {
             searchInput={this.state.simpleSearchInput}
             toggleImages={this.state.toggleImages}
             autocompleteUrl={this.state.initData.autocomplete_search}
+            autocompleteUrlInv={this.state.initData.autocomplete_search_inv}
           />
         </div>
       </div>

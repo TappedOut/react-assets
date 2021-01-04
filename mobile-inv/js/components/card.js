@@ -10,35 +10,39 @@ class Card extends Component {
     };
   }
 
-  handleFilter() {
-    this.setState({show: false});
-    this.props.onFilter(this.state.form);
+  handleCollClick(url){
+    window.Android.openInBrowser(url)
+  }
+
+  handleCardPageClick(url){
+    window.Android.openInBrowser(url)
   }
 
   render() {
     const handleClose = () => this.setState({show: false});
     const handleShow = () => this.setState({show: true});
-    let card_token = `${this.props.qty}x ${this.props.name}`
-    if (this.props.set) card_token += ` (${this.props.set})`
     return (
-      <div>
+      <div style={{'margin-bottom': '4px'}}>
+        {this.props.qty && <span>{this.props.qty}x&nbsp;</span>}
         <a onClick={handleShow}>
-          {card_token}
+          {this.props.name}
         </a>
-
+        {this.props.set && <span>&nbsp;({this.props.set})</span>}
+        {this.props.coll_chart &&
+          <div className="pull-right">
+            <a onClick={event => this.handleCollClick(this.props.coll_url)}>
+              <img style={{'height': '40px', 'margin-top': '-10px'}} alt={this.props.coll_name} src={this.props.coll_chart}/>
+            </a>
+          </div>
+        }
         <Modal show={this.state.show} onHide={handleClose}>
-          <Modal.Header closeButton>
-            <Modal.Title>Modal heading</Modal.Title>
-          </Modal.Header>
           <Modal.Body>
             <img alt={this.props.name} src={this.props.image} />
+            <Button variant="primary" onClick={event => this.handleCardPageClick(this.props.url)}>View card page</Button>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleClose}>
               Close
-            </Button>
-            <Button variant="primary" onClick={this.handleFilter}>
-              Filter
             </Button>
           </Modal.Footer>
         </Modal>

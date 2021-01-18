@@ -26,10 +26,12 @@ class CollectionTableApp extends React.Component {
       initializing: true,
       export_value: '',
       filter_open: false,
-      filter_data: {}
+      filter_data: {},
+      error: ''
     }
     this.handleExport = this.handleExport.bind(this);
     this.toggleFilters = this.toggleFilters.bind(this);
+    this.handleFilter = this.handleFilter.bind(this);
     this.initialize(INIT_URL);
   }
 
@@ -48,25 +50,48 @@ class CollectionTableApp extends React.Component {
   }
 
   searchCards(data, page){
-    this.setState({loading: true, page: page})
-    const extra = Object.keys(data).map(key => {
-      return `&${key}=${data[key]}`
-    }).join()
-    const url = `${this.state.init_data.urls.rows_api}?start=${50 * (page - 1)}&end=${50 * page}${extra}`;
-    axios.get(
-      url
-    ).then(
-      response => {
-        this.setState({
-          cards: response.data.data,
-          total_cards: response.data.recordsTotal,
-          filtered_cards: response.data.recordsFiltered,
-          total_qty: response.data.quantityTotal,
-          total_price: response.data.priceTotal,
-          loading: false
-        })
+    this.setState({loading: true})
+    let get_data = {
+      'start': 50 * (page - 1),
+      'end': 50 * page
+    }
+    for (let [key, value] of Object.entries(data)) {
+      if (Array.isArray(value) && value.length) {
+        get_data[key] = value.join(',')
+      } else if (value) {
+        get_data[key] = value
       }
-    )
+    }
+
+    axios.get(
+      this.state.init_data.urls.rows_api, {
+        'params': get_data
+      }
+    ).then(response => {
+      this.setState({
+        cards: response.data.data,
+        total_cards: response.data.recordsTotal,
+        filtered_cards: response.data.recordsFiltered,
+        total_qty: response.data.quantityTotal,
+        total_price: response.data.priceTotal,
+        loading: false,
+        error: ''
+      })
+    }).catch(error => {
+    let error_msg = 'Error getting the card data.';
+    if (error.response && error.response.data && error.response.data.errors) {
+      error_msg = error.response.data.errors
+    }
+    this.setState({
+        cards: [],
+        total_cards: 0,
+        filtered_cards: 0,
+        total_qty: 0,
+        total_price: 0,
+        loading: false,
+        error: error_msg
+      })
+  });
   }
 
   toggleFilters() {
@@ -74,12 +99,13 @@ class CollectionTableApp extends React.Component {
   }
 
   handleFilter(data) {
-    this.setState({filter_data: data})
+    this.setState({filter_data: data});
     this.searchCards(data, this.state.page)
   }
 
   handlePageChange(page) {
-    this.searchCards({}, page)
+    this.setState({page: page});
+    this.searchCards(this.state.filter_data, page)
   }
 
   handleExport(event) {
@@ -111,20 +137,15 @@ class CollectionTableApp extends React.Component {
         active={active} disabled={active || this.state.loading}>{label}</Button>
     })
 
-    let cards = this.state.cards
     // cards stuff
-    if (cards.length) {
-      cards = this.state.cards.map(card => {
-        return (
-          <InventoryCard
-            data={card}
-            is_owner={this.state.init_data.is_owner}
-          />
-        );
-      })
-    } else {
-      cards = <p>Collection is empty</p>
-    }
+    const cards = this.state.cards.map(card => {
+      return (
+        <InventoryCard
+          data={card}
+          is_owner={this.state.init_data.is_owner}
+        />
+      );
+    })
 
     // export
     const export_options = this.state.init_data.selects.export.map(opts => <option value={opts.value}>{opts.name}</option>)
@@ -203,6 +224,7 @@ class CollectionTableApp extends React.Component {
               <div className="well">
                 <InventoryFilters
                   onFilter={this.handleFilter}
+                  init_data={this.state.init_data}
                   foil_image={this.state.init_data.urls.foil_img}
                 />
               </div>
@@ -220,10 +242,8 @@ class CollectionTableApp extends React.Component {
               <InventoryHeader
                 is_owner={this.state.init_data.is_owner}
               />
-            <tbody>
-              {this.state.loading && <div style={{"text-aling": "center"}} className="loading">Loading</div>}
-              {!this.state.loading && cards}
-            </tbody>
+              {this.state.loading && <div style={{"text-align": "center"}} className="loading">Loading</div>}
+              {!this.state.loading && cards.length ? <tbody>{cards}</tbody> : <p style={{"text-align": "center"}}>{this.state.error ? this.state.error : 'Collection is empty.'}</p>}
             </table>
           </div>
         </div>

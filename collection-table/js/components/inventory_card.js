@@ -14,7 +14,7 @@ class InventoryCard extends Component {
     const id = `inv-qty-${this.props.data.owned_pk}`
     return (
       <tr>
-        <td dangerouslySetInnerHTML={{__html: this.props.data.card}} />
+        <td dangerouslySetInnerHTML={{__html: this.props.data.display}} />
         <td>
           <div className="row" align="center">
             {!this.props.data.edit_disabled &&

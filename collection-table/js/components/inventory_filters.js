@@ -30,6 +30,7 @@ class InventoryFilters extends Component {
 
     this.handleFilterReset = this.handleFilterReset.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.debouncedFilter = _.debounce(data => {this.props.onFilter(data)}, 1000)
   }
 
   handleFilterReset() {
@@ -75,7 +76,7 @@ class InventoryFilters extends Component {
     this.setState({
       form: new_form
     });
-    this.props.onFilter(new_form)
+    this.debouncedFilter(new_form)
   }
 
   render() {

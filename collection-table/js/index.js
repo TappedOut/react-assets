@@ -30,6 +30,7 @@ class CollectionTableApp extends React.Component {
       error: ''
     }
     this.handleExport = this.handleExport.bind(this);
+    this.handleCardEdit = this.handleCardEdit.bind(this);
     this.toggleFilters = this.toggleFilters.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
     this.initialize(INIT_URL);
@@ -77,6 +78,9 @@ class CollectionTableApp extends React.Component {
         loading: false,
         error: ''
       })
+      document.addEventListener('card-added', event => {
+        this.searchCards(this.state.filter_data, this.state.page)
+      })
     }).catch(error => {
     let error_msg = 'Error getting the card data.';
     if (error.response && error.response.data && error.response.data.errors) {
@@ -101,6 +105,10 @@ class CollectionTableApp extends React.Component {
   handleFilter(data) {
     this.setState({filter_data: data});
     this.searchCards(data, this.state.page)
+  }
+
+  handleCardEdit() {
+    this.searchCards(this.state.filter_data, this.state.page)
   }
 
   handlePageChange(page) {
@@ -142,7 +150,8 @@ class CollectionTableApp extends React.Component {
       return (
         <InventoryCard
           data={card}
-          is_owner={this.state.init_data.is_owner}
+          init_data={this.state.init_data}
+          onEdit={this.handleCardEdit}
         />
       );
     })
@@ -242,8 +251,10 @@ class CollectionTableApp extends React.Component {
               <InventoryHeader
                 is_owner={this.state.init_data.is_owner}
               />
-              {this.state.loading && <div style={{"text-align": "center"}} className="loading">Loading</div>}
-              {!this.state.loading && cards.length ? <tbody>{cards}</tbody> : <p style={{"text-align": "center"}}>{this.state.error ? this.state.error : 'Collection is empty.'}</p>}
+                <tbody>
+                  {this.state.loading && <td><div style={{"text-align": "center"}} className="loading">Loading</div></td>}
+                  {!this.state.loading && cards.length ? cards : <td><p style={{"text-align": "center"}}>{this.state.error ? this.state.error : 'Collection is empty.'}</p></td>}
+                </tbody>
             </table>
           </div>
         </div>

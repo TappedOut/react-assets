@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Select from 'react-select';
 
 class InventoryFilters extends Component {
   constructor(props) {
@@ -29,6 +30,7 @@ class InventoryFilters extends Component {
     };
 
     this.handleFilterReset = this.handleFilterReset.bind(this);
+    this.handleSelectChange = this.handleSelectChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.debouncedFilter = _.debounce(data => {this.props.onFilter(data)}, 1000)
   }
@@ -58,19 +60,20 @@ class InventoryFilters extends Component {
     this.props.onFilter(blank)
   }
 
-  objectsToOptions(objects) {
-    return [<option value=""></option>].concat(objects.map(opts => <option value={opts.value}>{opts.name}</option>))
-  }
-
   handleInputChange(event) {
     const target = event.target;
     let value = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
+    const new_form = {...this.state.form, [name]: value}
 
-    if (['sets', 'colors', 'colors_exclude', 'collection'].includes(name)) {
-      value = Array.from(target.selectedOptions, option => option.value);
-    }
+    this.setState({
+      form: new_form
+    });
+    this.debouncedFilter(new_form)
+  }
 
+  handleSelectChange(name, selected) {
+    const value = Array.isArray(selected) ? selected.map(v => {return v['value']}) : selected['value'];
     const new_form = {...this.state.form, [name]: value}
 
     this.setState({
@@ -80,12 +83,6 @@ class InventoryFilters extends Component {
   }
 
   render() {
-    const colors_options = this.objectsToOptions(this.props.init_data.selects.color)
-    const collection_options = this.objectsToOptions(this.props.init_data.selects.collection);
-    const rarity_options = this.objectsToOptions(this.props.init_data.selects.rarity);
-    const type_options = this.objectsToOptions(this.props.init_data.selects.type);
-    const set_options = this.objectsToOptions(this.props.init_data.selects.set);
-    const language_options = this.objectsToOptions(this.props.init_data.selects.language);
     return (
       <div>
         <div className="row">
@@ -99,25 +96,37 @@ class InventoryFilters extends Component {
           <div className="col-lg-3 col-xs-6">
             <div className="form-group">
               <label className="control-label">Color</label>
-                <select name="colors" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.colors} multiple={true}>
-                  {colors_options}
-                </select>
+              <Select
+                name="colors"
+                multi
+                onChange={(v) => this.handleSelectChange('colors', v)}
+                value={this.state.form.colors}
+                options={this.props.init_data.selects.color}
+              />
             </div>
           </div>
           <div className="col-lg-3 col-xs-6">
             <div className="form-group">
               <label className="control-label">Exclude Color</label>
-                <select name="colors_exclude" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.colors_exclude} multiple={true}>
-                  {colors_options}
-                </select>
+                <Select
+                  name="colors_exclude"
+                  multi
+                  onChange={(v) => this.handleSelectChange('colors_exclude', v)}
+                  value={this.state.form.colors_exclude}
+                  options={this.props.init_data.selects.color}
+                />
             </div>
           </div>
           <div className="col-lg-3 col-xs-6">
             <div className="form-group">
               <label className="control-label">Collection</label>
-                <select name="collection" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.collection} multiple={true}>
-                  {collection_options}
-                </select>
+                <Select
+                  name="collection"
+                  multi
+                  onChange={(v) => this.handleSelectChange('collection', v)}
+                  value={this.state.form.collection}
+                  options={this.props.init_data.selects.collection}
+                />
             </div>
           </div>
         </div>
@@ -125,17 +134,23 @@ class InventoryFilters extends Component {
           <div className="col-lg-3 col-xs-6">
             <div className="form-group">
               <label className="control-label">Rarity</label>
-                <select name="rarity" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.rarity}>
-                  {rarity_options}
-                </select>
+                <Select
+                  name="rarity"
+                  onChange={(v) => this.handleSelectChange('rarity', v)}
+                  value={this.state.form.rarity}
+                  options={this.props.init_data.selects.rarity}
+                />
             </div>
           </div>
           <div className="col-lg-3 col-xs-6">
             <div className="form-group">
               <label className="control-label">Type</label>
-                <select name="cardtype" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.cardtype}>
-                  {type_options}
-                </select>
+                <Select
+                  name="cardtype"
+                  onChange={(v) => this.handleSelectChange('cardtype', v)}
+                  value={this.state.form.cardtype}
+                  options={this.props.init_data.selects.type}
+                />
             </div>
           </div>
           <div className="col-lg-3 col-xs-6">
@@ -150,9 +165,14 @@ class InventoryFilters extends Component {
           <div className="col-lg-3 col-xs-6">
             <div className="form-group">
               <label className="control-label">Sets</label>
-                <select name="sets" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.sets} multiple={true}>
-                  {set_options}
-                </select>
+                <Select
+                  multi
+                  name="sets"
+                  onChange={(v) => this.handleSelectChange('sets', v)}
+                  value={this.state.form.sets}
+                  multiple={true}
+                  options={this.props.init_data.selects.set}
+                />
             </div>
           </div>
           <div className="col-lg-5 col-xs-12">
@@ -170,17 +190,20 @@ class InventoryFilters extends Component {
           <div className="col-lg-3 col-xs-6">
             <div className="form-group">
               <label className="control-label">Language</label>
-                <select name="language" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.language}>
-                  {language_options}
-                </select>
+                <Select
+                  name="language"
+                  onChange={(v) => this.handleSelectChange('language', v)}
+                  value={this.state.form.language}
+                  options={this.props.init_data.selects.language}
+                />
             </div>
           </div>
           <div className="col-lg-3 col-xs-6">
             <div className="form-group">
               <div className="checkbox">
-                <label htmlFor="foil-search">
-                  <input name="foil" type="checkbox" onChange={this.handleInputChange} checked={this.state.form.foil} />
-                    Foil <img alt="foil img" className="card-icon" src={this.props.foil_img} />
+                <label htmlFor="foil">
+                  <input id="foil" name="foil" type="checkbox" onChange={this.handleInputChange} checked={this.state.form.foil} />
+                    Foil <img alt="foil img" className="card-icon" src={this.props.init_data.urls.foil_img} />
                 </label>
               </div>
             </div>
@@ -188,8 +211,8 @@ class InventoryFilters extends Component {
           <div className="col-lg-3 col-xs-6">
             <div className="form-group">
               <div className="checkbox">
-                <label htmlFor="inventory-search">
-                  <input name="owned" type="checkbox" onChange={this.handleInputChange} checked={this.state.form.owned} />
+                <label htmlFor="owned">
+                  <input id="owned" name="owned" type="checkbox" onChange={this.handleInputChange} checked={this.state.form.owned} />
                     Owned cards only
                 </label>
               </div>

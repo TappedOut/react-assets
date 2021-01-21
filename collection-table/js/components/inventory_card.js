@@ -98,9 +98,9 @@ class InventoryCard extends Component {
     if (this.props.init_data.is_owner) {
       let printing_options = this.props.data.all_printings.map(opts => <option value={opts[1]}>{opts[0]}</option>);
       let variation_options = [];
-      let language_options = this.props.init_data.selects.language.map(opts => <option value={opts.value}>{opts.name}</option>);
-      let condition_options = this.props.init_data.selects.condition.map(opts => <option value={opts.value}>{opts.name}</option>);
-      let foil_options = this.props.init_data.selects.foil.map(opts => <option value={opts.value}>{opts.name}</option>);
+      let language_options = this.props.init_data.selects.language.map(opts => <option value={opts.value}>{opts.label}</option>);
+      let condition_options = this.props.init_data.selects.condition.map(opts => <option value={opts.value}>{opts.label}</option>);
+      let foil_options = this.props.init_data.selects.foil.map(opts => <option value={opts.value}>{opts.label}</option>);
       edit_popover = (
         <Popover id="edit-popover" title="Edit Card">
           <div className="popover-content popover-edit-content">

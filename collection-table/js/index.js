@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import InventoryFilters from "./components/inventory_filters";
+import 'react-select/dist/react-select.css';
 import {Button, Collapse} from 'react-bootstrap'
 import InventoryCard from "./components/inventory_card";
 import InventoryHeader from "./components/inventory_headers";
@@ -166,8 +167,8 @@ class CollectionTableApp extends React.Component {
     })
 
     // selects
-    const export_options = this.state.init_data.selects.export.map(opts => <option value={opts.value}>{opts.name}</option>)
-    const order_options = this.state.init_data.selects.ordering.map(opts => <option value={opts.value}>{opts.name}</option>)
+    const export_options = this.state.init_data.selects.export.map(opts => <option value={opts.value}>{opts.label}</option>)
+    const order_options = this.state.init_data.selects.ordering.map(opts => <option value={opts.value}>{opts.label}</option>)
 
     return (
       <div>
@@ -177,7 +178,7 @@ class CollectionTableApp extends React.Component {
               {this.state.init_data.is_owner &&
                 <div className="row">
                   <div className="col-lg-6 col-xs-6">
-                    <button className="btn btn-sm btn-success btn-block" data-toggle="modal" data-target="#addModal"><span className="glyphicon glyphicon-plus"></span> Add Card</button>
+                    <button className="btn btn-sm btn-success btn-block" data-toggle="modal" data-target="#addModal"><span className="glyphicon glyphicon-plus" /> Add Card</button>
                   </div>
                   <div id="ck-buylist-container" className="col-lg-6 col-xs-6">
                     <button type="button" id="ck-buylist-button" className="btn btn-sm btn-warning btn-block"
@@ -256,7 +257,6 @@ class CollectionTableApp extends React.Component {
                 <InventoryFilters
                   onFilter={this.handleFilter}
                   init_data={this.state.init_data}
-                  foil_image={this.state.init_data.urls.foil_img}
                 />
               </div>
             </div>

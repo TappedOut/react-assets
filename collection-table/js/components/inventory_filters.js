@@ -9,11 +9,11 @@ class InventoryFilters extends Component {
       form: {
         rules: '',
         name: '',
-        color: '',
-        exclude_color: '',
+        colors: '',
+        colors_exclude: '',
         collection: '',
         rarity: '',
-        type: '',
+        cardtype: '',
         subtype: '',
         sets: [],
         price_from: '',
@@ -37,11 +37,11 @@ class InventoryFilters extends Component {
     const blank = {
       rules: '',
       name: '',
-      color: '',
-      exclude_color: '',
+      colors: '',
+      colors_exclude: '',
       collection: '',
       rarity: '',
-      type: '',
+      cardtype: '',
       subtype: '',
       sets: [],
       price_from: '',
@@ -67,7 +67,7 @@ class InventoryFilters extends Component {
     let value = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
 
-    if (name === 'sets') {
+    if (['sets', 'colors', 'colors_exclude', 'collection'].includes(name)) {
       value = Array.from(target.selectedOptions, option => option.value);
     }
 
@@ -80,7 +80,7 @@ class InventoryFilters extends Component {
   }
 
   render() {
-    const color_options = this.objectsToOptions(this.props.init_data.selects.color)
+    const colors_options = this.objectsToOptions(this.props.init_data.selects.color)
     const collection_options = this.objectsToOptions(this.props.init_data.selects.collection);
     const rarity_options = this.objectsToOptions(this.props.init_data.selects.rarity);
     const type_options = this.objectsToOptions(this.props.init_data.selects.type);
@@ -99,23 +99,23 @@ class InventoryFilters extends Component {
           <div className="col-lg-3 col-xs-6">
             <div className="form-group">
               <label className="control-label">Color</label>
-                <select name="color" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.color}>
-                  {color_options}
+                <select name="colors" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.colors} multiple={true}>
+                  {colors_options}
                 </select>
             </div>
           </div>
           <div className="col-lg-3 col-xs-6">
             <div className="form-group">
               <label className="control-label">Exclude Color</label>
-                <select name="exclude_color" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.exclude_color}>
-                  {color_options}
+                <select name="colors_exclude" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.colors_exclude} multiple={true}>
+                  {colors_options}
                 </select>
             </div>
           </div>
           <div className="col-lg-3 col-xs-6">
             <div className="form-group">
               <label className="control-label">Collection</label>
-                <select name="collection" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.collection}>
+                <select name="collection" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.collection} multiple={true}>
                   {collection_options}
                 </select>
             </div>
@@ -133,7 +133,7 @@ class InventoryFilters extends Component {
           <div className="col-lg-3 col-xs-6">
             <div className="form-group">
               <label className="control-label">Type</label>
-                <select name="type" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.type}>
+                <select name="cardtype" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.cardtype}>
                   {type_options}
                 </select>
             </div>

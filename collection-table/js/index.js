@@ -26,13 +26,15 @@ class CollectionTableApp extends React.Component {
       initializing: true,
       export_value: '',
       filter_open: false,
-      filter_data: {},
-      error: ''
+      filter_data: {owned: true},
+      error: '',
+      ordering: 'name'
     }
     this.handleExport = this.handleExport.bind(this);
     this.handleCardEdit = this.handleCardEdit.bind(this);
     this.toggleFilters = this.toggleFilters.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
+    this.handleOrderChange = this.handleOrderChange.bind(this);
     this.initialize(INIT_URL);
   }
 
@@ -45,16 +47,17 @@ class CollectionTableApp extends React.Component {
           init_data: response.data,
           initializing: false
         })
-        this.searchCards({}, 1);
+        this.searchCards({owned: true}, 'name', 1);
       }
     )
   }
 
-  searchCards(data, page){
+  searchCards(data, order, page){
     this.setState({loading: true})
     let get_data = {
       'start': 50 * (page - 1),
-      'end': 50 * page
+      'end': 50 * page,
+      'ordering': order
     }
     for (let [key, value] of Object.entries(data)) {
       if (Array.isArray(value) && value.length) {
@@ -79,7 +82,7 @@ class CollectionTableApp extends React.Component {
         error: ''
       })
       document.addEventListener('card-added', event => {
-        this.searchCards(this.state.filter_data, this.state.page)
+        this.searchCards(this.state.filter_data, this.state.ordering, this.state.page)
       })
     }).catch(error => {
     let error_msg = 'Error getting the card data.';
@@ -104,16 +107,22 @@ class CollectionTableApp extends React.Component {
 
   handleFilter(data) {
     this.setState({filter_data: data});
-    this.searchCards(data, this.state.page)
+    this.searchCards(data, this.state.ordering, this.state.page)
   }
 
   handleCardEdit() {
-    this.searchCards(this.state.filter_data, this.state.page)
+    this.searchCards(this.state.filter_data, this.state.ordering, this.state.page)
   }
 
   handlePageChange(page) {
     this.setState({page: page});
-    this.searchCards(this.state.filter_data, page)
+    this.searchCards(this.state.filter_data, this.state.ordering, page)
+  }
+
+  handleOrderChange(event) {
+    const value = event.target.value;
+    this.setState({ordering: value});
+    this.searchCards(this.state.filter_data, value, this.state.page)
   }
 
   handleExport(event) {
@@ -156,29 +165,28 @@ class CollectionTableApp extends React.Component {
       );
     })
 
-    // export
+    // selects
     const export_options = this.state.init_data.selects.export.map(opts => <option value={opts.value}>{opts.name}</option>)
+    const order_options = this.state.init_data.selects.ordering.map(opts => <option value={opts.value}>{opts.name}</option>)
 
     return (
       <div>
         <div className="row">
           <div className="col-lg-8 col-xs-12">
             <div className="well">
-              <div className="row">
-                <div className="col-lg-6 col-xs-6">
-                  <button
-                    onClick={this.toggleFilters}
-                    aria-controls="filter-well"
-                    aria-expanded={this.state.filter_open}
-                    className="btn btn-md btn-block">
-                    Filter
-                  </button>
+              {this.state.init_data.is_owner &&
+                <div className="row">
+                  <div className="col-lg-6 col-xs-6">
+                    <button className="btn btn-sm btn-success btn-block" data-toggle="modal" data-target="#addModal"><span className="glyphicon glyphicon-plus"></span> Add Card</button>
+                  </div>
+                  <div id="ck-buylist-container" className="col-lg-6 col-xs-6">
+                    <button type="button" id="ck-buylist-button" className="btn btn-sm btn-warning btn-block"
+                            disabled>Calculating CK buylist price...
+                    </button>
+                  </div>
                 </div>
-                <div className="col-lg-6 col-xs-6">
-                  <button className="btn btn-sm btn-success btn-block" data-toggle="modal" data-target="#addModal"><span className="glyphicon glyphicon-plus"></span> Add Card</button>
-                </div>
-              </div>
-              <div className="row" style={{'margin-top': '5px'}}>
+              }
+              <div className="row" style={{'margin-top': '15px'}}>
                 <div className="col-lg-6 col-xs-6">
                   <a className="btn btn-sm btn-primary btn-block" href={this.state.init_data.urls.find_decks}>Find decks</a>
                 </div>
@@ -191,15 +199,29 @@ class CollectionTableApp extends React.Component {
                   </form>
                 </div>
               </div>
-              {this.state.init_data.is_owner &&
-                <div className="row" style={{'margin-top': '5px'}}>
-                  <div id="ck-buylist-container" className="col-lg-6 col-xs-6">
-                    <button type="button" id="ck-buylist-button" className="btn btn-sm btn-warning btn-block"
-                            disabled>Calculating CK buylist price...
-                    </button>
+              <div className="row" style={{'margin-top': '15px'}}>
+                <div className="col-lg-6 col-xs-6">
+                  <button
+                    onClick={this.toggleFilters}
+                    aria-controls="filter-well"
+                    aria-expanded={this.state.filter_open}
+                    className="btn btn-md btn-block">
+                    Filter
+                  </button>
+                </div>
+                <div className="col-lg-6 col-xs-6">
+                  <div className="row">
+                    <div className="col-lg-4 col-xs-4">
+                      Order by
+                    </div>
+                    <div className="col-lg-8 col-xs-8">
+                      <select name="ordering" className="form-control" onChange={this.handleOrderChange} value={this.state.ordering}>
+                        {order_options}
+                      </select>
+                    </div>
                   </div>
                 </div>
-              }
+              </div>
             </div>
           </div>
           <div className="col-lg-4 col-xs-12">

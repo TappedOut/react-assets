@@ -21,7 +21,8 @@ class InventoryFilters extends Component {
         price_to: '',
         language: '',
         owned: true,
-        foil: false,
+        display: 'owned',
+        foil: '',
         mana_cost: '',
         cmc_from: '',
         cmc_to: '',
@@ -50,7 +51,8 @@ class InventoryFilters extends Component {
       price_to: '',
       language: '',
       owned: true,
-      foil: false,
+      display: 'owned',
+      foil: '',
       mana_cost: '',
       cmc_from: '',
       cmc_to: '',
@@ -65,7 +67,7 @@ class InventoryFilters extends Component {
     let value = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
     const new_form = {...this.state.form, [name]: value}
-
+    if (name === 'owned') value ? new_form['display'] = 'owned' : new_form['display'] = 'collapse'
     this.setState({
       form: new_form
     });
@@ -73,9 +75,13 @@ class InventoryFilters extends Component {
   }
 
   handleSelectChange(name, selected) {
-    const value = Array.isArray(selected) ? selected.map(v => {return v['value']}) : selected['value'];
+    let value = ''
+    if (selected) {
+      value = Array.isArray(selected) ? selected.map(v => {
+        return v['value']
+      }) : selected['value'];
+    }
     const new_form = {...this.state.form, [name]: value}
-
     this.setState({
       form: new_form
     });
@@ -98,7 +104,6 @@ class InventoryFilters extends Component {
               <label className="control-label">Color</label>
               <Select
                 name="colors"
-                multi
                 onChange={(v) => this.handleSelectChange('colors', v)}
                 value={this.state.form.colors}
                 options={this.props.init_data.selects.color}
@@ -110,7 +115,6 @@ class InventoryFilters extends Component {
               <label className="control-label">Exclude Color</label>
                 <Select
                   name="colors_exclude"
-                  multi
                   onChange={(v) => this.handleSelectChange('colors_exclude', v)}
                   value={this.state.form.colors_exclude}
                   options={this.props.init_data.selects.color}
@@ -200,12 +204,13 @@ class InventoryFilters extends Component {
           </div>
           <div className="col-lg-3 col-xs-6">
             <div className="form-group">
-              <div className="checkbox">
-                <label htmlFor="foil">
-                  <input id="foil" name="foil" type="checkbox" onChange={this.handleInputChange} checked={this.state.form.foil} />
-                    Foil <img alt="foil img" className="card-icon" src={this.props.init_data.urls.foil_img} />
-                </label>
-              </div>
+              <label className="control-label">Foil</label>
+              <Select
+                name="foil"
+                onChange={(v) => this.handleSelectChange('foil', v)}
+                value={this.state.form.foil}
+                options={this.props.init_data.selects.filter_foil}
+              />
             </div>
           </div>
           <div className="col-lg-3 col-xs-6">

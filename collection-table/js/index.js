@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import axios from 'axios';
 import InventoryFilters from "./components/inventory_filters";
 import 'react-select/dist/react-select.css';
-import {Button, Collapse} from 'react-bootstrap'
+import {Button, ButtonGroup, Collapse} from 'react-bootstrap'
 import InventoryCard from "./components/inventory_card";
 import InventoryHeader from "./components/inventory_headers";
 const _ = require('lodash');
@@ -157,18 +157,30 @@ class CollectionTableApp extends React.Component {
 
     // cards stuff
     const cards = this.state.cards.map(card => {
-      return (
-        <InventoryCard
-          data={card}
-          init_data={this.state.init_data}
-          onEdit={this.handleCardEdit}
-        />
-      );
+      if (this.state.init_data.type === 'inventory') {
+        return (
+          <InventoryCard
+            data={card}
+            init_data={this.state.init_data}
+            onEdit={this.handleCardEdit}
+          />
+        )
+      }
     })
 
     // selects
     const export_options = this.state.init_data.selects.export.map(opts => <option value={opts.value}>{opts.label}</option>)
     const order_options = this.state.init_data.selects.ordering.map(opts => <option value={opts.value}>{opts.label}</option>)
+
+    // Collection specific
+    let row_amount = 0;
+    let headers = [];
+    let filters = <div />
+    if (this.state.init_data.type === 'inventory') {
+      row_amount = this.state.init_data.is_owner ? '8' : '7'
+      headers = <InventoryHeader is_owner={this.state.init_data.is_owner} />
+      filters = <InventoryFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
+    }
 
     return (
       <div>
@@ -254,35 +266,41 @@ class CollectionTableApp extends React.Component {
           <div id="filter-well" className="row">
             <div className="col-lg-12 col-xs-12">
               <div className="well">
-                <InventoryFilters
-                  onFilter={this.handleFilter}
-                  init_data={this.state.init_data}
-                />
+                {filters}
               </div>
             </div>
           </div>
         </Collapse>
         <div style={{'margin-bottom': "10px"}} className="row">
           <div className="col-lg-12 col-xs-12">
-            {pages}
+            <ButtonGroup>
+              {pages}
+            </ButtonGroup>
           </div>
         </div>
         <div className="row">
           <div className="col-lg-12 col-xs-12">
             <table className="table table-bordered table-hover">
-              <InventoryHeader
-                is_owner={this.state.init_data.is_owner}
-              />
+              {headers}
                 <tbody>
-                  {this.state.loading && <td><div style={{"text-align": "center"}} className="loading">Loading</div></td>}
-                  {!this.state.loading && cards.length ? cards : <td><p style={{"text-align": "center"}}>{this.state.error ? this.state.error : 'Collection is empty.'}</p></td>}
+                  {this.state.loading &&
+                    <td style={{'background-color': 'black', 'height': '60px'}} colSpan={row_amount}>
+                      <div style={{"text-align": "center"}} className="loading">Loading</div>
+                    </td>}
+                  {!this.state.loading &&
+                    (cards.length ? cards :
+                      <td style={{'background-color': 'black', 'height': '50px'}} colSpan={row_amount}>
+                        <p style={{"text-align": "center"}}>{this.state.error ? this.state.error : 'Collection is empty.'}</p>
+                      </td>)}
                 </tbody>
             </table>
           </div>
         </div>
         <div className="row">
           <div className="col-lg-12 col-xs-12">
-            {pages}
+            <ButtonGroup>
+              {pages}
+            </ButtonGroup>
           </div>
         </div>
       </div>

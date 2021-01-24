@@ -196,7 +196,7 @@ class InventoryCard extends Component {
         <td>{this.props.data.type}</td>
         <td dangerouslySetInnerHTML={{__html: this.props.data.mana_cost}} />
         <td>{this.props.data.set}</td>
-        <td dangerouslySetInnerHTML={{__html: this.props.data.marked_price}} />
+        <td dangerouslySetInnerHTML={{__html: this.props.data.market_price}} />
         {this.props.init_data.is_owner &&
           <td>
             <div align="center">

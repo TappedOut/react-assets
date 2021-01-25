@@ -181,7 +181,7 @@ class InventoryFilters extends Component {
           </div>
           <div className="col-lg-5 col-xs-12">
             <div className="form-group">
-              <label>TCG Player Price</label>
+              <label>{this.props.init_data.price_header}</label>
               <div className="row">
                 <div className="col-lg-5"><input name="price_from" type="text" className="form-control" onChange={this.handleInputChange} value={this.state.form.price_from} /></div>
                 <div className="col-lg-1">to</div>

@@ -29,7 +29,31 @@ class BinderCard extends Component {
   }
 
   handleQtyEdit (qty, owned) {
-    let params = {qty: qty, owned_pk: this.state.owned_pk, name: this.props.data.name, tla: this.props.data.tla, owned: owned}
+    let params = {qty: qty, name: this.props.data.name, tla: this.props.data.tla, owned: owned}
+    if (this.state.owned_pk && this.props.data.owned === owned) {
+      params['owned_pk'] = this.state.owned_pk;
+      params['qty'] = 1
+    } else {
+      if (this.props.data.foil) {
+        params['foil'] = this.props.data.foil;
+      }
+      if (this.props.data.condition) {
+        params['condition'] = this.props.data.condition;
+      }
+      if (this.props.data.alter) {
+        params['alter'] = this.props.data.alter;
+      }
+      if (this.props.data.variation) {
+        params['variation'] = this.props.data.variation;
+      }
+      if (this.props.data.signed) {
+        params['signed'] = this.props.data.signed;
+      }
+      if (this.props.data.language) {
+        params['language'] = this.props.data.language;
+      }
+    }
+
     params = {'changes': JSON.stringify([params])}
     axios.put(
       this.props.init_data.urls.rows_api,

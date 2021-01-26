@@ -1,11 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
-import InventoryFilters from "./components/inventory_filters";
 import 'react-select/dist/react-select.css';
 import {Button, ButtonGroup, Collapse} from 'react-bootstrap'
+import InventoryFilters from "./components/inventory_filters";
+import BinderFilters from "./components/binder_filters";
 import InventoryCard from "./components/inventory_card";
+import BinderCard from "./components/binder_card";
 import InventoryHeader from "./components/inventory_headers";
+import BinderHeader from "./components/binder_headers";
 const _ = require('lodash');
 
 
@@ -133,6 +136,7 @@ class CollectionTableApp extends React.Component {
   }
 
   render() {
+    if (this.state.init_data.processing) return <div style={{'font-size': '28px', 'margin-bottom': '15px'}}>Binder is processing.</div>
     if (this.state.initializing) return <div className="loading">Loading</div>
 
     // pages stuff
@@ -166,6 +170,15 @@ class CollectionTableApp extends React.Component {
           />
         )
       }
+      if (this.state.init_data.type === 'binder') {
+        return (
+          <BinderCard
+            data={card}
+            init_data={this.state.init_data}
+            onEdit={this.handleCardEdit}
+          />
+        )
+      }
     })
 
     // selects
@@ -176,10 +189,115 @@ class CollectionTableApp extends React.Component {
     let row_amount = 0;
     let headers = [];
     let filters = <div />
+    let buttons = <div />
+
     if (this.state.init_data.type === 'inventory') {
       row_amount = this.state.init_data.is_owner ? '8' : '7'
       headers = <InventoryHeader init_data={this.state.init_data} />
       filters = <InventoryFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
+      buttons = (
+        <div>
+          {this.state.init_data.is_owner &&
+            <div className="row">
+              <div className="col-lg-6 col-xs-6">
+                <button className="btn btn-sm btn-success btn-block" data-toggle="modal" data-target="#addModal"><span className="glyphicon glyphicon-plus" /> Add Card</button>
+              </div>
+              <div id="ck-buylist-container" className="col-lg-6 col-xs-6">
+                <button type="button" id="ck-buylist-button" className="btn btn-sm btn-warning btn-block"
+                        disabled>Calculating CK buylist price...
+                </button>
+              </div>
+            </div>
+          }
+          <div className="row" style={{'margin-top': '15px'}}>
+            <div className="col-lg-6 col-xs-6">
+              <a className="btn btn-sm btn-primary btn-block" href={this.state.init_data.urls.find_decks}>Find decks</a>
+            </div>
+            <div className="col-lg-6 col-xs-6">
+              <form action="." method="get" className="navbar-search">
+                <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
+                  <option value="">Export/Download</option>
+                  {export_options}
+                </select>
+              </form>
+            </div>
+          </div>
+          <div className="row" style={{'margin-top': '15px'}}>
+            <div className="col-lg-6 col-xs-6">
+              <button
+                onClick={this.toggleFilters}
+                aria-controls="filter-well"
+                aria-expanded={this.state.filter_open}
+                className="btn btn-md btn-block">
+                Filter
+              </button>
+            </div>
+            <div className="col-lg-6 col-xs-6">
+              <div className="row">
+                <div className="col-lg-4 col-xs-4">
+                  Order by
+                </div>
+                <div className="col-lg-8 col-xs-8">
+                  <select name="ordering" className="form-control" onChange={this.handleOrderChange} value={this.state.ordering}>
+                    {order_options}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+    if (this.state.init_data.type === 'binder') {
+      row_amount = 6
+      headers = <BinderHeader init_data={this.state.init_data} />
+      filters = <BinderFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
+      buttons = (
+        <div>
+          {this.state.init_data.is_owner &&
+            <div className="row">
+              <div id="ck-buylist-container" className="col-lg-6 col-xs-6">
+                <button type="button" id="ck-buylist-button" className="btn btn-sm btn-warning btn-block"
+                        disabled>Calculating CK buylist price...
+                </button>
+              </div>
+            </div>
+          }
+          <div className="row" style={{'margin-top': '15px'}}>
+            <div className="col-lg-6 col-xs-6">
+              <form action="." method="get" className="navbar-search">
+                <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
+                  <option value="">Export/Download</option>
+                  {export_options}
+                </select>
+              </form>
+            </div>
+          </div>
+          <div className="row" style={{'margin-top': '15px'}}>
+            <div className="col-lg-6 col-xs-6">
+              <button
+                onClick={this.toggleFilters}
+                aria-controls="filter-well"
+                aria-expanded={this.state.filter_open}
+                className="btn btn-md btn-block">
+                Filter
+              </button>
+            </div>
+            <div className="col-lg-6 col-xs-6">
+              <div className="row">
+                <div className="col-lg-4 col-xs-4">
+                  Order by
+                </div>
+                <div className="col-lg-8 col-xs-8">
+                  <select name="ordering" className="form-control" onChange={this.handleOrderChange} value={this.state.ordering}>
+                    {order_options}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
     }
 
     return (
@@ -187,54 +305,7 @@ class CollectionTableApp extends React.Component {
         <div className="row">
           <div className="col-lg-8 col-xs-12">
             <div className="well">
-              {this.state.init_data.is_owner &&
-                <div className="row">
-                  <div className="col-lg-6 col-xs-6">
-                    <button className="btn btn-sm btn-success btn-block" data-toggle="modal" data-target="#addModal"><span className="glyphicon glyphicon-plus" /> Add Card</button>
-                  </div>
-                  <div id="ck-buylist-container" className="col-lg-6 col-xs-6">
-                    <button type="button" id="ck-buylist-button" className="btn btn-sm btn-warning btn-block"
-                            disabled>Calculating CK buylist price...
-                    </button>
-                  </div>
-                </div>
-              }
-              <div className="row" style={{'margin-top': '15px'}}>
-                <div className="col-lg-6 col-xs-6">
-                  <a className="btn btn-sm btn-primary btn-block" href={this.state.init_data.urls.find_decks}>Find decks</a>
-                </div>
-                <div className="col-lg-6 col-xs-6">
-                  <form action="." method="get" className="navbar-search">
-                    <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
-                      <option value="">Export/Download</option>
-                      {export_options}
-                    </select>
-                  </form>
-                </div>
-              </div>
-              <div className="row" style={{'margin-top': '15px'}}>
-                <div className="col-lg-6 col-xs-6">
-                  <button
-                    onClick={this.toggleFilters}
-                    aria-controls="filter-well"
-                    aria-expanded={this.state.filter_open}
-                    className="btn btn-md btn-block">
-                    Filter
-                  </button>
-                </div>
-                <div className="col-lg-6 col-xs-6">
-                  <div className="row">
-                    <div className="col-lg-4 col-xs-4">
-                      Order by
-                    </div>
-                    <div className="col-lg-8 col-xs-8">
-                      <select name="ordering" className="form-control" onChange={this.handleOrderChange} value={this.state.ordering}>
-                        {order_options}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {buttons}
             </div>
           </div>
           <div className="col-lg-4 col-xs-12">

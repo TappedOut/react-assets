@@ -2,13 +2,16 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import 'react-select/dist/react-select.css';
-import {Button, ButtonGroup, Collapse} from 'react-bootstrap'
+import {Button, ButtonGroup, Collapse, Modal} from 'react-bootstrap'
 import InventoryFilters from "./components/inventory_filters";
 import BinderFilters from "./components/binder_filters";
+import WishlistFilters from "./components/wishlist_filters";
 import InventoryCard from "./components/inventory_card";
 import BinderCard from "./components/binder_card";
+import WishlistCard from "./components/wishlist_card";
 import InventoryHeader from "./components/inventory_headers";
 import BinderHeader from "./components/binder_headers";
+import WishlistHeader from "./components/wishlist_headers";
 const _ = require('lodash');
 
 
@@ -32,8 +35,13 @@ class CollectionTableApp extends React.Component {
       filter_open: false,
       filter_data: {owned: true},
       error: '',
-      ordering: 'name'
+      ordering: 'name',
+      show_price_modal: false,
+      ck_price: 0,
+      tcg_price: 0,
+      card_string: ''
     }
+
     this.handleExport = this.handleExport.bind(this);
     this.handleCardEdit = this.handleCardEdit.bind(this);
     this.toggleFilters = this.toggleFilters.bind(this);
@@ -56,7 +64,7 @@ class CollectionTableApp extends React.Component {
     )
   }
 
-  searchCards(data, order, page){
+  searchCards(data, order, page) {
     this.setState({loading: true})
     let get_data = {
       'start': 50 * (page - 1),
@@ -76,6 +84,10 @@ class CollectionTableApp extends React.Component {
         'params': get_data
       }
     ).then(response => {
+      const price_cards = response.data.data.filter((c) => {
+        if (this.state.init_data.type === 'binder') return !c['owned']
+        return true
+      })
       this.setState({
         cards: response.data.data,
         total_cards: response.data.recordsTotal,
@@ -83,26 +95,29 @@ class CollectionTableApp extends React.Component {
         total_qty: response.data.quantityTotal,
         total_price: response.data.priceTotal,
         loading: false,
+        ck_price: price_cards.map((c) => c['qty'] * (c['ck_price'] ? c['ck_price'] : 0)).reduce((a, b) => a + b, 0),
+        tcg_price:  price_cards.map((c) => c['qty'] * (c['tcgp_market_price'] ? c['tcgp_market_price'] : 0)).reduce((a, b) => a + b, 0),
+        card_string: price_cards.map((c) => `${c['qty']} ${c['name']}`).join('||'),
         error: ''
       })
       document.addEventListener('card-added', event => {
         this.searchCards(this.state.filter_data, this.state.ordering, this.state.page)
       })
     }).catch(error => {
-    let error_msg = 'Error getting the card data.';
-    if (error.response && error.response.data && error.response.data.errors) {
-      error_msg = error.response.data.errors
-    }
-    this.setState({
-        cards: [],
-        total_cards: 0,
-        filtered_cards: 0,
-        total_qty: 0,
-        total_price: 0,
-        loading: false,
-        error: error_msg
-      })
-  });
+      let error_msg = 'Error getting the card data.';
+      if (error.response && error.response.data && error.response.data.errors) {
+        error_msg = error.response.data.errors
+      }
+      this.setState({
+          cards: [],
+          total_cards: 0,
+          filtered_cards: 0,
+          total_qty: 0,
+          total_price: 0,
+          loading: false,
+          error: error_msg
+        })
+    });
   }
 
   toggleFilters() {
@@ -179,11 +194,24 @@ class CollectionTableApp extends React.Component {
           />
         )
       }
+      if (this.state.init_data.type === 'wishlist') {
+        return (
+          <WishlistCard
+            data={card}
+            init_data={this.state.init_data}
+            onEdit={this.handleCardEdit}
+          />
+        )
+      }
     })
 
     // selects
     const export_options = this.state.init_data.selects.export.map(opts => <option value={opts.value}>{opts.label}</option>)
     const order_options = this.state.init_data.selects.ordering.map(opts => <option value={opts.value}>{opts.label}</option>)
+
+    //price
+    const handlePriceShow = () => this.setState({show_price_modal: true});
+    const handlePriceHide = () => this.setState({show_price_modal: false});
 
     // Collection specific
     let row_amount = 0;
@@ -261,6 +289,40 @@ class CollectionTableApp extends React.Component {
                         disabled>Calculating CK buylist price...
                 </button>
               </div>
+              <div className="col-lg-6 col-xs-12">
+                <button className="btn btn-block btn-warning" onClick={handlePriceShow}><span className="glyphicon glyphicon-shopping-cart"/> Checkout Binder</button>
+                <Modal show={this.state.show_price_modal} onHide={handlePriceHide}>
+                  <Modal.Header>
+                    <Modal.Title>Checkout Binder</Modal.Title>
+                  </Modal.Header>
+                  <Modal.Body>
+                    <form target="_newtcg" name="tcg_checkout" method="post"
+                        action="https://store.tcgplayer.com/massentry/?utm_campaign=affiliate&amp;utm_medium=binder&amp;utm_source=TPPDOUT">
+                    <input type="hidden" name="c"  value={this.state.card_string}/>
+                    <input type="hidden" name="partner" value="TPPDOUT" />
+                    <input type="hidden" name="utm_campaign" value="affiliate"  />
+                    <input type="hidden" name="utm_medium" value={this.state.init_data.type} />
+                    <input type="hidden" name="utm_source" value="TPPDOUT" />
+                    <button type="submit" className="btn btn-block btn-warning">
+                      <span className="glyphicon glyphicon-shopping-cart"/> <span>{`TCG Player $${this.state.tcg_price}`}</span>
+                    </button>
+                    </form>
+
+                    <form target="_newck" name="ck_checkout" method="post" action="https://www.cardkingdom.com/builder/?utm_source=tappedout&amp;utm_medium=affiliate&amp;utm_campaign=tappedoutbinder&amp;partner=tappedout">
+                      <input type="hidden" name="c" value={this.state.card_string} />
+                      <input type="hidden" name="partner" value="tappedout" />
+                      <button style={{'margin-top': '10px'}} type="submit" className="btn btn-block btn-warning">
+                        <span className="glyphicon glyphicon-shopping-cart" /> <span>{`Card Kingdom $${this.state.tcg_price}`}</span>
+                      </button>
+                    </form>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button variant="secondary" onClick={handlePriceHide}>
+                      Close
+                    </Button>
+                  </Modal.Footer>
+                </Modal>
+              </div>
             </div>
           }
           <div className="row" style={{'margin-top': '15px'}}>
@@ -271,6 +333,82 @@ class CollectionTableApp extends React.Component {
                   {export_options}
                 </select>
               </form>
+            </div>
+          </div>
+          <div className="row" style={{'margin-top': '15px'}}>
+            <div className="col-lg-6 col-xs-6">
+              <button
+                onClick={this.toggleFilters}
+                aria-controls="filter-well"
+                aria-expanded={this.state.filter_open}
+                className="btn btn-md btn-block">
+                Filter
+              </button>
+            </div>
+            <div className="col-lg-6 col-xs-6">
+              <div className="row">
+                <div className="col-lg-4 col-xs-4">
+                  Order by
+                </div>
+                <div className="col-lg-8 col-xs-8">
+                  <select name="ordering" className="form-control" onChange={this.handleOrderChange} value={this.state.ordering}>
+                    {order_options}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+    if (this.state.init_data.type === 'wishlist') {
+      row_amount = 6
+      headers = <WishlistHeader init_data={this.state.init_data} />
+      filters = <WishlistFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
+      buttons = (
+        <div>
+          <div className="row" style={{'margin-top': '15px'}}>
+            <div className="col-lg-6 col-xs-6">
+              <form action="." method="get" className="navbar-search">
+                <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
+                  <option value="">Export/Download</option>
+                  {export_options}
+                </select>
+              </form>
+            </div>
+            <div className="col-lg-6 col-xs-12">
+              <button className="btn btn-block btn-warning" onClick={handlePriceShow}><span className="glyphicon glyphicon-shopping-cart"/> Checkout Wishlist</button>
+              <Modal show={this.state.show_price_modal} onHide={handlePriceHide}>
+                <Modal.Header>
+                  <Modal.Title>Checkout Wishlist</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <form target="_newtcg" name="tcg_checkout" method="post"
+                      action="https://store.tcgplayer.com/massentry/?utm_campaign=affiliate&amp;utm_medium=wishlist&amp;utm_source=TPPDOUT">
+                  <input id="tcg-cards-input" type="hidden" name="c"  value={this.state.card_string}/>
+                  <input type="hidden" name="partner" value="TPPDOUT" />
+                  <input type="hidden" name="utm_campaign" value="affiliate"  />
+                  <input type="hidden" name="utm_medium" value={this.state.init_data.type} />
+                  <input type="hidden" name="utm_source" value="TPPDOUT" />
+                  <button type="submit" className="btn btn-block btn-warning">
+                    <span className="glyphicon glyphicon-shopping-cart"/> <span>{` TCG Player $${this.state.tcg_price}`}</span>
+                  </button>
+                  </form>
+
+                  <form target="_newck" name="ck_checkout" method="post" action="https://www.cardkingdom.com/builder/?utm_source=tappedout&amp;utm_medium=affiliate&amp;utm_campaign=tappedoutbinder&amp;partner=tappedout">
+                    <input type="hidden" name="c" value={this.state.card_string} />
+                    <input type="hidden" name="partner" value="tappedout" />
+                    <button style={{'margin-top': '10px'}} type="submit" className="btn btn-block btn-warning">
+                      <span className="glyphicon glyphicon-shopping-cart" /> <span>{`Card Kingdom $${this.state.tcg_price}`}</span>
+                    </button>
+                  </form>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={handlePriceHide}>
+                    Close
+                  </Button>
+                </Modal.Footer>
+              </Modal>
             </div>
           </div>
           <div className="row" style={{'margin-top': '15px'}}>
@@ -324,10 +462,10 @@ class CollectionTableApp extends React.Component {
                     <td>Total Cards</td>
                     <td>{this.state.total_qty}</td>
                   </tr>
-                  <tr>
-                    <td>Total Price</td>
-                    <td>${this.state.total_price}</td>
-                  </tr>
+                  {/*<tr>*/}
+                  {/*  <td>Total Price</td>*/}
+                  {/*  <td>${this.state.total_price}</td>*/}
+                  {/*</tr>*/}
                 </tbody>
               </table>
             </div>

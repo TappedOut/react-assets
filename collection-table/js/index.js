@@ -246,7 +246,7 @@ class CollectionTableApp extends React.Component {
     let buttons = <div />
 
     if (this.state.init_data.type === 'inventory') {
-      row_amount = this.state.init_data.is_owner ? '8' : '7'
+      row_amount = this.state.init_data.is_owner ? '6' : '5'
       headers = <InventoryHeader init_data={this.state.init_data} />
       filters = <InventoryFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
       buttons = (

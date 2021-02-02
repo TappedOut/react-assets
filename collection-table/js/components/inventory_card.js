@@ -32,7 +32,7 @@ class InventoryCard extends Component {
   editCard () {
     let params = {...this.state.edit, owned_pk: this.state.owned_pk, name: this.props.data.name, qty: this.state.qty}
     for (let [key, value] of Object.entries(params)) {
-      if (value === null || value === undefined) {
+      if (!value) {
         delete params[key];
       }
     }
@@ -129,7 +129,8 @@ class InventoryCard extends Component {
     let edit_popover = <Popover id="edit-popover" />;
     if (this.props.init_data.is_owner) {
       let printing_options = this.props.data.all_printings.map(opts => <option value={opts[1]}>{opts[0]}</option>);
-      let variation_options = [];
+      let variation_options = this.props.data.all_variations[this.state.edit.tla] ?
+        this.props.data.all_variations[this.state.edit.tla].map(opts => <option value={opts.identifier}>{opts.display}</option>) : [];
       let language_options = this.props.init_data.selects.language.map(opts => <option value={opts.value}>{opts.label}</option>);
       let condition_options = this.props.init_data.selects.condition.map(opts => <option value={opts.value}>{opts.label}</option>);
       let foil_options = this.props.init_data.selects.foil.map(opts => <option value={opts.value}>{opts.label}</option>);
@@ -143,9 +144,9 @@ class InventoryCard extends Component {
                 </select>
               </div>
               {!!variation_options.length &&
-                <div className="form-group variation-group hidden">
+                <div className="form-group variation-group">
                   <select onChange={this.handleInputChange} value={this.state.edit.variation} name="variation" className="form-control variation-edit">
-                    <option value="">------</option>
+                    <option value="">Default Variation</option>
                     {variation_options}
                   </select>
                 </div>
@@ -225,8 +226,6 @@ class InventoryCard extends Component {
           </div>
         </td>
         <td dangerouslySetInnerHTML={{__html: this.props.data.collection}} />
-        <td>{this.props.data.type}</td>
-        <td dangerouslySetInnerHTML={{__html: this.props.data.mana_cost}} />
         <td>{this.props.data.set}</td>
         <td dangerouslySetInnerHTML={{__html: this.props.data.price}} />
         {this.props.init_data.is_owner &&

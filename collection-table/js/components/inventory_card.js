@@ -31,7 +31,12 @@ class InventoryCard extends Component {
   }
 
   editCard () {
-    let params = {...this.state.edit, owned_pk: this.state.owned_pk, name: this.props.data.name, qty: this.state.qty}
+    let params = {owned_pk: this.state.owned_pk, name: this.props.data.name, qty: this.state.qty}
+    for (let [key, value] of Object.entries(this.state.edit)) {
+      if (value) {
+        params[key] = value
+      }
+    }
     params = {'changes': JSON.stringify([params])}
     axios.put(
       this.props.init_data.urls.rows_api,

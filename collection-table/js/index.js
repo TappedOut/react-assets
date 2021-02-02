@@ -28,6 +28,8 @@ class CollectionTableApp extends React.Component {
       total_qty: 0,
       total_price: 0,
       filtered_cards: 0,
+      row_qty_editing: -1,
+      wants_row_qty_editing: -1,
       page: 1,
       loading: true,
       initializing: true,
@@ -47,6 +49,8 @@ class CollectionTableApp extends React.Component {
     this.toggleFilters = this.toggleFilters.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
     this.handleOrderChange = this.handleOrderChange.bind(this);
+    this.handleQtyEditToggle = this.handleQtyToggleEdit.bind(this);
+    this.handleWantsQtyEditToggle = this.handleWantsQtyToggleEdit.bind(this);
     this.initialize(INIT_URL);
   }
 
@@ -120,13 +124,27 @@ class CollectionTableApp extends React.Component {
     });
   }
 
+  handleQtyToggleEdit(number) {
+    if (this.state.row_qty_editing === number) {
+      number = -1
+    }
+    this.setState({row_qty_editing: number, wants_row_qty_editing: -1})
+  }
+
+  handleWantsQtyToggleEdit(number) {
+    if (this.state.wants_row_qty_editing === number) {
+      number = -1
+    }
+    this.setState({wants_row_qty_editing: number, row_qty_editing: -1})
+  }
+
   toggleFilters() {
     this.setState({filter_open: !this.state.filter_open})
   }
 
   handleFilter(data) {
-    this.setState({filter_data: data});
-    this.searchCards(data, this.state.ordering, this.state.page)
+    this.setState({filter_data: data, page: 1});
+    this.searchCards(data, this.state.ordering, 1)
   }
 
   handleCardEdit() {
@@ -175,13 +193,16 @@ class CollectionTableApp extends React.Component {
     })
 
     // cards stuff
-    const cards = this.state.cards.map(card => {
+    const cards = this.state.cards.map((card, i) => {
       if (this.state.init_data.type === 'inventory') {
         return (
           <InventoryCard
             data={card}
             init_data={this.state.init_data}
             onEdit={this.handleCardEdit}
+            onQtyToggle={this.handleQtyEditToggle}
+            row_number={i}
+            show_qty_edit={i === this.state.row_qty_editing}
           />
         )
       }
@@ -191,6 +212,11 @@ class CollectionTableApp extends React.Component {
             data={card}
             init_data={this.state.init_data}
             onEdit={this.handleCardEdit}
+            onHasQtyToggle={this.handleQtyEditToggle}
+            onWantsQtyToggle={this.handleWantsQtyEditToggle}
+            row_number={i}
+            show_qty_edit={i === this.state.row_qty_editing}
+            show_wants_qty_edit={i === this.state.wants_row_qty_editing}
           />
         )
       }

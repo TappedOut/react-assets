@@ -8,7 +8,6 @@ class InventoryCard extends Component {
     super(props);
 
     this.state = {
-      show_qty_edit: false,
       owned_pk : this.props.data.owned_pk,
       qty: this.props.data.qty,
       edit: {
@@ -31,10 +30,10 @@ class InventoryCard extends Component {
   }
 
   editCard () {
-    let params = {owned_pk: this.state.owned_pk, name: this.props.data.name, qty: this.state.qty}
-    for (let [key, value] of Object.entries(this.state.edit)) {
-      if (value) {
-        params[key] = value
+    let params = {...this.state.edit, owned_pk: this.state.owned_pk, name: this.props.data.name, qty: this.state.qty}
+    for (let [key, value] of Object.entries(params)) {
+      if (value === null || value === undefined) {
+        delete params[key];
       }
     }
     params = {'changes': JSON.stringify([params])}
@@ -62,11 +61,39 @@ class InventoryCard extends Component {
   }
 
   handleQtyChangeClick () {
-    this.setState({showQtyEdit: !this.state.showQtyEdit})
+    this.props.onQtyToggle(this.props.row_number)
   }
 
   handleQtyEdit (qty) {
-    let params = {qty: qty, owned_pk: this.state.owned_pk, name: this.props.data.name, tla: this.props.data.tla}
+    let params = {qty: qty, name: this.props.data.name, tla: this.props.data.tla}
+    if (this.state.owned_pk && this.props.data.owned === owned) {
+      params['owned_pk'] = this.state.owned_pk;
+      params['qty'] = 1
+    } else {
+      if (this.props.data.foil) {
+        params['foil'] = this.props.data.foil;
+      }
+      if (this.props.data.condition) {
+        params['condition'] = this.props.data.condition;
+      }
+      if (this.props.data.alter) {
+        params['alter'] = this.props.data.alter;
+      }
+      if (this.props.data.variation) {
+        params['variation'] = this.props.data.variation;
+      }
+      if (this.props.data.signed) {
+        params['signed'] = this.props.data.signed;
+      }
+      if (this.props.data.language) {
+        params['language'] = this.props.data.language;
+      }
+    }
+    for (let [key, value] of Object.entries(params)) {
+      if (value === null || value === undefined) {
+        delete params[key];
+      }
+    }
     params = {'changes': JSON.stringify([params])}
     axios.put(
       this.props.init_data.urls.rows_api,
@@ -171,7 +198,7 @@ class InventoryCard extends Component {
               <button
                 type="button"
                 className="btn btn-danger btn-xs btn-rm-inv-card"
-                style={{"display": this.state.showQtyEdit ? 'inline-block' : 'none', 'margin-right': '5px'}}
+                style={{"display": this.props.show_qty_edit ? 'inline-block' : 'none', 'margin-right': '5px'}}
                 onClick={this.handleQtyMinusClick}
               >
                 <span className="glyphicon glyphicon-minus"/>
@@ -189,7 +216,7 @@ class InventoryCard extends Component {
               <button
                 type="button"
                 className="btn btn-success btn-xs btn-add-inv-card"
-                style={{"display": this.state.showQtyEdit ? 'inline-block' : 'none', 'margin-left': '5px'}}
+                style={{"display": this.props.show_qty_edit ? 'inline-block' : 'none', 'margin-left': '5px'}}
                 onClick={this.handleQtyPlusClick}
               >
                 <span className="glyphicon glyphicon-plus"/>
@@ -206,7 +233,7 @@ class InventoryCard extends Component {
           <td>
             <div align="center">
               <OverlayTrigger trigger="click" rootClose placement="left" overlay={edit_popover}>
-                <button id="popover-btn" className="btn btn-success" disabled={this.props.data.edit_disabled}>
+                <button id="popover-btn" className="btn btn-success" disabled={this.props.data.edit_disabled || !this.state.owned_pk}>
                   <span className="glyphicon glyphicon-wrench" aria-hidden="true" />
                 </button>
               </OverlayTrigger>

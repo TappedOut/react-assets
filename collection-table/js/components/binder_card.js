@@ -7,7 +7,6 @@ class BinderCard extends Component {
     super(props);
 
     this.state = {
-      show_has_qty_edit: false,
       show_wants_qty_edit: false,
       owned_pk : this.props.data.owned_pk,
       qty: this.props.data.qty,
@@ -21,11 +20,11 @@ class BinderCard extends Component {
   }
 
   handleHasQtyChangeClick () {
-    this.setState({show_has_qty_edit: !this.state.show_has_qty_edit})
+    this.props.onHasQtyToggle(this.props.row_number)
   }
 
   handleWantsQtyChangeClick () {
-    this.setState({show_wants_qty_edit: !this.state.show_wants_qty_edit})
+    this.props.onWantsQtyToggle(this.props.row_number)
   }
 
   handleQtyEdit (qty, owned) {
@@ -90,7 +89,7 @@ class BinderCard extends Component {
               <button
                 type="button"
                 className="btn btn-danger btn-xs btn-rm-inv-card"
-                style={{"display": this.state.show_has_qty_edit ? 'inline-block' : 'none', 'margin-right': '5px'}}
+                style={{"display": this.props.show_qty_edit ? 'inline-block' : 'none', 'margin-right': '5px'}}
                 onClick={e => this.handleQtyMinusClick(true)}
               >
                 <span className="glyphicon glyphicon-minus"/>
@@ -107,7 +106,7 @@ class BinderCard extends Component {
               <button
                 type="button"
                 className="btn btn-success btn-xs btn-add-inv-card"
-                style={{"display": this.state.show_has_qty_edit ? 'inline-block' : 'none', 'margin-left': '5px'}}
+                style={{"display": this.props.show_qty_edit ? 'inline-block' : 'none', 'margin-left': '5px'}}
                 onClick={e => this.handleQtyPlusClick(true)}
               >
                 <span className="glyphicon glyphicon-plus"/>
@@ -121,7 +120,7 @@ class BinderCard extends Component {
               <button
                 type="button"
                 className="btn btn-danger btn-xs btn-rm-inv-card"
-                style={{"display": this.state.show_wants_qty_edit ? 'inline-block' : 'none', 'margin-right': '5px'}}
+                style={{"display": this.props.show_wants_qty_edit ? 'inline-block' : 'none', 'margin-right': '5px'}}
                 onClick={e => this.handleQtyMinusClick(false)}
               >
                 <span className="glyphicon glyphicon-minus"/>
@@ -138,7 +137,7 @@ class BinderCard extends Component {
               <button
                 type="button"
                 className="btn btn-success btn-xs btn-add-inv-card"
-                style={{"display": this.state.show_wants_qty_edit ? 'inline-block' : 'none', 'margin-left': '5px'}}
+                style={{"display": this.props.show_wants_qty_edit ? 'inline-block' : 'none', 'margin-left': '5px'}}
                 onClick={e => this.handleQtyPlusClick(false)}
               >
                 <span className="glyphicon glyphicon-plus"/>

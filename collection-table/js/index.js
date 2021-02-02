@@ -462,10 +462,10 @@ class CollectionTableApp extends React.Component {
                     <td>Total Cards</td>
                     <td>{this.state.total_qty}</td>
                   </tr>
-                  {/*<tr>*/}
-                  {/*  <td>Total Price</td>*/}
-                  {/*  <td>${this.state.total_price}</td>*/}
-                  {/*</tr>*/}
+                  <tr>
+                    <td>Total Price</td>
+                    <td>${this.state.total_price}</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -489,20 +489,22 @@ class CollectionTableApp extends React.Component {
         </div>
         <div className="row">
           <div className="col-lg-12 col-xs-12">
-            <table className="table table-bordered table-hover">
-              {headers}
-                <tbody>
-                  {this.state.loading &&
-                    <td style={{'background-color': 'black', 'height': '60px'}} colSpan={row_amount}>
-                      <div style={{"text-align": "center"}} className="loading">Loading</div>
-                    </td>}
-                  {!this.state.loading &&
-                    (cards.length ? cards :
-                      <td style={{'background-color': 'black', 'height': '50px'}} colSpan={row_amount}>
-                        <p style={{"text-align": "center"}}>{this.state.error ? this.state.error : 'Collection is empty.'}</p>
-                      </td>)}
-                </tbody>
-            </table>
+            <div className="table-responsive">
+              <table className="table table-bordered table-hover">
+                {headers}
+                  <tbody>
+                    {this.state.loading &&
+                      <td style={{'background-color': 'black', 'height': '60px'}} colSpan={row_amount}>
+                        <div style={{"text-align": "center"}} className="loading">Loading</div>
+                      </td>}
+                    {!this.state.loading &&
+                      (cards.length ? cards :
+                        <td style={{'background-color': 'black', 'height': '50px'}} colSpan={row_amount}>
+                          <p style={{"text-align": "center"}}>{this.state.error ? this.state.error : 'Collection is empty.'}</p>
+                        </td>)}
+                  </tbody>
+              </table>
+            </div>
           </div>
         </div>
         <div className="row">

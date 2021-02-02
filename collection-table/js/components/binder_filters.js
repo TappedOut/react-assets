@@ -126,14 +126,14 @@ class BinderFilters extends Component {
     return (
       <div>
         <div className="row">
-          <div className="col-lg-3 col-xs-6">
+          <div className="col-lg-3 col-xs-12">
             <div className="form-group">
               <label className="control-label">Rules contains</label>
               <input name="rules" type="text" className="form-control" onChange={this.handleInputChange} value={this.state.form.rules}/>
               <div className="help-block">Enters the battlefield, Tap target creature, etc.</div>
             </div>
           </div>
-          <div className="col-lg-3 col-xs-6">
+          <div className="col-lg-3 col-xs-12">
             <div className="form-group">
               <label className="control-label">Color</label>
               <Select
@@ -144,7 +144,7 @@ class BinderFilters extends Component {
               />
             </div>
           </div>
-          <div className="col-lg-3 col-xs-6">
+          <div className="col-lg-3 col-xs-12">
             <div className="form-group">
               <label className="control-label">Exclude Color</label>
                 <Select
@@ -155,7 +155,7 @@ class BinderFilters extends Component {
                 />
             </div>
           </div>
-          <div className="col-lg-3 col-xs-6">
+          <div className="col-lg-3 col-xs-12">
             <div className="form-group">
               <label className="control-label">Collection</label>
                 <Select
@@ -169,7 +169,7 @@ class BinderFilters extends Component {
           </div>
         </div>
         <div className="row">
-          <div className="col-lg-3 col-xs-6">
+          <div className="col-lg-3 col-xs-12">
             <div className="form-group">
               <label className="control-label">Rarity</label>
                 <Select
@@ -180,7 +180,7 @@ class BinderFilters extends Component {
                 />
             </div>
           </div>
-          <div className="col-lg-3 col-xs-6">
+          <div className="col-lg-3 col-xs-12">
             <div className="form-group">
               <label className="control-label">Type</label>
                 <Select
@@ -191,7 +191,7 @@ class BinderFilters extends Component {
                 />
             </div>
           </div>
-          <div className="col-lg-3 col-xs-6">
+          <div className="col-lg-3 col-xs-12">
             <div className="form-group">
               <label className="control-label">Subtype</label>
                 <input name="subtype" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.subtype} />
@@ -200,7 +200,7 @@ class BinderFilters extends Component {
           </div>
         </div>
         <div className="row">
-          <div className="col-lg-3 col-xs-6">
+          <div className="col-lg-3 col-xs-12">
             <div className="form-group">
               <label className="control-label">Sets</label>
                 <Select
@@ -225,7 +225,7 @@ class BinderFilters extends Component {
           </div>
         </div>
         <div className="row">
-          <div className="col-lg-3 col-xs-6">
+          <div className="col-lg-3 col-xs-12">
             <div className="form-group">
               <label className="control-label">Language</label>
                 <Select
@@ -236,7 +236,7 @@ class BinderFilters extends Component {
                 />
             </div>
           </div>
-          <div className="col-lg-3 col-xs-6">
+          <div className="col-lg-3 col-xs-12">
             <div className="form-group">
               <label className="control-label">Foil</label>
               <Select
@@ -247,7 +247,7 @@ class BinderFilters extends Component {
               />
             </div>
           </div>
-          <div className="col-lg-3 col-xs-6">
+          <div className="col-lg-3 col-xs-12">
             <div className="form-group">
               <ButtonGroup>
                 <Button onClick={this.handleInBinderBtnClick} disabled={this.state.form.in_binder}>In Binder</Button>
@@ -258,17 +258,17 @@ class BinderFilters extends Component {
           </div>
         </div>
         <div className="row">
-          <div className="col-lg-7 col-xs-2">
+          <div className="col-lg-7 col-xs-12">
             <div className="form-group">
               <label>Cost</label>
               <div className="row">
-                <div className="col-lg-3">
+                <div className="col-lg-3 col-xs-4">
                   <select name="cost_control" className="form-control" onChange={this.handleInputChange} value={this.state.form.cost_control}>
                     <option value="">Exactly</option>
                     <option value="contains">Contains</option>
                   </select>
                 </div>
-                <div className="col-lg-6">
+                <div className="col-lg-6 col-xs-8">
                   <input name="mana_cost" className="form-control" placeholder="Mana Cost" onChange={this.handleInputChange} checked={this.state.form.mana_cost} />
                 </div>
               </div>
@@ -277,9 +277,9 @@ class BinderFilters extends Component {
           <div className="col-lg-5 col-xs-12">
             <label>Converted Cost</label>
             <div className="row">
-              <div className="col-lg-5"><input name="cmc_from" className="form-control" onChange={this.handleInputChange} checked={this.state.form.cost_from} /></div>
-              <div className="col-lg-1">to</div>
-              <div className="col-lg-5"><input name="cmc_to" className="form-control" onChange={this.handleInputChange} checked={this.state.form.cost_to} /></div>
+              <div className="col-lg-5 col-xs-5"><input name="cmc_from" className="form-control" onChange={this.handleInputChange} checked={this.state.form.cost_from} /></div>
+              <div className="col-lg-1 col-xs-1">to</div>
+              <div className="col-lg-5 col-xs-5"><input name="cmc_to" className="form-control" onChange={this.handleInputChange} checked={this.state.form.cost_to} /></div>
             </div>
           </div>
         </div>

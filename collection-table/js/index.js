@@ -303,7 +303,7 @@ class CollectionTableApp extends React.Component {
       )
     }
     if (this.state.init_data.type === 'binder') {
-      row_amount = 6
+      row_amount = 5
       headers = <BinderHeader init_data={this.state.init_data} />
       filters = <BinderFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
       buttons = (
@@ -388,7 +388,7 @@ class CollectionTableApp extends React.Component {
       )
     }
     if (this.state.init_data.type === 'wishlist') {
-      row_amount = 6
+      row_amount = 5
       headers = <WishlistHeader init_data={this.state.init_data} />
       filters = <WishlistFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
       buttons = (

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import {OverlayTrigger, Popover} from "react-bootstrap";
 import axios from 'axios';
 import Cookies from "js-cookie";
+import PopoverStickOnHover from "./popover_sticky";
 
 class InventoryCard extends Component {
   constructor(props) {
@@ -189,10 +190,29 @@ class InventoryCard extends Component {
         </Popover>
       )
     }
-
     return (
       <tr>
-        <td dangerouslySetInnerHTML={{__html: this.props.data.display}} />
+        <td>
+          <span dangerouslySetInnerHTML={{__html: this.props.data.display}} />
+          {this.props.data.collection &&
+            <PopoverStickOnHover
+             id="coll-popover"
+             component={
+              <div className="popover-content popover-edit-content">
+                  <div className="well edit-content">
+                    <span dangerouslySetInnerHTML={{__html: this.props.data.collection}} />
+                  </div>
+              </div>}
+             placement="right"
+             onMouseEnter={() => { }}
+             delay={200}
+            >
+              <button className="btn btn-success btn-xs pull-right">
+                <span className="glyphicon glyphicon-refresh" />
+              </button>
+            </PopoverStickOnHover>
+          }
+        </td>
         <td>
           <div className="row" align="center">
             {!this.props.data.edit_disabled &&
@@ -225,7 +245,6 @@ class InventoryCard extends Component {
             }
           </div>
         </td>
-        <td dangerouslySetInnerHTML={{__html: this.props.data.collection}} />
         <td>{this.props.data.set}</td>
         <td dangerouslySetInnerHTML={{__html: this.props.data.price}} />
         {this.props.init_data.is_owner &&

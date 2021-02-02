@@ -39,8 +39,8 @@ class BinderCard extends Component {
       if (this.props.data.condition) {
         params['condition'] = this.props.data.condition;
       }
-      if (this.props.data.alter) {
-        params['alter'] = this.props.data.alter;
+      if (this.props.data.alter_pk) {
+        params['alter_pk'] = this.props.data.alter_pk;
       }
       if (this.props.data.variation) {
         params['variation'] = this.props.data.variation;

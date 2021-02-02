@@ -16,7 +16,7 @@ class InventoryCard extends Component {
         language: this.props.data.language,
         condition: this.props.data.condition,
         foil: this.props.data.foil,
-        alter: this.props.data.alter,
+        alter_pk: this.props.data.alter_pk,
         signed: this.props.data.signed
       }
     };
@@ -76,8 +76,8 @@ class InventoryCard extends Component {
       if (this.props.data.condition) {
         params['condition'] = this.props.data.condition;
       }
-      if (this.props.data.alter) {
-        params['alter'] = this.props.data.alter;
+      if (this.props.data.alter_pk) {
+        params['alter_pk'] = this.props.data.alter_pk;
       }
       if (this.props.data.variation) {
         params['variation'] = this.props.data.variation;
@@ -166,8 +166,8 @@ class InventoryCard extends Component {
                   {foil_options}
                 </select>
               </div>
-              <div className="form-group" data-targeted-by="alter">
-                <input onChange={this.handleInputChange} value={this.state.edit.alter} className="alter-edit form-control" type="text" data-depends="alter-edit" name="alter" placeholder="Alter code" />
+              <div className="form-group" data-targeted-by="alter_pk">
+                <input onChange={this.handleInputChange} value={this.state.edit.alter_pk} className="form-control" type="text" name="alter_pk" placeholder="Alter code" />
               </div>
               <div className="form-group">
                 <div className="checkbox">

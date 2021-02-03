@@ -10,7 +10,6 @@ class BinderFilters extends Component {
       collapse: true,
       form: {
         rules: '',
-        name: '',
         colors: '',
         colors_exclude: '',
         collection: '',
@@ -45,7 +44,6 @@ class BinderFilters extends Component {
   handleFilterReset() {
     const blank = {
       rules: '',
-      name: '',
       colors: '',
       colors_exclude: '',
       collection: '',
@@ -128,12 +126,6 @@ class BinderFilters extends Component {
         <div className="row">
           <div className="col-lg-3 col-xs-12">
             <div className="form-group">
-              <label className="control-label">Name</label>
-              <input name="name" type="text" className="form-control" onChange={this.handleInputChange} value={this.state.form.name}/>
-            </div>
-          </div>
-          <div className="col-lg-3 col-xs-12">
-            <div className="form-group">
               <label className="control-label">Rules contains</label>
               <input name="rules" type="text" className="form-control" onChange={this.handleInputChange} value={this.state.form.rules}/>
               <div className="help-block">Enters the battlefield, Tap target creature, etc.</div>
@@ -158,6 +150,18 @@ class BinderFilters extends Component {
                   onChange={(v) => this.handleSelectChange('colors_exclude', v)}
                   value={this.state.form.colors_exclude}
                   options={this.props.init_data.selects.color}
+                />
+            </div>
+          </div>
+          <div className="col-lg-3 col-xs-12">
+            <div className="form-group">
+              <label className="control-label">Collection</label>
+                <Select
+                  name="collection"
+                  multi
+                  onChange={(v) => this.handleSelectChange('collection', v)}
+                  value={this.state.form.collection}
+                  options={this.props.init_data.selects.collection}
                 />
             </div>
           </div>
@@ -190,18 +194,6 @@ class BinderFilters extends Component {
               <label className="control-label">Subtype</label>
                 <input name="subtype" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.subtype} />
                 <div className="help-block">Aura, Vampire, Rogue, etc.</div>
-            </div>
-          </div>
-          <div className="col-lg-3 col-xs-12">
-            <div className="form-group">
-              <label className="control-label">Collection</label>
-                <Select
-                  name="collection"
-                  multi
-                  onChange={(v) => this.handleSelectChange('collection', v)}
-                  value={this.state.form.collection}
-                  options={this.props.init_data.selects.collection}
-                />
             </div>
           </div>
         </div>

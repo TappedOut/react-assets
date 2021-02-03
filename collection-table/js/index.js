@@ -24,6 +24,7 @@ class CollectionTableApp extends React.Component {
     this.state = {
       cards: [],
       init_data: {},
+      price_header: 'CK Price',
       total_cards: 0,
       total_qty: 0,
       total_price: 0,
@@ -41,7 +42,9 @@ class CollectionTableApp extends React.Component {
       show_price_modal: false,
       ck_price: 0,
       tcg_price: 0,
-      card_string: ''
+      card_string: '',
+      name_filter: '',
+      vendor: 'CK'
     }
 
     this.handleExport = this.handleExport.bind(this);
@@ -49,8 +52,11 @@ class CollectionTableApp extends React.Component {
     this.toggleFilters = this.toggleFilters.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
     this.handleOrderChange = this.handleOrderChange.bind(this);
+    this.handleVendorChange = this.handleVendorChange.bind(this);
     this.handleQtyEditToggle = this.handleQtyToggleEdit.bind(this);
     this.handleWantsQtyEditToggle = this.handleWantsQtyToggleEdit.bind(this);
+    this.handleNameFilter = this.handleNameFilter.bind(this);
+    this.debouncedSearch = _.debounce((data, order, page, vendor) => {this.searchCards(data, order, page, vendor)}, 1000)
     this.initialize(INIT_URL);
   }
 
@@ -61,19 +67,22 @@ class CollectionTableApp extends React.Component {
       response => {
         this.setState({
           init_data: response.data,
-          initializing: false
+          initializing: false,
+          price_display: response.data.vendor,
+          price_header: response.data.price_header
         })
-        this.searchCards({owned: true}, 'name', 1);
+        this.searchCards({owned: true}, 'name', 1, response.data.vendor);
       }
     )
   }
 
-  searchCards(data, order, page) {
+  searchCards(data, order, page, vendor) {
     this.setState({loading: true})
     let get_data = {
       'start': 50 * (page - 1),
       'end': 50 * page,
-      'ordering': order
+      'ordering': order,
+      'vendor': vendor
     }
     for (let [key, value] of Object.entries(data)) {
       if (Array.isArray(value) && value.length) {
@@ -98,6 +107,7 @@ class CollectionTableApp extends React.Component {
         filtered_cards: response.data.recordsFiltered,
         total_qty: response.data.quantityTotal,
         total_price: response.data.priceTotal,
+        price_header: response.data.priceHeader,
         loading: false,
         ck_price: price_cards.map((c) => c['qty'] * (c['ck_price'] ? c['ck_price'] : 0)).reduce((a, b) => a + b, 0),
         tcg_price:  price_cards.map((c) => c['qty'] * (c['tcgp_market_price'] ? c['tcgp_market_price'] : 0)).reduce((a, b) => a + b, 0),
@@ -105,7 +115,7 @@ class CollectionTableApp extends React.Component {
         error: ''
       })
       document.addEventListener('card-added', event => {
-        this.searchCards(this.state.filter_data, this.state.ordering, this.state.page)
+        this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor)
       })
     }).catch(error => {
       let error_msg = 'Error getting the card data.';
@@ -143,23 +153,37 @@ class CollectionTableApp extends React.Component {
   }
 
   handleFilter(data) {
-    this.setState({filter_data: data, page: 1});
-    this.searchCards(data, this.state.ordering, 1)
+    const filter_data = {...this.state.filter_data, ...data};
+    this.setState({filter_data: filter_data, page: 1});
+    this.searchCards(filter_data, this.state.ordering, 1, this.state.vendor)
   }
 
   handleCardEdit() {
-    this.searchCards(this.state.filter_data, this.state.ordering, this.state.page)
+    this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor)
   }
 
   handlePageChange(page) {
     this.setState({page: page});
-    this.searchCards(this.state.filter_data, this.state.ordering, page)
+    this.searchCards(this.state.filter_data, this.state.ordering, page, this.state.vendor)
   }
 
   handleOrderChange(event) {
     const value = event.target.value;
     this.setState({ordering: value});
-    this.searchCards(this.state.filter_data, value, this.state.page)
+    this.searchCards(this.state.filter_data, value, this.state.page, this.state.vendor)
+  }
+
+  handleVendorChange(event) {
+    const value = event.target.value;
+    this.setState({vendor: value});
+    this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, value)
+  }
+
+  handleNameFilter(event) {
+    const val = event.target.value;
+    const filter_data = {...this.state.filter_data, name: val};
+    this.setState({name_filter: val, filter_data: filter_data});
+    this.debouncedSearch(filter_data, this.state.ordering, this.state.page)
   }
 
   handleExport(event) {
@@ -234,6 +258,7 @@ class CollectionTableApp extends React.Component {
     // selects
     const export_options = this.state.init_data.selects.export.map(opts => <option value={opts.value}>{opts.label}</option>)
     const order_options = this.state.init_data.selects.ordering.map(opts => <option value={opts.value}>{opts.label}</option>)
+    const price_display_options = this.state.init_data.selects.price_display.map(opts => <option value={opts.value}>{opts.label}</option>)
 
     //price
     const handlePriceShow = () => this.setState({show_price_modal: true});
@@ -247,7 +272,7 @@ class CollectionTableApp extends React.Component {
 
     if (this.state.init_data.type === 'inventory') {
       row_amount = this.state.init_data.is_owner ? '6' : '5'
-      headers = <InventoryHeader init_data={this.state.init_data} />
+      headers = <InventoryHeader init_data={this.state.init_data} price_header={this.state.price_header} />
       filters = <InventoryFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
       buttons = (
         <div>
@@ -278,13 +303,16 @@ class CollectionTableApp extends React.Component {
           </div>
           <div className="row" style={{'margin-top': '15px'}}>
             <div className="col-lg-6 col-xs-6">
-              <button
-                onClick={this.toggleFilters}
-                aria-controls="filter-well"
-                aria-expanded={this.state.filter_open}
-                className="btn btn-md btn-block">
-                Filter
-              </button>
+              <div className="row">
+                <div className="col-lg-4 col-xs-4">
+                  Price
+                </div>
+                <div className="col-lg-8 col-xs-8">
+                  <select name="vendor" className="form-control" onChange={this.handleVendorChange} value={this.state.vendor}>
+                    {price_display_options}
+                  </select>
+                </div>
+              </div>
             </div>
             <div className="col-lg-6 col-xs-6">
               <div className="row">
@@ -299,12 +327,23 @@ class CollectionTableApp extends React.Component {
               </div>
             </div>
           </div>
+          <div className="row" style={{'margin-top': '15px'}}>
+            <div className="col-lg-6 col-xs-6">
+              <button
+                onClick={this.toggleFilters}
+                aria-controls="filter-well"
+                aria-expanded={this.state.filter_open}
+                className="btn btn-md btn-block">
+                Filter
+              </button>
+            </div>
+          </div>
         </div>
       )
     }
     if (this.state.init_data.type === 'binder') {
       row_amount = 5
-      headers = <BinderHeader init_data={this.state.init_data} />
+      headers = <BinderHeader init_data={this.state.init_data} price_header={this.state.price_header} />
       filters = <BinderFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
       buttons = (
         <div>
@@ -363,13 +402,16 @@ class CollectionTableApp extends React.Component {
           </div>
           <div className="row" style={{'margin-top': '15px'}}>
             <div className="col-lg-6 col-xs-6">
-              <button
-                onClick={this.toggleFilters}
-                aria-controls="filter-well"
-                aria-expanded={this.state.filter_open}
-                className="btn btn-md btn-block">
-                Filter
-              </button>
+              <div className="row">
+                <div className="col-lg-4 col-xs-4">
+                  Price
+                </div>
+                <div className="col-lg-8 col-xs-8">
+                  <select name="vendor" className="form-control" onChange={this.handleVendorChange} value={this.state.vendor}>
+                    {price_display_options}
+                  </select>
+                </div>
+              </div>
             </div>
             <div className="col-lg-6 col-xs-6">
               <div className="row">
@@ -384,12 +426,23 @@ class CollectionTableApp extends React.Component {
               </div>
             </div>
           </div>
+          <div className="row" style={{'margin-top': '15px'}}>
+            <div className="col-lg-6 col-xs-6">
+              <button
+                onClick={this.toggleFilters}
+                aria-controls="filter-well"
+                aria-expanded={this.state.filter_open}
+                className="btn btn-md btn-block">
+                Filter
+              </button>
+            </div>
+          </div>
         </div>
       )
     }
     if (this.state.init_data.type === 'wishlist') {
       row_amount = 5
-      headers = <WishlistHeader init_data={this.state.init_data} />
+      headers = <WishlistHeader init_data={this.state.init_data} price_header={this.state.price_header} />
       filters = <WishlistFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
       buttons = (
         <div>
@@ -439,13 +492,16 @@ class CollectionTableApp extends React.Component {
           </div>
           <div className="row" style={{'margin-top': '15px'}}>
             <div className="col-lg-6 col-xs-6">
-              <button
-                onClick={this.toggleFilters}
-                aria-controls="filter-well"
-                aria-expanded={this.state.filter_open}
-                className="btn btn-md btn-block">
-                Filter
-              </button>
+              <div className="row">
+                <div className="col-lg-4 col-xs-4">
+                  Price
+                </div>
+                <div className="col-lg-8 col-xs-8">
+                  <select name="vendor" className="form-control" onChange={this.handleVendorChange} value={this.state.vendor}>
+                    {price_display_options}
+                  </select>
+                </div>
+              </div>
             </div>
             <div className="col-lg-6 col-xs-6">
               <div className="row">
@@ -458,6 +514,17 @@ class CollectionTableApp extends React.Component {
                   </select>
                 </div>
               </div>
+            </div>
+          </div>
+          <div className="row" style={{'margin-top': '15px'}}>
+            <div className="col-lg-6 col-xs-6">
+              <button
+                onClick={this.toggleFilters}
+                aria-controls="filter-well"
+                aria-expanded={this.state.filter_open}
+                className="btn btn-md btn-block">
+                Filter
+              </button>
             </div>
           </div>
         </div>
@@ -507,10 +574,16 @@ class CollectionTableApp extends React.Component {
           </div>
         </Collapse>
         <div style={{'margin-bottom': "10px"}} className="row">
-          <div className="col-lg-12 col-xs-12">
+          <div className="col-lg-9 col-xs-12">
             <ButtonGroup>
               {pages}
             </ButtonGroup>
+          </div>
+          <div className="col-lg-3 col-xs-12">
+            <div className="form-inline pull-right">
+              <label style={{'margin-right': '10px'}} className="control-label">Search</label>
+              <input name="name" type="text" className="form-control" onChange={this.handleNameFilter} value={this.state.name_filter}/>
+            </div>
           </div>
         </div>
         <div className="row">

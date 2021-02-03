@@ -20,7 +20,7 @@ class InventoryHeader extends Component {
           <th onClick={this.handleHeaderClick} style={{"text-align": "center", "width": "25%"}}>Card</th>
           <th onClick={this.handleHeaderClick} style={{"text-align": "center", "width": "15%"}}>Qty</th>
           <th onClick={this.handleHeaderClick} style={{"text-align": "center", "width": "10%"}}>Set</th>
-          <th onClick={this.handleHeaderClick} style={{"text-align": "center", "width": "10%", "font-size": "12px"}}>{this.props.init_data.price_header}</th>
+          <th onClick={this.handleHeaderClick} style={{"text-align": "center", "width": "10%", "font-size": "12px"}}>{this.props.price_header}</th>
           {this.props.init_data.is_owner &&
             <th style={{"text-align": "center", "width": "5%"}}>Edit</th>
           }

@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import 'react-select/dist/react-select.css';
-import {Button, ButtonGroup, Collapse, Modal} from 'react-bootstrap'
+import {Button, ButtonGroup, Collapse, Modal, ProgressBar} from 'react-bootstrap'
 import InventoryFilters from "./components/inventory_filters";
 import BinderFilters from "./components/binder_filters";
 import WishlistFilters from "./components/wishlist_filters";
@@ -34,6 +34,7 @@ class CollectionTableApp extends React.Component {
       page: 1,
       loading: true,
       initializing: true,
+      first_load: false,
       export_value: '',
       filter_open: false,
       filter_data: {owned: true},
@@ -44,7 +45,8 @@ class CollectionTableApp extends React.Component {
       tcg_price: 0,
       card_string: '',
       name_filter: '',
-      vendor: 'CK'
+      vendor: 'CK',
+      buy_price: 0
     }
 
     this.handleExport = this.handleExport.bind(this);
@@ -112,7 +114,9 @@ class CollectionTableApp extends React.Component {
         ck_price: price_cards.map((c) => c['qty'] * (c['ck_price'] ? c['ck_price'] : 0)).reduce((a, b) => a + b, 0),
         tcg_price:  price_cards.map((c) => c['qty'] * (c['tcgp_market_price'] ? c['tcgp_market_price'] : 0)).reduce((a, b) => a + b, 0),
         card_string: price_cards.map((c) => `${c['qty']} ${c['name']}`).join('||'),
-        error: ''
+        error: '',
+        first_load: true,
+        buy_price: response.data.buyPriceTotal
       })
       document.addEventListener('card-added', event => {
         this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor)
@@ -194,7 +198,7 @@ class CollectionTableApp extends React.Component {
 
   render() {
     if (this.state.init_data.processing) return <div style={{'font-size': '28px', 'margin-bottom': '15px'}}>Binder is processing.</div>
-    if (this.state.initializing) return <div className="loading">Loading</div>
+    if (this.state.initializing || !this.state.first_load) return <ProgressBar active now={100} />
 
     // pages stuff
     const total_pages = Math.ceil(this.state.total_cards / 50);
@@ -283,7 +287,7 @@ class CollectionTableApp extends React.Component {
               </div>
               <div id="ck-buylist-container" className="col-lg-6 col-xs-6">
                 <button type="button" id="ck-buylist-button" className="btn btn-sm btn-warning btn-block"
-                        disabled>Calculating CK buylist price...
+                        disabled>CK Buy Price $ {this.state.buy_price}
                 </button>
               </div>
             </div>
@@ -591,18 +595,15 @@ class CollectionTableApp extends React.Component {
             <div className="table-responsive">
               <table className="table table-bordered table-hover">
                 {headers}
+                {!this.state.loading && (
                   <tbody>
-                    {this.state.loading &&
-                      <td style={{'background-color': 'black', 'height': '60px'}} colSpan={row_amount}>
-                        <div style={{"text-align": "center"}} className="loading">Loading</div>
-                      </td>}
-                    {!this.state.loading &&
-                      (cards.length ? cards :
-                        <td style={{'background-color': 'black', 'height': '50px'}} colSpan={row_amount}>
-                          <p style={{"text-align": "center"}}>{this.state.error ? this.state.error : 'Collection is empty.'}</p>
-                        </td>)}
-                  </tbody>
+                  {cards.length ? cards :
+                    <td style={{'background-color': 'black', 'height': '50px'}} colSpan={row_amount}>
+                      <p style={{"text-align": "center"}}>{this.state.error ? this.state.error : 'Collection is empty.'}</p>
+                    </td>}
+                  </tbody>)}
               </table>
+              {this.state.loading && <ProgressBar active now={100} />}
             </div>
           </div>
         </div>

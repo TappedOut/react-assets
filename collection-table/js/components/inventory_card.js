@@ -51,9 +51,10 @@ class InventoryCard extends Component {
 
   deleteCard() {
     axios.delete(
-      this.props.init_data.urls.rows_api,
-      {owned_pk: this.state.owned_pk},
-      {headers: { 'X-CSRFToken': Cookies.get('csrftoken') }}
+      this.props.init_data.urls.rows_api, {
+        headers: { 'X-CSRFToken': Cookies.get('csrftoken') },
+        data: {owned_pk: this.state.owned_pk}
+      }
     ).then(
       response => {
         this.props.onEdit()

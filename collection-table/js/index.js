@@ -25,6 +25,7 @@ class CollectionTableApp extends React.Component {
       cards: [],
       init_data: {},
       price_header: 'CK Price',
+      vendor: 'CK',
       total_cards: 0,
       total_qty: 0,
       total_price: 0,
@@ -45,7 +46,6 @@ class CollectionTableApp extends React.Component {
       tcg_price: 0,
       card_string: '',
       name_filter: '',
-      vendor: 'CK',
       buy_price: 0
     }
 
@@ -70,7 +70,7 @@ class CollectionTableApp extends React.Component {
         this.setState({
           init_data: response.data,
           initializing: false,
-          price_display: response.data.vendor,
+          vendor: response.data.vendor,
           price_header: response.data.price_header
         })
         this.searchCards({owned: true}, 'name', 1, response.data.vendor);

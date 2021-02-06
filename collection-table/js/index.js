@@ -75,7 +75,15 @@ class CollectionTableApp extends React.Component {
         })
         this.searchCards({owned: true}, 'name', 1, response.data.vendor);
       }
-    )
+    ).catch(error => {
+      let error_msg = 'Error getting the card data.';
+      if (error.response && error.response.data && error.response.data.errors) {
+        error_msg = error.response.data.errors
+      }
+      this.setState({
+          error: error_msg
+        })
+    });
   }
 
   searchCards(data, order, page, vendor) {
@@ -197,7 +205,7 @@ class CollectionTableApp extends React.Component {
   }
 
   render() {
-    if (this.state.init_data.processing) return <div style={{'font-size': '28px', 'margin-bottom': '15px'}}>Binder is processing.</div>
+    if (this.state.error) return <div style={{'font-size': '28px', 'margin-bottom': '15px'}}>{ this.state.error }</div>
     if (this.state.initializing || !this.state.first_load) return <ProgressBar active now={100} />
 
     // pages stuff

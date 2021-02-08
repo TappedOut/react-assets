@@ -62,6 +62,18 @@ class CollectionTableApp extends React.Component {
     this.initialize(INIT_URL);
   }
 
+  componentDidMount() {
+    document.addEventListener('card-added', event => {
+        this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor)
+      })
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('card-added', event => {
+        this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor)
+      })
+  }
+
   initialize(url) {
     axios.get(
       url
@@ -125,9 +137,6 @@ class CollectionTableApp extends React.Component {
         error: '',
         first_load: true,
         buy_price: response.data.buyPriceTotal
-      })
-      document.addEventListener('card-added', event => {
-        this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor)
       })
     }).catch(error => {
       let error_msg = 'Error getting the card data.';

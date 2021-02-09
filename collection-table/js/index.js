@@ -214,7 +214,7 @@ class CollectionTableApp extends React.Component {
   }
 
   render() {
-    if (this.state.error) return <div style={{'font-size': '28px', 'margin-bottom': '15px'}}>{ this.state.error }</div>
+    if (this.state.error && !this.state.first_load) return <div style={{'font-size': '28px', 'margin-bottom': '15px'}}>{ this.state.error }</div>
     if (this.state.initializing || !this.state.first_load) return <ProgressBar active now={100} />
 
     // pages stuff

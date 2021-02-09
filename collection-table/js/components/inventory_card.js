@@ -68,9 +68,8 @@ class InventoryCard extends Component {
 
   handleQtyEdit (qty) {
     let params = {qty: qty, name: this.props.data.name, tla: this.props.data.tla}
-    if (this.state.owned_pk && this.props.data.owned === owned) {
+    if (this.state.owned_pk) {
       params['owned_pk'] = this.state.owned_pk;
-      params['qty'] = 1
     } else {
       if (this.props.data.foil) {
         params['foil'] = this.props.data.foil;
@@ -90,6 +89,7 @@ class InventoryCard extends Component {
       if (this.props.data.language) {
         params['language'] = this.props.data.language;
       }
+      params['qty'] = 1
     }
     for (let [key, value] of Object.entries(params)) {
       if (value === null || value === undefined) {

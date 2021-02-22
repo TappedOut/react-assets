@@ -203,8 +203,8 @@ class CollectionTableApp extends React.Component {
   handleNameFilter(event) {
     const val = event.target.value;
     const filter_data = {...this.state.filter_data, name: val};
-    this.setState({name_filter: val, filter_data: filter_data});
-    this.debouncedSearch(filter_data, this.state.ordering, this.state.page)
+    this.setState({name_filter: val, filter_data: filter_data, page: 1});
+    this.debouncedSearch(filter_data, this.state.ordering, 1, this.state.vendor)
   }
 
   handleExport(event) {

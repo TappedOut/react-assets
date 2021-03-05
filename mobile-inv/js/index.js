@@ -8,6 +8,7 @@ const _ = require('lodash');
 
 
 const BASE_INV_URL = window.django.mobile_api_url;
+const ACCESS_TOKEN = window.django.access_token;
 
 
 class MobileInvApp extends React.Component {
@@ -34,7 +35,8 @@ class MobileInvApp extends React.Component {
     }).join()
     const url = `${BASE_INV_URL}?start=${50 * (page - 1)}&end=${50 * page}${extra}`;
     axios.get(
-      url
+      url,
+      {headers: {'Authorization': 'Bearer ' + ACCESS_TOKEN}}
     ).then(
       response => {
         this.setState({

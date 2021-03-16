@@ -18,7 +18,7 @@ import { get_card_id } from "./utils";
 import { buildColorSeries, buildLandColorSeries,
   buildTypeSeries, buildCurveSeries } from './utils/charts';
 import deck_group from './utils/deck_grouping';
-import { Tab, Nav, NavItem } from 'react-bootstrap';
+import { Tab, Nav, NavItem, Modal, Button } from 'react-bootstrap';
 import CurveChartWrapper from "./components/CurveChart";
 const _ = require('lodash');
 
@@ -129,7 +129,8 @@ export default class BoardsEditorApp extends React.Component {
       mobileCardOnTop: null,
       initData: {},
       errorInitializing: false,
-      isMobile: isMobileOnly
+      isMobile: isMobileOnly,
+      showSettingsModal: false
     };
     this.droppables = [];
   }
@@ -255,6 +256,10 @@ export default class BoardsEditorApp extends React.Component {
   handleMobileCardClick = (cardId) => {
     this.setState({ mobileCardOnTop: cardId })
   };
+
+  handleSettingsModalToggle = () => {
+    this.setState({ showSettingsModal: !this.state.showSettingsModal })
+  }
 
   deckHasChanges = () => {
     let deck = this.state.deck;
@@ -1434,32 +1439,58 @@ export default class BoardsEditorApp extends React.Component {
             <div className="panel panel-default top-panel options-panel">
               <div className="panel-body">
                 <div className="row">
-                  <div className="col-md-2 text-center"
-                       style={{paddingTop: '5px'}}>
-                  <span className="toggler">
-                    <label htmlFor='toggleImagesButton'>
-                      Display Thumbnails</label>
-                    <Toggle
-                      id="toggleImagesButton"
-                      checked={this.state.toggleImages}
-                      onChange={this.handleImagesToggle} />
-                  </span>
+                  <div className="col-xs-12 col-md-2">
+                    <a href={this.state.initData.deck_detail_url} className="btn btn-block btn-default">
+                      Back to Deck
+                    </a>
                   </div>
-                  { this.state.toggleImages &&
-                    <div className="col-md-2">
-                      <span className="slider-container">
-                        <label>Images Scaling</label>
-                        <Slider
-                          min={100}
-                          tooltip={false}
-                          max={250}
-                          step={1}
-                          value={this.state.imagesMaxWidth}
-                          onChange={this.handleImagesMaxWidth}
-                        />
-                      </span>
-                    </div>
-                  }
+                  <div className="col-xs-12 col-md-2">
+                    <Button bsStyle="warning" onClick={this.handleSettingsModalToggle} block>
+                      Settings
+                    </Button>
+                  </div>
+                  <Modal show={this.state.showSettingsModal} onHide={this.handleSettingsModalToggle}>
+                    <Modal.Body>
+                      <div className="row">
+                        <div className="col-xs-12"
+                             style={{paddingTop: '5px', marginBottom: '10px'}}>
+                          <span className="toggler">
+                            <label style={{'margin-right': '5px'}} htmlFor='toggleImagesButton'>
+                              Display Thumbnails</label>
+                            <span style={{'vertical-align': 'middle'}}>
+                              <Toggle
+                                id="toggleImagesButton"
+                                checked={this.state.toggleImages}
+                                onChange={this.handleImagesToggle} />
+                            </span>
+                          </span>
+                        </div>
+                        { this.state.toggleImages &&
+                          <div className="col-xs-12">
+                            <label>Images Scaling</label>
+                            <span className="slider-container">
+                              <Slider
+                                min={100}
+                                tooltip={false}
+                                max={250}
+                                step={1}
+                                value={this.state.imagesMaxWidth}
+                                onChange={this.handleImagesMaxWidth}
+                              />
+                            </span>
+                          </div>
+                        }
+                        <div className="col-xs-12">
+                          <a className="btn btn-default" href={this.state.initData.old_board_edit_url}>Old board edit</a>
+                        </div>
+                      </div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button variant="secondary" onClick={this.handleSettingsModalToggle}>
+                        Close
+                      </Button>
+                    </Modal.Footer>
+                  </Modal>
                 </div>
               </div>
             </div>

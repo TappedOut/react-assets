@@ -18,7 +18,7 @@ import { get_card_id } from "./utils";
 import { buildColorSeries, buildLandColorSeries,
   buildTypeSeries, buildCurveSeries } from './utils/charts';
 import deck_group from './utils/deck_grouping';
-import { Tab, Nav, NavItem } from 'react-bootstrap';
+import { Tab, Nav, NavItem, Modal, Button } from 'react-bootstrap';
 import CurveChartWrapper from "./components/CurveChart";
 const _ = require('lodash');
 
@@ -129,7 +129,8 @@ export default class BoardsEditorApp extends React.Component {
       mobileCardOnTop: null,
       initData: {},
       errorInitializing: false,
-      isMobile: isMobileOnly
+      isMobile: isMobileOnly,
+      showSettingsModal: false
     };
     this.droppables = [];
   }
@@ -198,6 +199,10 @@ export default class BoardsEditorApp extends React.Component {
     for (i = 0; i < boards.length; i++)
       boards[i].style.height = `${boards[i].classList.contains('board-main') ?
         maxBoardHeight : maxBoardHeight + 9}px`;
+  };
+
+  handleSettingsModalToggle = () => {
+    this.setState({ showSettingsModal: !this.state.showSettingsModal })
   };
 
   getInitData = () => {
@@ -1236,6 +1241,69 @@ export default class BoardsEditorApp extends React.Component {
     )
   };
 
+  renderMobileNavbar = () => {
+    return (
+      <nav className="navbar navbar-inverse navbar-fixed-top tapped-menu-navbar bottom-divider" role="navigation">
+        <div className="container">
+          <div className="row">
+            <div className="col-sm-12">
+              <div className="navbar-header">
+                <a style={{padding: "2px 0px", "font-size": "16px"}} className="navbar-brand" href={this.state.initData.deck_url}>
+                  <img style={{width: "20%", display: "inline"}} src={this.state.initData.deck_thumbnail} className="img-responsive" /> {this.state.initData.deck_name}
+                </a>
+                <ul style={{margin: "0 0 0 0"}}  className="nav navbar-nav pull-right">
+                  <li><a onClick={this.handleSettingsModalToggle}>Settings</a></li>
+                  <Modal show={this.state.showSettingsModal} onHide={this.handleSettingsModalToggle}>
+                    <Modal.Body>
+                      <div className="row">
+                        <div className="col-xs-12"
+                             style={{paddingTop: '5px', marginBottom: '10px'}}>
+                          <span className="toggler">
+                            <label style={{'margin-right': '5px'}} htmlFor='toggleImagesButton'>
+                              Display Thumbnails</label>
+                            <span style={{'vertical-align': 'middle'}}>
+                              <Toggle
+                                id="toggleImagesButton"
+                                checked={this.state.toggleImages}
+                                onChange={this.handleImagesToggle} />
+                            </span>
+                          </span>
+                        </div>
+                        { this.state.toggleImages &&
+                          <div className="col-xs-12">
+                            <label>Images Scaling</label>
+                            <span className="slider-container">
+                              <Slider
+                                min={100}
+                                tooltip={false}
+                                max={250}
+                                step={1}
+                                value={this.state.imagesMaxWidth}
+                                onChange={this.handleImagesMaxWidth}
+                              />
+                            </span>
+                          </div>
+                        }
+                        <div className="col-xs-12">
+                          <a className="btn btn-default" href={this.state.initData.old_board_edit_url}>Old board edit</a>
+                        </div>
+                      </div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button variant="secondary" onClick={this.handleSettingsModalToggle}>
+                        Close
+                      </Button>
+                    </Modal.Footer>
+                  </Modal>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    )
+  }
+
   renderBoards = (boards) => {
     if (_.isEmpty(this.state.deckByCategories)) {
       return boards;
@@ -1386,10 +1454,11 @@ export default class BoardsEditorApp extends React.Component {
   };
 
   renderNewCardsToggle = () => {
+    let panelClass = `panel panel-default${this.state.isMobile ? ' top-panel' : ' accordion-panel'}`
     return (
       <div className="row">
         <div className="col-md-12">
-          <div className="panel panel-default accordion-panel">
+          <div className={panelClass}>
             {this.renderNewCards()}
           </div>
         </div>
@@ -1737,8 +1806,10 @@ export default class BoardsEditorApp extends React.Component {
 
     return (
       <div>
+        { this.state.isMobile && this.renderMobileNavbar() }
+        { this.state.isMobile && <div style={{"margin-top": "60px"}} /> }
         { this.renderWarning() }
-        { this.renderImgOptions() }
+        { !this.state.isMobile && this.renderImgOptions() }
         { !this.props.spoilerView && this.renderNewCardsToggle() }
         { this.renderOptions() }
         { this.state.isMobile ?

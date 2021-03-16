@@ -250,6 +250,10 @@ $primary-hover-dark: #204d74;
   }
 }
 
+body {
+    padding-top: 0!important;
+}
+
 .board-panel {
   div.compact-board {
     max-height: 400px;

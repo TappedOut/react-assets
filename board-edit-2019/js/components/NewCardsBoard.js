@@ -70,7 +70,7 @@ export default class NewCardsBoard extends React.Component {
                 onChange={this.props.handleSearchInput}/>
             </span>
           </div>
-          <div className="col-md-4">
+          <div style={{"margin-bottom": "5px"}} className="col-md-4">
             <Async arrowRenderer={null}
                    autoload={false}
                    cache={false}

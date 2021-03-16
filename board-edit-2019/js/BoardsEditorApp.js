@@ -99,10 +99,7 @@ export default class BoardsEditorApp extends React.Component {
       deck: {},
       deckByCategories: {},
       deckByPositions: [],
-      selectedStackType: {
-        value: 'cost',
-        label: 'Converted cost'
-      },
+      selectedStackType: '',
       isGrabbing: false,
       deckHash: '',
       deletedCards: [],
@@ -1248,11 +1245,11 @@ export default class BoardsEditorApp extends React.Component {
           <div className="row">
             <div className="col-sm-12">
               <div className="navbar-header">
-                <a style={{padding: "2px 0px", "font-size": "16px"}} className="navbar-brand" href={this.state.initData.deck_url}>
+                <a style={{padding: "4px 0px"}} className="navbar-brand" href={this.state.initData.deck_url}>
                   <img style={{width: "20%", display: "inline"}} src={this.state.initData.deck_thumbnail} className="img-responsive" /> {this.state.initData.deck_name}
                 </a>
-                <ul style={{margin: "0 0 0 0"}}  className="nav navbar-nav pull-right">
-                  <li><a onClick={this.handleSettingsModalToggle}>Settings</a></li>
+                <ul style={{margin: "4px"}}  className="nav navbar-nav pull-right">
+                  <li><a onClick={this.handleSettingsModalToggle}><span className="glyphicon glyphicon-cog" /></a></li>
                   <Modal show={this.state.showSettingsModal} onHide={this.handleSettingsModalToggle}>
                     <Modal.Body>
                       <div className="row">
@@ -1285,7 +1282,7 @@ export default class BoardsEditorApp extends React.Component {
                           </div>
                         }
                         <div className="col-xs-12">
-                          <a className="btn btn-default" href={this.state.initData.old_board_edit_url}>Old board edit</a>
+                          <a className="btn btn-default" href={this.state.initData.old_board_edit_url}>Switch to legacy editor</a>
                         </div>
                       </div>
                     </Modal.Body>
@@ -1543,8 +1540,7 @@ export default class BoardsEditorApp extends React.Component {
                             "options-panel-spoiler-view"}>
               <div className="panel-body">
                 <div className="row">
-                  <div className="col-md-1 field-label">Group by:</div>
-                  <div className="col-sm-2">
+                  <div style={{"margin-bottom": "5px"}} className="col-sm-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedCategoryType &&
@@ -1554,15 +1550,14 @@ export default class BoardsEditorApp extends React.Component {
                       options={this.categoryChoices}
                     />
                   </div>
-                  {this.state.toggleImages && <div className="col-md-1 field-label">Stack by:</div>}
                   {this.state.toggleImages &&
-                  <div className="col-md-2">
+                  <div style={{"margin-bottom": "5px"}}  className="col-md-2">
                     <Select
                       name="form-field-name"
                       value={this.state.selectedStackType &&
                       this.state.selectedStackType.value}
                       onChange={this.handleStackSelect}
-                      placeholder="Stack by"
+                      placeholder="Unstacked"
                       options={this.categoryChoices}
                     />
                   </div>
@@ -1606,8 +1601,7 @@ export default class BoardsEditorApp extends React.Component {
             <div className="panel panel-default options-panel top-borderless-panel">
               <div className="panel-body">
                 <div className="row">
-                  <div className="col-md-1 field-label">Group by:</div>
-                  <div className="col-md-2">
+                  <div className="col-md-2" style={{"margin-bottom": "5px"}}>
                     <Select
                       name="form-field-name"
                       value={this.state.selectedCategoryType &&
@@ -1617,15 +1611,14 @@ export default class BoardsEditorApp extends React.Component {
                       options={this.categoryChoices}
                     />
                   </div>
-                  {this.state.toggleImages && <div className="col-md-1 field-label">Stack by:</div>}
                   {this.state.toggleImages &&
-                  <div className="col-md-2">
+                  <div className="col-md-2" style={{"margin-bottom": "5px"}}>
                     <Select
                       name="form-field-name"
                       value={this.state.selectedStackType &&
                       this.state.selectedStackType.value}
                       onChange={this.handleStackSelect}
-                      placeholder="Stack by"
+                      placeholder="Unstacked"
                       options={this.categoryChoices}
                     />
                   </div>
@@ -1673,7 +1666,6 @@ export default class BoardsEditorApp extends React.Component {
                       options={this.categoryChoices}
                     />
                   </div>
-                  {this.state.toggleImages && <div className="col-md-1 field-label">Stack by:</div>}
                   {this.state.toggleImages &&
                   <div className="col-md-2">
                     <Select
@@ -1681,7 +1673,7 @@ export default class BoardsEditorApp extends React.Component {
                       value={this.state.selectedStackType &&
                       this.state.selectedStackType.value}
                       onChange={this.handleStackSelect}
-                      placeholder="Stack by"
+                      placeholder="Unstacked"
                       options={this.categoryChoices}
                     />
                   </div>

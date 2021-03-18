@@ -129,7 +129,7 @@ class InventoryCard extends Component {
   render() {
     const id = `inv-qty-${this.props.data.owned_pk}`;
     let edit_popover = <Popover id="edit-popover" />;
-    if (this.props.init_data.is_owner) {
+    if (this.props.init_data.can_edit) {
       let printing_options = this.props.data.all_printings.map(opts => <option value={opts[1]}>{opts[0]}</option>);
       let variation_options = this.props.data.all_variations[this.state.edit.tla] ?
         this.props.data.all_variations[this.state.edit.tla].map(opts => <option value={opts.identifier}>{opts.display}</option>) : [];
@@ -248,7 +248,7 @@ class InventoryCard extends Component {
         </td>
         <td>{this.props.data.set}</td>
         <td dangerouslySetInnerHTML={{__html: this.props.data.price}} />
-        {this.props.init_data.is_owner &&
+        {this.props.init_data.can_edit &&
           <td>
             <div align="center">
               <OverlayTrigger trigger="click" rootClose placement="left" overlay={edit_popover}>

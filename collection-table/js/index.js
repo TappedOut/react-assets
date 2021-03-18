@@ -292,12 +292,12 @@ class CollectionTableApp extends React.Component {
     let buttons = <div />
 
     if (this.state.init_data.type === 'inventory') {
-      row_amount = this.state.init_data.is_owner ? '6' : '5'
+      row_amount = this.state.init_data.can_edit ? '6' : '5'
       headers = <InventoryHeader init_data={this.state.init_data} price_header={this.state.price_header} />
       filters = <InventoryFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
       buttons = (
         <div>
-          {this.state.init_data.is_owner &&
+          {this.state.init_data.can_edit &&
             <div className="row">
               <div className="col-lg-6 col-xs-6">
                 <button className="btn btn-sm btn-success btn-block" data-toggle="modal" data-target="#addModal"><span className="glyphicon glyphicon-plus" /> Add Card</button>
@@ -368,7 +368,7 @@ class CollectionTableApp extends React.Component {
       filters = <BinderFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
       buttons = (
         <div>
-          {this.state.init_data.is_owner &&
+          {this.state.init_data.can_edit &&
             <div className="row">
               <div id="ck-buylist-container" className="col-lg-6 col-xs-6">
                 <button type="button" id="ck-buylist-button" className="btn btn-sm btn-warning btn-block"

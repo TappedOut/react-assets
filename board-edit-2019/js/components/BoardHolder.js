@@ -87,9 +87,12 @@ export default class BoardHolder extends React.Component {
     if (this.props.isMobile) bodyOpts["onClick"] = (e) => this.handleBoardClick(e);
     let bodyClass = `board-droppable  board-${boardName}`;
     if (!this.props.isMobile) bodyClass += " desktop-board-body";
-    if (boardName !== 'main') bodyClass += " well board-e-well";
+    if (!this.props.isMobile && boardName !== 'main') bodyClass += " well board-e-well";
 
-    if (boardName === 'main') {
+    const cards = this.renderCards();
+    if (!cards && this.props.isMobile) return <div />
+
+    if (boardName === 'main' || this.props.isMobile) {
       return (
         <Panel {...panelOpts}>
           <Panel.Heading>
@@ -109,7 +112,7 @@ export default class BoardHolder extends React.Component {
               className={bodyClass}
               ref={droppablesRef}
               data-board-name={boardName}>
-              {this.renderCards()}
+              {cards}
             </div>
           </Panel.Body>
         </Panel>

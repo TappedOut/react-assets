@@ -127,7 +127,8 @@ export default class BoardsEditorApp extends React.Component {
       initData: {},
       errorInitializing: false,
       isMobile: isMobileOnly,
-      showSettingsModal: false
+      showSettingsModal: false,
+      showChartsModal: false
     };
     this.droppables = [];
   }
@@ -200,6 +201,10 @@ export default class BoardsEditorApp extends React.Component {
 
   handleSettingsModalToggle = () => {
     this.setState({ showSettingsModal: !this.state.showSettingsModal })
+  };
+
+  handleChartsModalToggle = () => {
+    this.setState({ showChartsModal: !this.state.showChartsModal })
   };
 
   getInitData = () => {
@@ -1249,6 +1254,21 @@ export default class BoardsEditorApp extends React.Component {
                   <img style={{width: "20%", display: "inline"}} src={this.state.initData.deck_thumbnail} className="img-responsive" /> {this.state.initData.deck_name}
                 </a>
                 <ul style={{margin: "4px"}}  className="nav navbar-nav pull-right">
+                  <li><a onClick={this.handleChartsModalToggle}><span className="glyphicon glyphicon-stats" /></a></li>
+                  <Modal show={this.state.showChartsModal} onHide={this.handleChartsModalToggle}>
+                    <Modal.Body>
+                      <div className="row">
+                        <div className="col-xs-12">
+                          {this.renderCharts()}
+                        </div>
+                      </div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button variant="secondary" onClick={this.handleChartsModalToggle}>
+                        Close
+                      </Button>
+                    </Modal.Footer>
+                  </Modal>
                   <li><a onClick={this.handleSettingsModalToggle}><span className="glyphicon glyphicon-cog" /></a></li>
                   <Modal show={this.state.showSettingsModal} onHide={this.handleSettingsModalToggle}>
                     <Modal.Body>
@@ -1258,7 +1278,7 @@ export default class BoardsEditorApp extends React.Component {
                           <span className="toggler">
                             <label style={{'margin-right': '5px'}} htmlFor='toggleImagesButton'>
                               Display Thumbnails</label>
-                            <span style={{'vertical-align': 'middle'}}>
+                            <span>
                               <Toggle
                                 id="toggleImagesButton"
                                 checked={this.state.toggleImages}
@@ -1452,6 +1472,13 @@ export default class BoardsEditorApp extends React.Component {
 
   renderNewCardsToggle = () => {
     let panelClass = `panel panel-default${this.state.isMobile ? ' top-panel' : ' accordion-panel'}`
+    if (this.state.isMobile) {
+      return (
+        <div>
+          {this.renderNewCards()}
+        </div>
+      )
+    }
     return (
       <div className="row">
         <div className="col-md-12">
@@ -1465,29 +1492,28 @@ export default class BoardsEditorApp extends React.Component {
 
   renderNewCards = () => {
     return (
-      <div id="add-cards-body" className="row" key={this.state.toggleImages ? 0 : 1}>
-        <div className="col-md-12">
-          <NewCardsBoard
-            cards={Object.values(this.state.foundCards)}
-            clearSearchInput={this.clearSearchInput}
-            droppablesRef={d => this.addDroppable(d)}
-            handleAdvancedSearch={this.handleAdvancedSearchStart}
-            handleCardMoveStart={this.handleCardMoveStart}
-            handleSearchCardSelect={this.handleSimpleSearchCardSelect}
-            handleSearchClear={this.handleSearchClear}
-            handleSearchInput={this.handleSimpleSearchInput}
-            handleSearchScroll={this.handleSearchScroll}
-            handleSearchSelect={this.handleSearchSelect}
-            imagesMaxWidth={this.state.imagesMaxWidth}
-            noCardsFound={this.state.noCardsFound}
-            searching={this.state.searchingCards}
-            searchCards={this.searchCards}
-            searchInput={this.state.simpleSearchInput}
-            toggleImages={this.state.toggleImages}
-            autocompleteUrl={this.state.initData.autocomplete_search}
-            autocompleteUrlInv={this.state.initData.autocomplete_search_inv}
-          />
-        </div>
+      <div id="add-cards-body" key={this.state.toggleImages ? 0 : 1}>
+        <NewCardsBoard
+          cards={Object.values(this.state.foundCards)}
+          clearSearchInput={this.clearSearchInput}
+          droppablesRef={d => this.addDroppable(d)}
+          handleAdvancedSearch={this.handleAdvancedSearchStart}
+          handleCardMoveStart={this.handleCardMoveStart}
+          handleSearchCardSelect={this.handleSimpleSearchCardSelect}
+          handleSearchClear={this.handleSearchClear}
+          handleSearchInput={this.handleSimpleSearchInput}
+          handleSearchScroll={this.handleSearchScroll}
+          handleSearchSelect={this.handleSearchSelect}
+          imagesMaxWidth={this.state.imagesMaxWidth}
+          noCardsFound={this.state.noCardsFound}
+          searching={this.state.searchingCards}
+          searchCards={this.searchCards}
+          searchInput={this.state.simpleSearchInput}
+          toggleImages={this.state.toggleImages}
+          autocompleteUrl={this.state.initData.autocomplete_search}
+          autocompleteUrlInv={this.state.initData.autocomplete_search_inv}
+          isMobile={this.state.isMobile}
+        />
       </div>
     )
   };
@@ -1587,111 +1613,113 @@ export default class BoardsEditorApp extends React.Component {
   renderOptions = () => {
     let deleteLegend = '';
 
-    if (this.state.isMobile)
-      deleteLegend = 'Click to undo last delete';
-    else if (this.state.deletedCards.length >= 1)
+    if (this.state.deletedCards.length >= 1)
       deleteLegend = 'Drag to delete card/Click to undo last delete';
     else
       deleteLegend = 'Drag to delete card';
 
+    const content = (
+      <div className="row">
+        <div className="col-md-2" style={{"margin-bottom": "5px"}}>
+          <Select
+            name="form-field-name"
+            value={this.state.selectedCategoryType &&
+            this.state.selectedCategoryType.value}
+            onChange={this.handleCategorySelect}
+            placeholder="Group by"
+            options={this.categoryChoices}
+          />
+        </div>
+        {this.state.toggleImages &&
+        <div className="col-md-2" style={{"margin-bottom": "5px"}}>
+          <Select
+            name="form-field-name"
+            value={this.state.selectedStackType &&
+            this.state.selectedStackType.value}
+            onChange={this.handleStackSelect}
+            placeholder="Unstacked"
+            options={this.categoryChoices}
+          />
+        </div>
+        }
+        {!this.state.isMobile &&
+          <div className="col-md-3">
+            <button
+              className='btn btn-danger btn-block trash-droppable suppress-shadow'
+              ref={d => this.addDroppable(d)}
+              disabled={this.state.deletedCards.length < 1}
+              onClick={this.handleCardDeleteUndo}
+              data-is-header="true">
+              <span className="glyphicon glyphicon-trash"/>
+              {' ' + deleteLegend}
+            </button>
+          </div>
+        }
+      </div>
+    )
+
+    const spoilerContent = (
+      <div className="row">
+        <div className="col-md-1 field-label">Group by:</div>
+        <div className="col-sm-2">
+          <Select
+            name="form-field-name"
+            value={this.state.selectedCategoryType &&
+            this.state.selectedCategoryType.value}
+            onChange={this.handleCategorySelect}
+            placeholder="Group by"
+            options={this.categoryChoices}
+          />
+        </div>
+        {this.state.toggleImages &&
+        <div className="col-md-2">
+          <Select
+            name="form-field-name"
+            value={this.state.selectedStackType &&
+            this.state.selectedStackType.value}
+            onChange={this.handleStackSelect}
+            placeholder="Unstacked"
+            options={this.categoryChoices}
+          />
+        </div>
+        }
+        <div className="col-sm-2">
+          <span className="slider-container">
+            <label>Images Scaling</label>
+            <Slider
+              min={100}
+              tooltip={false}
+              max={250}
+              step={1}
+              value={this.state.imagesMaxWidth}
+              onChange={this.handleImagesMaxWidth}
+            />
+          </span>
+        </div>
+      </div>
+    )
+
     if (!this.props.spoilerView) {
+      if (this.state.isMobile) return content
       return (
         <div className="row">
           <div className="col-md-12">
             <div className="panel panel-default options-panel top-borderless-panel">
               <div className="panel-body">
-                <div className="row">
-                  <div className="col-md-2" style={{"margin-bottom": "5px"}}>
-                    <Select
-                      name="form-field-name"
-                      value={this.state.selectedCategoryType &&
-                      this.state.selectedCategoryType.value}
-                      onChange={this.handleCategorySelect}
-                      placeholder="Group by"
-                      options={this.categoryChoices}
-                    />
-                  </div>
-                  {this.state.toggleImages &&
-                  <div className="col-md-2" style={{"margin-bottom": "5px"}}>
-                    <Select
-                      name="form-field-name"
-                      value={this.state.selectedStackType &&
-                      this.state.selectedStackType.value}
-                      onChange={this.handleStackSelect}
-                      placeholder="Unstacked"
-                      options={this.categoryChoices}
-                    />
-                  </div>
-                  }
-                  <div className="col-md-3">
-                    <button
-                      className='btn btn-danger btn-block trash-droppable suppress-shadow'
-                      ref={d => this.addDroppable(d)}
-                      disabled={this.state.deletedCards.length < 1}
-                      onClick={this.handleCardDeleteUndo}
-                      data-is-header="true">
-                      <span className="glyphicon glyphicon-trash"/>
-                      {' ' + deleteLegend}
-                    </button>
-                  </div>
-                  <div className="col-md-2">
-                    <button
-                      className='btn btn-warning btn-block'
-                      onClick={this.handleResetPosition}>
-                      Reset Cards Positions
-                    </button>
-                  </div>
-                </div>
+                {content}
               </div>
             </div>
           </div>
         </div>
       )
     } else {
+      if (this.state.isMobile) return spoilerContent
       return (
         <div className="row">
           <div className="col-md-12">
-            <div className={"panel panel-default options-panel " +
-                            "options-panel-spoiler-view"}>
+            <div className="panel panel-default options-panel options-panel-spoiler-view">
               <div className="panel-body">
-                <div className="row">
-                  <div className="col-md-1 field-label">Group by:</div>
-                  <div className="col-sm-2">
-                    <Select
-                      name="form-field-name"
-                      value={this.state.selectedCategoryType &&
-                      this.state.selectedCategoryType.value}
-                      onChange={this.handleCategorySelect}
-                      placeholder="Group by"
-                      options={this.categoryChoices}
-                    />
-                  </div>
-                  {this.state.toggleImages &&
-                  <div className="col-md-2">
-                    <Select
-                      name="form-field-name"
-                      value={this.state.selectedStackType &&
-                      this.state.selectedStackType.value}
-                      onChange={this.handleStackSelect}
-                      placeholder="Unstacked"
-                      options={this.categoryChoices}
-                    />
-                  </div>
-                  }
-                  <div className="col-sm-2">
-                    <span className="slider-container">
-                      <label>Images Scaling</label>
-                      <Slider
-                        min={100}
-                        tooltip={false}
-                        max={250}
-                        step={1}
-                        value={this.state.imagesMaxWidth}
-                        onChange={this.handleImagesMaxWidth}
-                      />
-                    </span>
-                  </div>
-                </div>
+                {spoilerContent}
               </div>
             </div>
           </div>
@@ -1761,27 +1789,21 @@ export default class BoardsEditorApp extends React.Component {
     let curveSeries = buildCurveSeries(deck);
     return (
       <div className="row">
-        <div className="col-md-12">
-          <div className="well board-e-well">
-            <div className="row">
-              <div className="col-lg-4 col-xs-12">
-                <ColorChartWrapper
-                  colorSeries={colorSeries}
-                  landSeries={landSeries}
-                />
-              </div>
-              <div className="col-lg-4 col-xs-12 type-chart-container">
-                <TypeChartWrapper
-                  typeSeries={typeSeries}
-                />
-              </div>
-              <div className="col-lg-4 col-xs-12">
-                <CurveChartWrapper
-                  curveSeries={curveSeries}
-                />
-              </div>
-            </div>
-          </div>
+        <div className="col-lg-4 col-xs-12">
+          <ColorChartWrapper
+            colorSeries={colorSeries}
+            landSeries={landSeries}
+          />
+        </div>
+        <div className="col-lg-4 col-xs-12 type-chart-container">
+          <TypeChartWrapper
+            typeSeries={typeSeries}
+          />
+        </div>
+        <div className="col-lg-4 col-xs-12">
+          <CurveChartWrapper
+            curveSeries={curveSeries}
+          />
         </div>
       </div>
     )
@@ -1795,36 +1817,66 @@ export default class BoardsEditorApp extends React.Component {
     let sourceToMove = 'new';
     if (cardToMove && !this.state.newCard)
       sourceToMove = this.state.deck[cardToMove].b;
-
-    return (
-      <div>
-        { this.state.isMobile && this.renderMobileNavbar() }
-        { this.state.isMobile && <div style={{"margin-top": "60px"}} /> }
-        { this.renderWarning() }
-        { !this.state.isMobile && this.renderImgOptions() }
-        { !this.props.spoilerView && this.renderNewCardsToggle() }
-        { this.renderOptions() }
-        { this.state.isMobile ?
-          this.renderBoards(this.renderMobileBoards()) :
-          this.renderBoards(this.renderDesktopBoards()) }
-        { this.renderCharts() }
-        { !this.props.spoilerView && cardToEdit &&
+    if (this.state.isMobile) {
+      return (
+        <div>
+          { this.renderMobileNavbar() }
+          { <div style={{"margin-top": "60px"}} /> }
+          { this.renderWarning() }
+          { !this.props.spoilerView && this.renderNewCardsToggle() }
+          { this.renderOptions() }
+          { this.renderBoards(this.renderMobileBoards()) }
+          { !this.props.spoilerView && cardToEdit &&
           <CardEditModal card={cardToEdit}
                          handleCardEditEnd={this.handleCardEditEnd}
                          foilChoices={this.foilChoices}
                          colorChoices={this.colorChoices}
                          rarityChoices={this.rarityChoices}
           />
-        }
-        { !this.props.spoilerView && cardToMove &&
+          }
+          { !this.props.spoilerView && cardToMove &&
           <CardMoveModal card={cardToMove} source={sourceToMove}
                          handleCardMoveEnd={this.handleCardMoveEnd} />
-        }
-        { !this.props.spoilerView && this.state.advancedSearch &&
+          }
+          { !this.props.spoilerView && this.state.advancedSearch &&
           this.renderCardSearchModal() }
-        { this.renderLoadingModal() }
-        { this.renderSaveButtons() }
-      </div>
-    )
+          { this.renderLoadingModal() }
+          { this.renderSaveButtons() }
+        </div>
+      )
+    } else {
+      return (
+        <div>
+          { this.renderWarning() }
+          { this.renderImgOptions() }
+          { !this.props.spoilerView && this.renderNewCardsToggle() }
+          { this.renderOptions() }
+          { this.renderBoards(this.renderDesktopBoards()) }
+          <div className="row">
+            <div className="col-md-12">
+              <div className="well board-e-well">
+                { this.renderCharts() }
+              </div>
+            </div>
+          </div>
+          { !this.props.spoilerView && cardToEdit &&
+          <CardEditModal card={cardToEdit}
+                         handleCardEditEnd={this.handleCardEditEnd}
+                         foilChoices={this.foilChoices}
+                         colorChoices={this.colorChoices}
+                         rarityChoices={this.rarityChoices}
+          />
+          }
+          { !this.props.spoilerView && cardToMove &&
+          <CardMoveModal card={cardToMove} source={sourceToMove}
+                         handleCardMoveEnd={this.handleCardMoveEnd} />
+          }
+          { !this.props.spoilerView && this.state.advancedSearch &&
+          this.renderCardSearchModal() }
+          { this.renderLoadingModal() }
+          { this.renderSaveButtons() }
+        </div>
+      )
+    }
   }
 }

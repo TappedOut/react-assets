@@ -1236,7 +1236,7 @@ export default class BoardsEditorApp extends React.Component {
               <div className="navbar-header">
                 <div className="row">
                   <div className="col-xs-2" style={{"margin-top": "2px"}}>
-                    <img style={{display: "inline"}} src={this.state.initData.deck_thumbnail} className="img-responsive" />
+                    <a href={this.state.initData.deck_url}><img style={{display: "inline"}} src={this.state.initData.deck_thumbnail} className="img-responsive" /></a>
                   </div>
                   <div className="col-xs-6" style={{padding: "10px 0px", 'font-size': '16px', overflow: "hidden", "white-space": "nowrap", display: "block", "text-overflow": "ellipsis"}}>
                     <a style={{color: "white"}} href={this.state.initData.deck_url}>

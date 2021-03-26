@@ -18,7 +18,7 @@ import { get_card_id } from "./utils";
 import { buildColorSeries, buildLandColorSeries,
   buildTypeSeries, buildCurveSeries } from './utils/charts';
 import deck_group from './utils/deck_grouping';
-import { Tab, Nav, NavItem, Modal, Button } from 'react-bootstrap';
+import { Tab, Nav, NavItem, Modal, Button, ProgressBar } from 'react-bootstrap';
 import CurveChartWrapper from "./components/CurveChart";
 const _ = require('lodash');
 
@@ -136,7 +136,6 @@ export default class BoardsEditorApp extends React.Component {
   componentDidMount() {
     this.getInitData();
     this.setupDragula();
-    this.toggleLoadingModal();
     TAPPED.observeBoardCards();
     window.addEventListener("load", this.normalizeBoardsHeight);
     window.addEventListener("beforeunload", this.handleUnload);
@@ -178,7 +177,6 @@ export default class BoardsEditorApp extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevState.toggleImages !== this.state.toggleImages)
       this.setupDragula();
-    this.toggleLoadingModal();
     this.normalizeBoardsHeight();
   }
 
@@ -232,7 +230,6 @@ export default class BoardsEditorApp extends React.Component {
         this.foilChoices = choicesFromAPI(response.data.foil_choices);
         this.rarityChoices = choicesFromAPI(response.data.rarity_choices);
         this.colorChoices = choicesFromAPI(response.data.alt_color_choices);
-        this.loadingModal = null;
         this.loadDeckData()
       },
       error => {
@@ -1166,19 +1163,6 @@ export default class BoardsEditorApp extends React.Component {
       );
   };
 
-  toggleLoadingModal = () => {
-    if (this.loadingModal !== null) {
-      if (this.state.loading)
-        jQuery(this.loadingModal).modal({
-          backdrop: 'static',
-          keyboard: false,
-          show: true
-        });
-      else
-        jQuery(this.loadingModal).modal('hide');
-    }
-  };
-
   getCardCountForBoard = (boardName) => {
     let categoryGroup = null;
     let selectedCategory = null;
@@ -1414,17 +1398,17 @@ export default class BoardsEditorApp extends React.Component {
     return ([
       <div key={1} className="row">
         <div className="col-md-12">
-          { this.renderBoardHolder("main") }
+          { this.renderBoardHolder("main", "1") }
         </div>
       </div>,
       <div key={2} className="row">
         <div className="col-md-12">
-          { this.renderBoardHolder("side", "1") }
+          { this.renderBoardHolder("side", "2") }
         </div>
       </div>,
       <div key={3} className="row">
         <div className="col-md-12">
-          { this.renderBoardHolder("maybe", "2") }
+          { this.renderBoardHolder("maybe", "3") }
         </div>
       </div>
     ]);
@@ -1440,34 +1424,6 @@ export default class BoardsEditorApp extends React.Component {
         initData={this.state.initData}
       />
     );
-  };
-
-  renderLoadingModal = () => {
-    return (<div className="modal fade" tabIndex="-1" role="dialog"
-         aria-labelledby="loading-modal"
-         ref={modal => this.loadingModal = modal}>
-      <div className="modal-dialog" role="document">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h4 className="modal-title">Loading...</h4>
-          </div>
-          <div className="modal-body">
-            <div className="row">
-              <div className="col-md-12">
-                <div className="progress">
-                  <div className={"progress-bar progress-bar-info " +
-                  "progress-bar-striped active"}
-                       role="progressbar" aria-valuenow="100"
-                       aria-valuemin="0" aria-valuemax="100"
-                       style={{width: "100%"}}>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>);
   };
 
   renderNewCardsToggle = () => {
@@ -1620,7 +1576,7 @@ export default class BoardsEditorApp extends React.Component {
 
     const content = (
       <div className="row">
-        <div className="col-md-2" style={{"margin-bottom": "5px"}}>
+        <div className="col-md-2 col-xs-6" style={{"margin-bottom": "5px"}}>
           <Select
             name="form-field-name"
             value={this.state.selectedCategoryType &&
@@ -1631,7 +1587,7 @@ export default class BoardsEditorApp extends React.Component {
           />
         </div>
         {this.state.toggleImages &&
-        <div className="col-md-2" style={{"margin-bottom": "5px"}}>
+        <div className="col-md-2 col-xs-6" style={{"margin-bottom": "5px"}}>
           <Select
             name="form-field-name"
             value={this.state.selectedStackType &&
@@ -1817,6 +1773,15 @@ export default class BoardsEditorApp extends React.Component {
     let sourceToMove = 'new';
     if (cardToMove && !this.state.newCard)
       sourceToMove = this.state.deck[cardToMove].b;
+    if (this.state.loading) {
+      return (
+        <div>
+          {this.renderMobileNavbar()}
+          { <div style={{"margin-top": "60px"}} /> }
+          <ProgressBar active now={100}/>
+        </div>
+      )
+    }
     if (this.state.isMobile) {
       return (
         <div>
@@ -1840,7 +1805,6 @@ export default class BoardsEditorApp extends React.Component {
           }
           { !this.props.spoilerView && this.state.advancedSearch &&
           this.renderCardSearchModal() }
-          { this.renderLoadingModal() }
           { this.renderSaveButtons() }
         </div>
       )
@@ -1873,7 +1837,6 @@ export default class BoardsEditorApp extends React.Component {
           }
           { !this.props.spoilerView && this.state.advancedSearch &&
           this.renderCardSearchModal() }
-          { this.renderLoadingModal() }
           { this.renderSaveButtons() }
         </div>
       )

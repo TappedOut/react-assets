@@ -80,7 +80,8 @@ export default class BoardHolder extends React.Component {
     const boardCount = boardCards.reduce(
       (acc, card) => { return (card.qty || 1) + acc; }, 0
     );
-    let panelOpts = {className: "board-panel"};
+
+    let panelOpts = {className: "board-panel", defaultExpanded: true};
     if (collapseKey) panelOpts["eventKey"] = collapseKey;
     let bodyOpts = {className: "board-panel-body"};
     if (collapseKey) bodyOpts["collapsible"] = true;
@@ -91,6 +92,16 @@ export default class BoardHolder extends React.Component {
 
     const cards = this.renderCards();
     if (!cards && this.props.isMobile) return <div />
+    const content = (
+      <Panel.Body {...bodyOpts}>
+        <div
+          className={bodyClass}
+          ref={droppablesRef}
+          data-board-name={boardName}>
+          {cards}
+        </div>
+      </Panel.Body>
+    )
 
     if (boardName === 'main' || this.props.isMobile) {
       return (
@@ -107,14 +118,7 @@ export default class BoardHolder extends React.Component {
               </Panel.Title>
             </div>
           </Panel.Heading>
-          <Panel.Body {...bodyOpts}>
-            <div
-              className={bodyClass}
-              ref={droppablesRef}
-              data-board-name={boardName}>
-              {cards}
-            </div>
-          </Panel.Body>
+          {content}
         </Panel>
       )
     } else {

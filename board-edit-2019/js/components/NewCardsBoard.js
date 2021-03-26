@@ -71,39 +71,36 @@ export default class NewCardsBoard extends React.Component {
             </span>
           </div>
           <div style={{"margin-bottom": "5px"}} className="col-md-4">
-            <Async arrowRenderer={null}
-                   autoload={false}
-                   cache={false}
-                   className="text-left"
-                   clearable={false}
-                   labelKey="name"
-                   loadOptions={_.debounce(this.handleAutocomplete, 2000)}
-                   loadingPlaceholder="Searching..."
-                   onBlur={this.props.handleSearchInput}
-                   onBlurResetsInput={false}
-                   onInputChange={this.handleInputChange}
-                   onInputKeyDown={this.handleEnterSearch}
-                   onChange={this.props.handleSearchCardSelect}
-                   onCloseResetsInput={false}
-                   onSelectResetsInput={false}
-                   openOnFocus={true}
-                   placeholder="Search card by name"
-                   ref={(ref) => this.refSelect = ref}
-                   value={
-                     this.props.searchInput.name ?
-                       {pk: 0, name: this.props.searchInput.name} : null
-                   }
-                   valueKey="pk"/>
-            <span className="glyphicon glyphicon-search search-form-icon"
-                  onClick={this.handleSearch}/>
-          </div>
-          <div className="col-md-2 text-center">
-            <button className="btn btn-warning btn-block"
-                    disabled={this.props.searching}
-                    type="button"
-                    onClick={this.props.handleAdvancedSearch}>
-              Advanced Card Search
-            </button>
+            <div className="input-group">
+              <Async arrowRenderer={null}
+                     autoload={false}
+                     cache={false}
+                     className="text-left new-card-select"
+                     clearable={false}
+                     labelKey="name"
+                     loadOptions={_.debounce(this.handleAutocomplete, 2000)}
+                     loadingPlaceholder="Searching..."
+                     onBlur={this.props.handleSearchInput}
+                     onBlurResetsInput={false}
+                     onInputChange={this.handleInputChange}
+                     onInputKeyDown={this.handleEnterSearch}
+                     onChange={this.props.handleSearchCardSelect}
+                     onCloseResetsInput={false}
+                     onSelectResetsInput={false}
+                     openOnFocus={true}
+                     placeholder="Search card by name"
+                     ref={(ref) => this.refSelect = ref}
+                     value={
+                       this.props.searchInput.name ?
+                         {pk: 0, name: this.props.searchInput.name} : null
+                     }
+                     valueKey="pk"/>
+              <span className="input-group-btn">
+                <button style={{height: "36px"}} className="btn btn-warning" type="button" disabled={this.props.searching} onClick={this.props.handleAdvancedSearch}>
+                  <span className="glyphicon glyphicon-filter" aria-hidden="true"/>
+                </button>
+              </span>
+            </div>
           </div>
           {!this.props.isMobile &&
             <div className="col-md-2 text-center">
@@ -126,12 +123,10 @@ export default class NewCardsBoard extends React.Component {
 
     const content = (
       <div>
-        <div className={"row " +
+        <div className={"row text-center" +
             `${(cards.length > 0 || searching || noCardsFound) ? 'search-card-panel' : ''}`}
               key={1}>
-          <div className="col-md-12 text-center">
-            { this.renderSearch() }
-          </div>
+          { this.renderSearch() }
         </div>
         {
           cards.length > 0 &&
@@ -149,6 +144,7 @@ export default class NewCardsBoard extends React.Component {
                       handleCardMoveStart={handleCardMoveStart}
                       imagesMaxWidth={imagesMaxWidth}
                       toggleImages={toggleImages}
+                      isMobile={this.props.isMobile}
                     />
                   })
                 }
@@ -159,7 +155,7 @@ export default class NewCardsBoard extends React.Component {
         {
           searching &&
           <div className="row" key={3}>
-            <div className="col-md-6 col-md-offset-3">
+            <div className="col-md-6 col-md-offset-3" >
               <div className="progress search-progress">
                 <div className={"progress-bar progress-bar-info " +
                 "progress-bar-striped active"}
@@ -187,7 +183,7 @@ export default class NewCardsBoard extends React.Component {
 
     if (this.props.isMobile) {
       return (
-        <div className="row">
+        <div>
           {content}
         </div>
       )

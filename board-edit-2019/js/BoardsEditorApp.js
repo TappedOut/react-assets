@@ -1773,16 +1773,16 @@ export default class BoardsEditorApp extends React.Component {
     let sourceToMove = 'new';
     if (cardToMove && !this.state.newCard)
       sourceToMove = this.state.deck[cardToMove].b;
-    if (this.state.loading) {
-      return (
-        <div>
-          {this.renderMobileNavbar()}
-          { <div style={{"margin-top": "60px"}} /> }
-          <ProgressBar active now={100}/>
-        </div>
-      )
-    }
     if (this.state.isMobile) {
+      if (this.state.loading) {
+        return (
+          <div>
+            {this.renderMobileNavbar()}
+            { <div style={{"margin-top": "60px"}} /> }
+            <ProgressBar active now={100}/>
+          </div>
+        )
+      }
       return (
         <div>
           { this.renderMobileNavbar() }
@@ -1809,6 +1809,7 @@ export default class BoardsEditorApp extends React.Component {
         </div>
       )
     } else {
+      if (this.state.loading) return <div style={{padding: "10px 23%"}}><ProgressBar active now={100}/></div>
       return (
         <div>
           { this.renderWarning() }

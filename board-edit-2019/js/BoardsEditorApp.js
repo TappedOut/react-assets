@@ -1234,69 +1234,78 @@ export default class BoardsEditorApp extends React.Component {
           <div className="row">
             <div className="col-sm-12">
               <div className="navbar-header">
-                <a style={{padding: "4px 0px"}} className="navbar-brand" href={this.state.initData.deck_url}>
-                  <img style={{width: "20%", display: "inline"}} src={this.state.initData.deck_thumbnail} className="img-responsive" /> {this.state.initData.deck_name}
-                </a>
-                <ul style={{margin: "4px"}}  className="nav navbar-nav pull-right">
-                  <li><a onClick={this.handleChartsModalToggle}><span className="glyphicon glyphicon-stats" /></a></li>
-                  <Modal show={this.state.showChartsModal} onHide={this.handleChartsModalToggle}>
-                    <Modal.Body>
-                      <div className="row">
-                        <div className="col-xs-12">
-                          {this.renderCharts()}
-                        </div>
-                      </div>
-                    </Modal.Body>
-                    <Modal.Footer>
-                      <Button variant="secondary" onClick={this.handleChartsModalToggle}>
-                        Close
-                      </Button>
-                    </Modal.Footer>
-                  </Modal>
-                  <li><a onClick={this.handleSettingsModalToggle}><span className="glyphicon glyphicon-cog" /></a></li>
-                  <Modal show={this.state.showSettingsModal} onHide={this.handleSettingsModalToggle}>
-                    <Modal.Body>
-                      <div className="row">
-                        <div className="col-xs-12"
-                             style={{paddingTop: '5px', marginBottom: '10px'}}>
-                          <span className="toggler">
-                            <label style={{'margin-right': '5px'}} htmlFor='toggleImagesButton'>
-                              Display Thumbnails</label>
-                            <span>
-                              <Toggle
-                                id="toggleImagesButton"
-                                checked={this.state.toggleImages}
-                                onChange={this.handleImagesToggle} />
-                            </span>
-                          </span>
-                        </div>
-                        { this.state.toggleImages &&
-                          <div className="col-xs-12">
-                            <label>Images Scaling</label>
-                            <span className="slider-container">
-                              <Slider
-                                min={100}
-                                tooltip={false}
-                                max={250}
-                                step={1}
-                                value={this.state.imagesMaxWidth}
-                                onChange={this.handleImagesMaxWidth}
-                              />
-                            </span>
+                <div className="row">
+                  <div className="col-xs-2" style={{"margin-top": "2px"}}>
+                    <img style={{display: "inline"}} src="//static.tappedout.net/chart/60-0-40-0-0.png" className="img-responsive" />
+                  </div>
+                  <div className="col-xs-6" style={{padding: "10px 0px", 'font-size': '16px', overflow: "hidden", "white-space": "nowrap", display: "block", "text-overflow": "ellipsis"}}>
+                    <a style={{color: "white"}} href={this.state.initData.deck_url}>
+                      Some really long name and her best friends lolo pepe and tata
+                    </a>
+                  </div>
+                  <div className="col-xs-4" style={{"padding-left": "0"}}>
+                    <ul style={{margin: "4px"}}  className="nav navbar-nav pull-right">
+                      <li style={{display: "inline-block"}}><a onClick={this.handleChartsModalToggle}><span className="glyphicon glyphicon-stats" /></a></li>
+                      <Modal show={this.state.showChartsModal} onHide={this.handleChartsModalToggle}>
+                        <Modal.Body>
+                          <div className="row">
+                            <div className="col-xs-12">
+                              {this.renderCharts()}
+                            </div>
                           </div>
-                        }
-                        <div className="col-xs-12">
-                          <a className="btn btn-default" href={this.state.initData.old_board_edit_url}>Switch to legacy editor</a>
-                        </div>
-                      </div>
-                    </Modal.Body>
-                    <Modal.Footer>
-                      <Button variant="secondary" onClick={this.handleSettingsModalToggle}>
-                        Close
-                      </Button>
-                    </Modal.Footer>
-                  </Modal>
-                </ul>
+                        </Modal.Body>
+                        <Modal.Footer>
+                          <Button variant="secondary" onClick={this.handleChartsModalToggle}>
+                            Close
+                          </Button>
+                        </Modal.Footer>
+                      </Modal>
+                      <li style={{display: "inline-block"}}><a onClick={this.handleSettingsModalToggle}><span className="glyphicon glyphicon-cog" /></a></li>
+                      <Modal show={this.state.showSettingsModal} onHide={this.handleSettingsModalToggle}>
+                        <Modal.Body>
+                          <div className="row">
+                            <div className="col-xs-12"
+                                 style={{paddingTop: '5px', marginBottom: '10px'}}>
+                              <span className="toggler">
+                                <label style={{'margin-right': '5px'}} htmlFor='toggleImagesButton'>
+                                  Display Thumbnails</label>
+                                <span>
+                                  <Toggle
+                                    id="toggleImagesButton"
+                                    checked={this.state.toggleImages}
+                                    onChange={this.handleImagesToggle} />
+                                </span>
+                              </span>
+                            </div>
+                            { this.state.toggleImages &&
+                              <div className="col-xs-12">
+                                <label>Images Scaling</label>
+                                <span className="slider-container">
+                                  <Slider
+                                    min={100}
+                                    tooltip={false}
+                                    max={250}
+                                    step={1}
+                                    value={this.state.imagesMaxWidth}
+                                    onChange={this.handleImagesMaxWidth}
+                                  />
+                                </span>
+                              </div>
+                            }
+                            <div className="col-xs-12">
+                              <a className="btn btn-default" href={this.state.initData.old_board_edit_url}>Switch to legacy editor</a>
+                            </div>
+                          </div>
+                        </Modal.Body>
+                        <Modal.Footer>
+                          <Button variant="secondary" onClick={this.handleSettingsModalToggle}>
+                            Close
+                          </Button>
+                        </Modal.Footer>
+                      </Modal>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

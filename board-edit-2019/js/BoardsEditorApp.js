@@ -1236,11 +1236,11 @@ export default class BoardsEditorApp extends React.Component {
               <div className="navbar-header">
                 <div className="row">
                   <div className="col-xs-2" style={{"margin-top": "2px"}}>
-                    <img style={{display: "inline"}} src="//static.tappedout.net/chart/60-0-40-0-0.png" className="img-responsive" />
+                    <img style={{display: "inline"}} src={this.state.initData.deck_thumbnail} className="img-responsive" />
                   </div>
                   <div className="col-xs-6" style={{padding: "10px 0px", 'font-size': '16px', overflow: "hidden", "white-space": "nowrap", display: "block", "text-overflow": "ellipsis"}}>
                     <a style={{color: "white"}} href={this.state.initData.deck_url}>
-                      Some really long name and her best friends lolo pepe and tata
+                      {this.state.initData.deck_name}
                     </a>
                   </div>
                   <div className="col-xs-4" style={{"padding-left": "0"}}>

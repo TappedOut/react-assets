@@ -80,16 +80,30 @@ export default class BoardHolder extends React.Component {
     const boardCount = boardCards.reduce(
       (acc, card) => { return (card.qty || 1) + acc; }, 0
     );
-    let panelOpts = {className: "board-panel"};
+
+    let panelOpts = {className: "board-panel", defaultExpanded: true};
     if (collapseKey) panelOpts["eventKey"] = collapseKey;
     let bodyOpts = {className: "board-panel-body"};
     if (collapseKey) bodyOpts["collapsible"] = true;
     if (this.props.isMobile) bodyOpts["onClick"] = (e) => this.handleBoardClick(e);
     let bodyClass = `board-droppable  board-${boardName}`;
     if (!this.props.isMobile) bodyClass += " desktop-board-body";
-    if (boardName !== 'main') bodyClass += " well board-e-well";
+    if (!this.props.isMobile && boardName !== 'main') bodyClass += " well board-e-well";
 
-    if (boardName === 'main') {
+    const cards = this.renderCards();
+    if (!cards && this.props.isMobile) return <div />
+    const content = (
+      <Panel.Body {...bodyOpts}>
+        <div
+          className={bodyClass}
+          ref={droppablesRef}
+          data-board-name={boardName}>
+          {cards}
+        </div>
+      </Panel.Body>
+    )
+
+    if (boardName === 'main' || this.props.isMobile) {
       return (
         <Panel {...panelOpts}>
           <Panel.Heading>
@@ -104,14 +118,7 @@ export default class BoardHolder extends React.Component {
               </Panel.Title>
             </div>
           </Panel.Heading>
-          <Panel.Body {...bodyOpts}>
-            <div
-              className={bodyClass}
-              ref={droppablesRef}
-              data-board-name={boardName}>
-              {this.renderCards()}
-            </div>
-          </Panel.Body>
+          {content}
         </Panel>
       )
     } else {

@@ -130,7 +130,7 @@ class InventoryCard extends Component {
     const id = `inv-qty-${this.props.data.owned_pk}`;
     let edit_popover = <Popover id="edit-popover" />;
     if (this.props.init_data.can_edit) {
-      let printing_options = this.props.data.all_printings.map(opts => <option value={opts[1]}>{opts[0]}</option>);
+      let printing_options = this.props.data.printings.map(opts => <option value={opts[1]}>{opts[0]}</option>);
       let variation_options = this.props.data.all_variations[this.state.edit.tla] ?
         this.props.data.all_variations[this.state.edit.tla].map(opts => <option value={opts.identifier}>{opts.display}</option>) : [];
       let language_options = this.props.init_data.selects.language.map(opts => <option value={opts.value}>{opts.label}</option>);

@@ -381,7 +381,7 @@ export default class BoardsEditorApp extends React.Component {
                      qty=null, siblingCardId=null) => {
     let sourceCard = {...this.state.foundCards[sourceCardId]};
 
-    let latest_print = sourceCard.all_printings.find(
+    let latest_print = sourceCard.printings.find(
       printing => printing.tla === sourceCard.latest_set
     );
 

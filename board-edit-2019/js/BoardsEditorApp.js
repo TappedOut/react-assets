@@ -194,7 +194,7 @@ export default class BoardsEditorApp extends React.Component {
 
     for (i = 0; i < boards.length; i++)
       boards[i].style.height = `${boards[i].classList.contains('board-main') ?
-        maxBoardHeight : maxBoardHeight + 9}px`;
+        maxBoardHeight + 35 : maxBoardHeight + 45}px`;
   };
 
   handleSettingsModalToggle = () => {

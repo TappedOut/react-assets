@@ -152,7 +152,7 @@ export default class CardPin extends React.Component {
               `${ card.foil ? 'card-thumbnail-foil' : '' }`}
               onClick={() => this.handleCardClick(card.cardId)}
               aria-expanded={this.state.showHandlers}
-              style={{width: `${imagesMaxWidth}px`}}
+              style={{width: `${imagesMaxWidth}px`, 'min-height': `${imagesMaxWidth * 1.42}px`}}
           >
             {card.foil &&
             <img src={`${STATIC_URL}img/foil-card-overlay-2.png`}

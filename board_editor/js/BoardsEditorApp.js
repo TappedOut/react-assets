@@ -58,7 +58,7 @@ function cardSetup(originalCard, board='none', created=true) {
 
   if (created) {
     card.ihash = cardId;
-    card.effective_cost = card.effective_cost.map((c) => COLORS[c]).join(" ");
+    card.effective_cost = card.effective_cost ? card.effective_cost.map((c) => COLORS[c]).join(" ") : "";
   }
 
   let cardCost = card.effective_cost;

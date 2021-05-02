@@ -62,7 +62,7 @@ function cardSetup(originalCard, board='none', created=true) {
 
   if (created) {
     card.ihash = cardId;
-    card.effective_cost = card.effective_cost.map((c) => COLORS[c]).join(" ");
+    card.effective_cost = card.effective_cost ? card.effective_cost.map((c) => COLORS[c]).join(" ") : "";
   }
 
   let cardCost = card.effective_cost;
@@ -382,7 +382,7 @@ export default class BoardsEditorApp extends React.Component {
     let sourceCard = {...this.state.foundCards[sourceCardId]};
 
     let latest_print = sourceCard.printings.find(
-      printing => printing.tla === sourceCard.latest_set
+      printing => printing.tla === sourceCard.cannonical_set
     );
 
     if (latest_print.foil_only) sourceCard['foil'] = 'foil';

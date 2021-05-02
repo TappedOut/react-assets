@@ -155,7 +155,7 @@ export default class CardEditModal extends React.Component {
       printing => printing.tla === this.state.card.tla
     );
     let latest_print = this.state.card.printings.find(
-      printing => printing.tla === this.state.card.latest_set
+      printing => printing.tla === this.state.card.cannonical_set
     );
     if (current_print && current_print.variations && current_print.variations.length) {
       variations = current_print.variations.map(

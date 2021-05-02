@@ -120,7 +120,7 @@ export default class CardEditModal extends React.Component {
     card.need_qty = parseInt(card.need_qty) || 0;
     card.variation = card.variation && card.tla ? card.variation : null;
     if (card.tla) {
-      let current_print = this.state.card.all_printings.find(
+      let current_print = this.state.card.printings.find(
         printing => printing.tla === this.state.card.tla
       );
 
@@ -151,10 +151,10 @@ export default class CardEditModal extends React.Component {
     let card = this.state.card;
     let variations = '';
     let set_number = '--select one--';
-    let current_print = this.state.card.all_printings.find(
+    let current_print = this.state.card.printings.find(
       printing => printing.tla === this.state.card.tla
     );
-    let latest_print = this.state.card.all_printings.find(
+    let latest_print = this.state.card.printings.find(
       printing => printing.tla === this.state.card.latest_set
     );
     if (current_print && current_print.variations && current_print.variations.length) {
@@ -235,7 +235,7 @@ export default class CardEditModal extends React.Component {
                       <option value="maybe">Maybe</option>
                     </select>
                   </div>
-                  { !!this.state.card.all_printings.length &&
+                  { !!this.state.card.printings.length &&
                     <div className={"form-group" +
                       `${card.hasErrors.includes('tla') ? " has-error" : ""}`}>
                       <label htmlFor="card-tla">Printing:</label>
@@ -243,7 +243,7 @@ export default class CardEditModal extends React.Component {
                               className="form-control"
                               onChange={this.handleInputChange}>
                         <option value=''>Latest</option>
-                        {this.state.card.all_printings.map((printing, idx) =>
+                        {this.state.card.printings.map((printing, idx) =>
                           <option key={idx} value={printing.tla}>
                             {printing.name}</option>)
                         }

@@ -64,6 +64,7 @@ export default class BoardHolder extends React.Component {
           imagesMaxWidth={imagesMaxWidth}
           toggleImages={toggleImages}
           stackBy={cat}
+          spoilerView={spoilerView}
           stacksIds={stacksGroup[cat]}
           boardName={boardName}
           droppablesRef={droppablesRef}

@@ -41,6 +41,8 @@ export default class CardStack extends React.Component {
               <CardPinSpoiler
                 key={`${card.cardId}:${card.updateCount}:${idx}`}
                 card={card}
+                stackTop={_.sum(heights.slice(0, idx))}
+                stackBy={stackBy}
                 imagesMaxWidth={imagesMaxWidth}
               /> :
               <CardPin

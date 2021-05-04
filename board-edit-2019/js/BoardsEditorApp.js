@@ -62,10 +62,10 @@ function cardSetup(originalCard, board='none', created=true) {
 
   if (created) {
     card.ihash = cardId;
-    card.effective_cost = card.effective_cost ? card.effective_cost.map((c) => COLORS[c]).join(" ") : "";
+    card.effective_cost = card.reg_effective_cost ? card.reg_effective_cost.map((c) => COLORS[c]).join(" ") : "";
   }
 
-  let cardCost = card.effective_cost;
+  let cardCost = card.effective_cost ? card.effective_cost : "";
 
   if (!cardCost || cardCost.trim().match(/^\s*$/)) {
     card.color_category = "colorless";
@@ -1525,52 +1525,7 @@ export default class BoardsEditorApp extends React.Component {
       )
     } else {
       return (
-        <div className="row">
-          <div className="col-md-12">
-            <div className={"panel panel-default options-panel " +
-                            "options-panel-spoiler-view"}>
-              <div className="panel-body">
-                <div className="row">
-                  <div style={{"margin-bottom": "5px"}} className="col-sm-2">
-                    <Select
-                      name="form-field-name"
-                      value={this.state.selectedCategoryType &&
-                      this.state.selectedCategoryType.value}
-                      onChange={this.handleCategorySelect}
-                      placeholder="Group by"
-                      options={this.categoryChoices}
-                    />
-                  </div>
-                  {this.state.toggleImages &&
-                  <div style={{"margin-bottom": "5px"}}  className="col-md-2">
-                    <Select
-                      name="form-field-name"
-                      value={this.state.selectedStackType &&
-                      this.state.selectedStackType.value}
-                      onChange={this.handleStackSelect}
-                      placeholder="Unstacked"
-                      options={this.categoryChoices}
-                    />
-                  </div>
-                  }
-                  <div className="col-sm-2">
-                    <span className="slider-container">
-                      <label>Images Scaling</label>
-                      <Slider
-                        min={100}
-                        tooltip={false}
-                        max={250}
-                        step={1}
-                        value={this.state.imagesMaxWidth}
-                        onChange={this.handleImagesMaxWidth}
-                      />
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div />
       )
     }
   };
@@ -1625,7 +1580,6 @@ export default class BoardsEditorApp extends React.Component {
 
     const spoilerContent = (
       <div className="row">
-        <div className="col-md-1 field-label">Group by:</div>
         <div className="col-sm-2">
           <Select
             name="form-field-name"

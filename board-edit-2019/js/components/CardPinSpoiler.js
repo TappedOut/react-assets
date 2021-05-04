@@ -32,7 +32,7 @@ export default class CardPinSpoiler extends React.Component {
                       `${card.hasErrors.length > 0 ? " card-error" : ""}`} >
         <div className={'panel-heading card-thumbnail ' +
                         `${ card.foil ? 'card-thumbnail-foil' : '' }`}
-             style={{width: `${imagesMaxWidth}px`}}>
+             style={{width: `${imagesMaxWidth}px`, 'min-height': `${imagesMaxWidth * 1.42}px`}}>
           { card.foil &&
             <img src={`${STATIC_URL}img/foil-card-overlay-2.png`}
                  className="overlay-foil"/>
@@ -63,7 +63,25 @@ export default class CardPinSpoiler extends React.Component {
   };
 
   render() {
-    let { card } = this.props;
+    let { card, stackTop, stackBy } = this.props;
+
+    let divStyle = {};
+    let divClass = "card-draggable-spoiler";
+    if (stackBy) {
+      if(stackTop) {
+        divClass += " card-stack-elem";
+        divStyle = {top: `${stackTop}px`}
+      } else {
+        divClass += " card-stack-elem-first"
+      }
+    }
+
+    let cardOpts = {
+      className: divClass,
+      'data-card': card.cardId,
+      'data-move': "1",
+      style: divStyle
+    };
 
     let cardQty = parseInt(card.qty || 1);
     let cardCopies = [];
@@ -74,9 +92,7 @@ export default class CardPinSpoiler extends React.Component {
     }
 
     return (
-      <div className={"card-draggable-spoiler " +
-                      `${card.hasErrors.length > 0 ? " card-error" : ""}`}
-           data-card={card.cardId} data-move="1">
+      <div {...cardOpts}>
         { cardCopies }
         { this.renderWholeCard() }
       </div>

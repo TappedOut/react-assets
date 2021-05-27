@@ -20,7 +20,6 @@ class BinderFilters extends Component {
         price_from: '',
         price_to: '',
         language: '',
-        display: 'owned',
         in_binder: true,
         all_cards: false,
         matches: false,
@@ -35,9 +34,6 @@ class BinderFilters extends Component {
     this.handleFilterReset = this.handleFilterReset.bind(this);
     this.handleSelectChange = this.handleSelectChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleInBinderBtnClick = this.handleInBinderBtnClick.bind(this);
-    this.handleAllCardsBtnClick = this.handleAllCardsBtnClick.bind(this);
-    this.handleMatchesBtnClick = this.handleMatchesBtnClick.bind(this);
     this.debouncedFilter = _.debounce(data => {this.props.onFilter(data)}, 1000)
   }
 
@@ -54,7 +50,6 @@ class BinderFilters extends Component {
       price_from: '',
       price_to: '',
       language: '',
-      display: 'owned',
       in_binder: true,
       all_cards: false,
       matches: false,
@@ -73,33 +68,6 @@ class BinderFilters extends Component {
     let value = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
     const new_form = {...this.state.form, [name]: value}
-    this.setState({
-      form: new_form
-    });
-    this.debouncedFilter(new_form)
-  }
-
-  handleInBinderBtnClick(attr) {
-    if (this.state.in_binder === true) return
-    const new_form = {...this.state.form, in_binder: true, all_cards: false, matches: false, display: 'owned'}
-    this.setState({
-      form: new_form
-    });
-    this.debouncedFilter(new_form)
-  }
-
-  handleAllCardsBtnClick(attr) {
-    if (this.state.all_cards === true) return
-    const new_form = {...this.state.form, in_binder: false, all_cards: true, matches: false, display: 'collapse'}
-    this.setState({
-      form: new_form
-    });
-    this.debouncedFilter(new_form)
-  }
-
-  handleMatchesBtnClick(attr) {
-    if (this.state.in_binder === true) return
-    const new_form = {...this.state.form, in_binder: false, all_cards: false, matches: true, display: 'matches'}
     this.setState({
       form: new_form
     });
@@ -243,15 +211,6 @@ class BinderFilters extends Component {
                 value={this.state.form.foil}
                 options={this.props.init_data.selects.filter_foil}
               />
-            </div>
-          </div>
-          <div className="col-lg-3 col-xs-12">
-            <div className="form-group">
-              <ButtonGroup>
-                <Button onClick={this.handleInBinderBtnClick} disabled={this.state.form.in_binder}>In Binder</Button>
-                {this.props.init_data.is_owner && <Button onClick={this.handleAllCardsBtnClick} disabled={this.state.form.all_cards}>All Cards</Button>}
-                {!this.props.init_data.is_owner && <Button onClick={this.handleMatchesBtnClick} disabled={this.state.form.matches}>Matches</Button>}
-              </ButtonGroup>
             </div>
           </div>
         </div>

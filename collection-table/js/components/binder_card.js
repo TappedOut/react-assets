@@ -29,11 +29,12 @@ class BinderCard extends Component {
   }
 
   handleQtyEdit (qty, owned) {
-    let params = {qty: qty, name: this.props.data.name, tla: this.props.data.tla, owned: owned}
+    let params = {qty: qty, owned: owned}
     if (this.state.owned_pk && this.props.data.owned === owned) {
       params['owned_pk'] = this.state.owned_pk;
-      params['qty'] = 1
     } else {
+      params['name'] = this.props.data.name;
+      params['tla'] = this.props.data.tla;
       if (this.props.data.foil) {
         params['foil'] = this.props.data.foil;
       }
@@ -52,6 +53,7 @@ class BinderCard extends Component {
       if (this.props.data.language) {
         params['language'] = this.props.data.language;
       }
+      params['qty'] = 1
     }
 
     params = {'changes': JSON.stringify([params])}

@@ -46,7 +46,8 @@ class CollectionTableApp extends React.Component {
       tcg_price: 0,
       card_string: '',
       name_filter: '',
-      buy_price: 0
+      buy_price: 0,
+      card_display: 'in_coll'
     }
 
     this.handleExport = this.handleExport.bind(this);
@@ -213,6 +214,46 @@ class CollectionTableApp extends React.Component {
     window.location.href = `${window.location.href.split('?')[0]}?fmt=${val}`
   }
 
+  handleInBinderBtnClick = () => {
+    if (this.state.in_binder === true) return
+    const new_form = {...this.state.form, display: 'owned'}
+    this.setState({
+      form: new_form,
+      card_display: 'in_coll'
+    });
+    this.searchCards(new_form, this.state.ordering, 1, this.state.vendor)
+  }
+
+  handleAllCardsBtnClick = () => {
+    if (this.state.all_cards === true) return
+    const new_form = {...this.state.form, display: 'collapse'}
+    this.setState({
+      form: new_form,
+      card_display: 'all'
+    });
+    this.searchCards(new_form, this.state.ordering, 1, this.state.vendor)
+  }
+
+  handleHaveMatchesBtnClick = () => {
+    if (this.state.in_binder === true) return
+    const new_form = {...this.state.form, display: 'matches_h'}
+    this.setState({
+      form: new_form,
+      card_display: 'matches_h'
+    });
+    this.searchCards(new_form, this.state.ordering, 1, this.state.vendor)
+  }
+
+  handleWantMatchesBtnClick = () => {
+    if (this.state.in_binder === true) return
+    const new_form = {...this.state.form, in_binder: false, all_cards: false, matches_h: false, matches_w: false, display: 'matches_w'}
+    this.setState({
+      form: new_form,
+      card_display: 'matches_w'
+    });
+    this.searchCards(new_form, this.state.ordering, 1, this.state.vendor)
+  }
+
   render() {
     if (this.state.error && !this.state.first_load) return <div style={{'font-size': '28px', 'margin-bottom': '15px'}}>{ this.state.error }</div>
     if (this.state.initializing || !this.state.first_load) return <ProgressBar active now={100} />
@@ -290,6 +331,7 @@ class CollectionTableApp extends React.Component {
     let headers = [];
     let filters = <div />
     let buttons = <div />
+    let card_display = <div />
 
     if (this.state.init_data.type === 'inventory') {
       row_amount = this.state.init_data.can_edit ? '6' : '5'
@@ -460,6 +502,20 @@ class CollectionTableApp extends React.Component {
           </div>
         </div>
       )
+      const in_coll_label = this.state.init_data.is_owner ? 'In Binder' : 'All'
+      const display_matches = !this.state.init_data.is_owner && this.state.init_data.is_authenticated;
+      if (this.state.init_data.is_authenticated) {
+        card_display = (
+          <div className="form-group">
+            <ButtonGroup>
+              {display_matches && <Button onClick={this.handleWantMatchesBtnClick} disabled={this.state.card_display === 'matches_w'}>Matches Wants</Button>}
+              {display_matches && <Button onClick={this.handleHaveMatchesBtnClick} disabled={this.state.card_display === 'matches_h'}>Matches Haves</Button>}
+              <Button onClick={this.handleInBinderBtnClick} disabled={this.state.card_display === 'in_coll'}>{in_coll_label}</Button>
+              {this.state.init_data.is_owner && <Button onClick={this.handleAllCardsBtnClick} disabled={this.state.card_display === 'all'}>All</Button>}
+            </ButtonGroup>
+          </div>
+        )
+      }
     }
     if (this.state.init_data.type === 'wishlist') {
       row_amount = 5
@@ -595,10 +651,13 @@ class CollectionTableApp extends React.Component {
           </div>
         </Collapse>
         <div style={{'margin-bottom': "10px"}} className="row">
-          <div className="col-lg-9 col-xs-12">
+          <div className="col-lg-6 col-xs-12">
             <ButtonGroup>
               {pages}
             </ButtonGroup>
+          </div>
+          <div className="col-lg-3 col-xs-12">
+            {card_display}
           </div>
           <div className="col-lg-3 col-xs-12">
             <div className="form-inline pull-right">

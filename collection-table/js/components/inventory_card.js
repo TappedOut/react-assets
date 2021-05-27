@@ -67,10 +67,12 @@ class InventoryCard extends Component {
   }
 
   handleQtyEdit (qty) {
-    let params = {qty: qty, name: this.props.data.name, tla: this.props.data.tla}
+    let params = {qty: qty}
     if (this.state.owned_pk) {
       params['owned_pk'] = this.state.owned_pk;
     } else {
+      params['name'] = this.props.data.name;
+      params['tla'] = this.props.data.tla;
       if (this.props.data.foil) {
         params['foil'] = this.props.data.foil;
       }

@@ -9,6 +9,9 @@ export default class CardEditModal extends React.Component {
       props.card.alt_mana_cost, props.card.alt_rarity].some((val) => val !== undefined);
 
     let card = {...props.card};
+    if (card['alt_mana_cost']) {
+      card['alt_mana_cost'] = card['alt_mana_cost'].replace('{', '').replace('}', '')
+    }
     if (card.alt_color) card.alt_color = card.alt_color.join(',');
 
     this.state = {
@@ -125,7 +128,7 @@ export default class CardEditModal extends React.Component {
       );
 
       if (card.variation && current_print.variations && current_print.variations.length) {
-        let variation = current_print.variations.find(variation => ''+variation.identifier === card.variation);
+        let variation = current_print.variations.find(variation => '' + variation.identifier === card.variation);
         if (variation && variation.image) {
           card.image_large = variation.image
         } else {

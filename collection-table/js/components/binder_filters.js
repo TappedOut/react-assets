@@ -27,7 +27,9 @@ class BinderFilters extends Component {
         mana_cost: '',
         cmc_from: '',
         cmc_to: '',
-        cost_control: ''
+        cost_control: '',
+        border_color: '',
+        frame: '',
       }
     };
 
@@ -57,7 +59,9 @@ class BinderFilters extends Component {
       mana_cost: '',
       cmc_from: '',
       cmc_to: '',
-      cost_control: ''
+      cost_control: '',
+      border_color: '',
+      frame: '',
     }
     this.setState({form: blank})
     this.props.onFilter(blank)
@@ -189,6 +193,17 @@ class BinderFilters extends Component {
               </div>
             </div>
           </div>
+          <div className="col-lg-3 col-lg-offset-1 col-xs-12">
+            <div className="form-group">
+              <label className="control-label">Border</label>
+              <Select
+                name="frame"
+                onChange={(v) => this.handleSelectChange('border_color', v)}
+                value={this.state.form.border_color}
+                options={this.props.init_data.selects.border_color}
+              />
+            </div>
+          </div>
         </div>
         <div className="row">
           <div className="col-lg-3 col-xs-12">
@@ -210,6 +225,17 @@ class BinderFilters extends Component {
                 onChange={(v) => this.handleSelectChange('foil', v)}
                 value={this.state.form.foil}
                 options={this.props.init_data.selects.filter_foil}
+              />
+            </div>
+          </div>
+          <div className="col-lg-3 col-lg-offset-3 col-xs-12">
+            <div className="form-group">
+              <label className="control-label">Frame</label>
+              <Select
+                name="frame"
+                onChange={(v) => this.handleSelectChange('frame', v)}
+                value={this.state.form.frame}
+                options={this.props.init_data.selects.frame}
               />
             </div>
           </div>

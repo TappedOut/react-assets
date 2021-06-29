@@ -25,7 +25,9 @@ class InventoryFilters extends Component {
         mana_cost: '',
         cmc_from: '',
         cmc_to: '',
-        cost_control: ''
+        cost_control: '',
+        border_color: '',
+        frame: '',
       }
     };
 
@@ -54,7 +56,9 @@ class InventoryFilters extends Component {
       mana_cost: '',
       cmc_from: '',
       cmc_to: '',
-      cost_control: ''
+      cost_control: '',
+      border_color: '',
+      frame: '',
     }
     this.setState({form: blank})
     this.props.onFilter(blank)
@@ -187,6 +191,17 @@ class InventoryFilters extends Component {
               </div>
             </div>
           </div>
+          <div className="col-lg-3 col-lg-offset-1 col-xs-12">
+            <div className="form-group">
+              <label className="control-label">Border</label>
+              <Select
+                name="frame"
+                onChange={(v) => this.handleSelectChange('border_color', v)}
+                value={this.state.form.border_color}
+                options={this.props.init_data.selects.border_color}
+              />
+            </div>
+          </div>
         </div>
         <div className="row">
           <div className="col-lg-3 col-xs-12">
@@ -219,6 +234,17 @@ class InventoryFilters extends Component {
                     Owned cards only
                 </label>
               </div>
+            </div>
+          </div>
+          <div className="col-lg-3 col-xs-12">
+            <div className="form-group">
+              <label className="control-label">Frame</label>
+              <Select
+                name="frame"
+                onChange={(v) => this.handleSelectChange('frame', v)}
+                value={this.state.form.frame}
+                options={this.props.init_data.selects.frame}
+              />
             </div>
           </div>
         </div>

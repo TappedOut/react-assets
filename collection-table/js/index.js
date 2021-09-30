@@ -110,7 +110,7 @@ class CollectionTableApp extends React.Component {
     for (let [key, value] of Object.entries(data)) {
       if (Array.isArray(value) && value.length) {
         get_data[key] = value.join(',')
-      } else if (value) {
+      } else if (value || value === false) {
         get_data[key] = value
       }
     }

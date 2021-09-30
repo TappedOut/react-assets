@@ -28,6 +28,7 @@ class InventoryFilters extends Component {
         cost_control: '',
         border_color: '',
         frame: '',
+        proxy: ''
       }
     };
 
@@ -59,6 +60,7 @@ class InventoryFilters extends Component {
       cost_control: '',
       border_color: '',
       frame: '',
+      proxy: ''
     }
     this.setState({form: blank})
     this.props.onFilter(blank)
@@ -91,6 +93,7 @@ class InventoryFilters extends Component {
   }
 
   render() {
+    const proxy_opts = [{'value': true, 'label': 'Yes'}, {'value': false, 'label': 'No'}]
     return (
       <div>
         <div className="row">
@@ -164,6 +167,17 @@ class InventoryFilters extends Component {
               <label className="control-label">Subtype</label>
                 <input name="subtype" className="form-control input-sm" onChange={this.handleInputChange} value={this.state.form.subtype} />
                 <div className="help-block">Aura, Vampire, Rogue, etc.</div>
+            </div>
+          </div>
+          <div className="col-lg-3 col-xs-12">
+            <div className="form-group">
+              <label className="control-label">Proxy</label>
+                <Select
+                  name="proxy"
+                  onChange={(v) => this.handleSelectChange('proxy', v)}
+                  value={this.state.form.proxy}
+                  options={proxy_opts}
+                />
             </div>
           </div>
         </div>

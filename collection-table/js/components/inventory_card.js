@@ -16,7 +16,7 @@ class InventoryCard extends Component {
         variation: this.props.data.variation ? this.props.data.variation : '',
         language: this.props.data.language,
         condition: this.props.data.condition,
-        foil: this.props.data.foil,
+        alteration: this.props.data.foil,
         alter_pk: this.props.data.alter_pk,
         signed: this.props.data.signed
       }
@@ -74,7 +74,7 @@ class InventoryCard extends Component {
       params['name'] = this.props.data.name;
       params['tla'] = this.props.data.tla;
       if (this.props.data.foil) {
-        params['foil'] = this.props.data.foil;
+        params['alteration'] = this.props.data.foil;
       }
       if (this.props.data.condition) {
         params['condition'] = this.props.data.condition;
@@ -137,7 +137,10 @@ class InventoryCard extends Component {
         this.props.data.all_variations[this.state.edit.tla].map(opts => <option value={opts.identifier}>{opts.display}</option>) : [];
       let language_options = this.props.init_data.selects.language.map(opts => <option value={opts.value}>{opts.label}</option>);
       let condition_options = this.props.init_data.selects.condition.map(opts => <option value={opts.value}>{opts.label}</option>);
-      let foil_options = this.props.init_data.selects.foil.map(opts => <option value={opts.value}>{opts.label}</option>);
+      let tlavar = this.state.edit.tla + this.state.edit.variation;
+      let alteration_options = this.props.data.all_alterations[tlavar] ?
+        this.props.data.all_alterations[tlavar].map(opts => <option value={opts[0]}>{opts[1]}</option>) :
+        [<option value="">Default</option>, <option value="f">Foil</option>]
       edit_popover = (
         <Popover id="edit-popover" title="Edit Card">
           <div className="popover-content popover-edit-content">
@@ -166,9 +169,8 @@ class InventoryCard extends Component {
                 </select>
               </div>
               <div className="form-group">
-                <select onChange={this.handleInputChange} value={this.state.edit.foil} name="foil" className="form-control foil-edit">
-                  <option value="">Not Foil</option>
-                  {foil_options}
+                <select onChange={this.handleInputChange} value={this.state.edit.alteration} name="alteration" className="form-control foil-edit">
+                  {alteration_options}
                 </select>
               </div>
               <div className="form-group" data-targeted-by="alter_pk">

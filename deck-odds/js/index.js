@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
+import {ProgressBar} from 'react-bootstrap'
 const _ = require('lodash');
 
 
@@ -50,6 +51,7 @@ class DeckOddsApp extends React.Component {
   }
 
   render() {
+    if (this.state.loading) return <ProgressBar active now={100} />
     const grouping_label = this.state.grouping.charAt(0).toUpperCase() + this.state.grouping.slice(1)
     let turns = [];
     _.times(15, (i) => {

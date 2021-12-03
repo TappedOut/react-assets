@@ -9,8 +9,8 @@ class InventoryFilters extends Component {
       collapse: true,
       form: {
         rules: '',
-        colors: '',
-        colors_exclude: '',
+        colors: [],
+        colors_exclude: [],
         collection: '',
         rarity: '',
         cardtype: '',
@@ -41,8 +41,8 @@ class InventoryFilters extends Component {
   handleFilterReset() {
     const blank = {
       rules: '',
-      colors: '',
-      colors_exclude: '',
+      colors: [],
+      colors_exclude: [],
       collection: '',
       rarity: '',
       cardtype: '',
@@ -109,9 +109,11 @@ class InventoryFilters extends Component {
               <label className="control-label">Color</label>
               <Select
                 name="colors"
+                multi
                 onChange={(v) => this.handleSelectChange('colors', v)}
                 value={this.state.form.colors}
                 options={this.props.init_data.selects.color}
+                multiple={true}
               />
             </div>
           </div>
@@ -120,9 +122,11 @@ class InventoryFilters extends Component {
               <label className="control-label">Exclude Color</label>
                 <Select
                   name="colors_exclude"
+                  multi
                   onChange={(v) => this.handleSelectChange('colors_exclude', v)}
                   value={this.state.form.colors_exclude}
                   options={this.props.init_data.selects.color}
+                  multiple={true}
                 />
             </div>
           </div>

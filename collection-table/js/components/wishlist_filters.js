@@ -10,8 +10,8 @@ class WishlistFilters extends Component {
       collapse: true,
       form: {
         rules: '',
-        colors: '',
-        colors_exclude: '',
+        colors: [],
+        colors_exclude: [],
         collection: '',
         rarity: '',
         cardtype: '',
@@ -38,8 +38,8 @@ class WishlistFilters extends Component {
   handleFilterReset() {
     const blank = {
       rules: '',
-      colors: '',
-      colors_exclude: '',
+      colors: [],
+      colors_exclude: [],
       collection: '',
       rarity: '',
       cardtype: '',
@@ -99,6 +99,8 @@ class WishlistFilters extends Component {
             <div className="form-group">
               <label className="control-label">Color</label>
               <Select
+                multi
+                multiple={true}
                 name="colors"
                 onChange={(v) => this.handleSelectChange('colors', v)}
                 value={this.state.form.colors}
@@ -110,6 +112,8 @@ class WishlistFilters extends Component {
             <div className="form-group">
               <label className="control-label">Exclude Color</label>
                 <Select
+                  multi
+                  multiple={true}
                   name="colors_exclude"
                   onChange={(v) => this.handleSelectChange('colors_exclude', v)}
                   value={this.state.form.colors_exclude}

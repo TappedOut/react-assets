@@ -102,18 +102,20 @@ class DeckOddsApp extends React.Component {
           </div>
         </div>
         <div className="row">
-          <div className="col-xs-12 table-responsive">
-            <table className="table table-hover table-striped table-bordered">
-              <thead>
-              <tr>
-                <th>{grouping_label}</th>
-                {turns}
-              </tr>
-              </thead>
-              <tbody>
-                {odds}
-              </tbody>
-            </table>
+          <div className="col-xs-12">
+            <div className="table-responsive">
+              <table className="table table-hover table-striped table-bordered">
+                <thead>
+                <tr>
+                  <th>{grouping_label}</th>
+                  {turns}
+                </tr>
+                </thead>
+                <tbody>
+                  {odds}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

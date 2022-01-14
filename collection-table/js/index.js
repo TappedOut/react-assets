@@ -12,6 +12,7 @@ import WishlistCard from "./components/wishlist_card";
 import InventoryHeader from "./components/inventory_headers";
 import BinderHeader from "./components/binder_headers";
 import WishlistHeader from "./components/wishlist_headers";
+import WishlistDecks from "./components/wishlist_decks";
 const _ = require('lodash');
 
 
@@ -254,6 +255,10 @@ class CollectionTableApp extends React.Component {
     this.searchCards(new_form, this.state.ordering, 1, this.state.vendor)
   }
 
+  removeDeckCB = () => {
+    this.debouncedSearch(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor)
+  }
+
   render() {
     if (this.state.error && !this.state.first_load) return <div style={{'font-size': '28px', 'margin-bottom': '15px'}}>{ this.state.error }</div>
     if (this.state.initializing || !this.state.first_load) return <ProgressBar active now={100} />
@@ -322,7 +327,7 @@ class CollectionTableApp extends React.Component {
     const order_options = this.state.init_data.selects.ordering.map(opts => <option value={opts.value}>{opts.label}</option>)
     const price_display_options = this.state.init_data.selects.price_display.map(opts => <option value={opts.value}>{opts.label}</option>)
 
-    //price
+    // price
     const handlePriceShow = () => this.setState({show_price_modal: true});
     const handlePriceHide = () => this.setState({show_price_modal: false});
 
@@ -331,6 +336,7 @@ class CollectionTableApp extends React.Component {
     let headers = [];
     let filters = <div />
     let buttons = <div />
+    let decks = <div />
     let card_display = <div />
 
     if (this.state.init_data.type === 'inventory') {
@@ -521,6 +527,7 @@ class CollectionTableApp extends React.Component {
       row_amount = 5
       headers = <WishlistHeader init_data={this.state.init_data} price_header={this.state.price_header} />
       filters = <WishlistFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
+      decks = <WishlistDecks api_url={this.state.init_data.urls.wishlist_decks} remove_deck_cb={this.removeDeckCB} />
       buttons = (
         <div>
           <div className="row" style={{'margin-top': '15px'}}>
@@ -602,6 +609,9 @@ class CollectionTableApp extends React.Component {
                 className="btn btn-md btn-block">
                 Filter
               </button>
+            </div>
+            <div className="col-lg-6 col-xs-6">
+              {decks}
             </div>
           </div>
         </div>

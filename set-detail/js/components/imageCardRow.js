@@ -19,7 +19,7 @@ export default class ImageCardRow extends React.Component {
     }
     const images = this.props.specs.map(spec =>
       <div style={{'width': this.props.width, 'max-width': this.props.width, 'display': 'inline-block', 'margin-right': '15px'}}>
-        <a href={spec.url}><img className="img-responsive" src={spec.image_large} /></a>
+        <a href={spec.url}><img className="img-responsive" src={spec.image_large} style={{'width': this.props.width}} /></a>
         <table style={{'background-color': 'black', 'font-size': font_size}} className="table table-bordered">
           <tr style={{'border': '1px solid #ddd'}}>
             <td onClick={() => this.handlePriceClick('TCG', spec)} style={{"text-align": "center", "width":"60%", "cursor": "pointer"}}>TCG Market Price</td>

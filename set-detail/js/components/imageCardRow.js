@@ -18,7 +18,7 @@ export default class ImageCardRow extends React.Component {
       font_size = '8px'
     }
     const images = this.props.specs.map(spec =>
-      <div style={{'max-width': this.props.width, 'display': 'inline-block', 'margin-right': '15px'}}>
+      <div style={{'width': this.props.width, 'max-width': this.props.width, 'display': 'inline-block', 'margin-right': '15px'}}>
         <a href={spec.url}><img className="img-responsive" src={spec.image_large} /></a>
         <table style={{'background-color': 'black', 'font-size': font_size}} className="table table-bordered">
           <tr style={{'border': '1px solid #ddd'}}>

@@ -54,9 +54,15 @@ class SetDetailApp extends React.Component {
       SET_DETAIL_API,
     ).then(
       response => {
+        let found = [];
+        const specs = _.sortBy(response.data.specs.filter((spec) => {
+          const duplicate = found.indexOf(spec.name) > -1;
+          found.push(spec.name);
+          return !duplicate
+        }), (spec) => spec['name'])
         this.setState({
-          specs: _.sortBy(response.data.specs, (spec) => spec['name']),
-          filtered_specs: _.sortBy(response.data.specs, (spec) => spec['name']),
+          specs: specs,
+          filtered_specs: specs,
           vendors: response.data.vendors,
           choices: response.data.choices
         })

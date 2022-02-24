@@ -409,16 +409,17 @@ class SetDetailApp extends React.Component {
               </span>
             }
           </div>
-          <div className="col-lg-2 col-md-2 col-xs-6">
-            <ButtonToolbar bsClass="pull-right">
+          <div className="col-lg-2 col-md-2 col-xs-7">
+            <ButtonToolbar>
               <ButtonGroup bsSize="small">
                 <Button onClick={() => this.handleDisplayChange('table')} disabled={this.state.display === 'table'}>Table</Button>
                 <Button onClick={() => this.handleDisplayChange('images')} disabled={this.state.display === 'images'}>Images</Button>
-                <Button className="visible-xs" onClick={() => this.handleDisplayChange('list')} disabled={this.state.display === 'list'}>List</Button>
+                {window.django.is_mobile &&
+                <Button onClick={() => this.handleDisplayChange('list')} disabled={this.state.display === 'list'}>List</Button>}
               </ButtonGroup>
             </ButtonToolbar>
           </div>
-          <div className="col-lg-1 col-md-2 col-xs-6">
+          <div className="col-lg-1 col-md-2 col-xs-5">
             <select onChange={this.handleOrderChange} className="form-control input-sm">
               {order_opts}
             </select>

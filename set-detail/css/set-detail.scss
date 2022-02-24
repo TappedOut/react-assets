@@ -1,0 +1,23 @@
+.slider-container {
+  display: block;
+  line-height: 1em;
+  text-align: center;
+
+  label {
+    margin: 0;
+  }
+
+  .rangeslider-horizontal {
+    height: 0.25em;
+    margin: 0.5em 0;
+
+    .rangeslider__handle {
+      width: 1em;
+      height: 1em;
+
+      &:after {
+        content: none;
+      }
+    }
+  }
+}

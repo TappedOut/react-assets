@@ -2,20 +2,38 @@ import React from 'react';
 
 
 export default class ImageCardRow extends React.Component {
+  handlePriceClick = (vendor, spec) => {
+    const url = spec[this.props.choices.vendor_url[vendor]];
+    if (url) {
+      const link = `${url}${this.props.choices.vendor_param[vendor]}`
+      window.open(link, "_blank")
+    }
+  }
   render() {
+    let font_size = '12px'
+    if (this.props.width < 160) {
+      font_size = '10px'
+    }
+    if (this.props.width < 100) {
+      font_size = '8px'
+    }
     const images = this.props.specs.map(spec =>
-      <div className="col-lg-3 col-xs-12">
+      <div style={{'max-width': this.props.width, 'display': 'inline-block', 'margin-right': '15px'}}>
         <a href={spec.url}><img className="img-responsive" src={spec.image_large} /></a>
-        <table className="table" style={{"font-size": "10px", "margin-bottom": "0"}}>
-          <tr>
-            <td style={{"line-height": "0.3", "text-align": "center", "width":"60%"}}>{spec.name}</td>
-            <td style={{"line-height": "0.3", "text-align": "center", "width":"40%"}}>{spec.name}</td>
+        <table style={{'background-color': 'black', 'font-size': font_size}} className="table table-bordered">
+          <tr style={{'border': '1px solid #ddd'}}>
+            <td onClick={() => this.handlePriceClick('TCG', spec)} style={{"text-align": "center", "width":"60%", "cursor": "pointer"}}>TCG Market Price</td>
+            <td onClick={() => this.handlePriceClick('TCG', spec)} style={{"text-align": "center", "width":"40%", "cursor": "pointer"}}>${spec.tcg_market_price}</td>
+          </tr>
+          <tr style={{'border': '1px solid #ddd'}}>
+            <td onClick={() => this.handlePriceClick('CK', spec)} style={{"text-align": "center", "width":"60%", "cursor": "pointer"}}>Card Kingdom</td>
+            <td onClick={() => this.handlePriceClick('CK', spec)} style={{"text-align": "center", "width":"40%", "cursor": "pointer"}}>${spec.ck_price}</td>
           </tr>
         </table>
       </div>
     )
     return (
-      <div style={{"margin-bottom": "10px"}} className="row">
+      <div>
         {images}
       </div>
     )

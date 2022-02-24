@@ -14,6 +14,7 @@ const _ = require('lodash');
 
 
 const SET_DETAIL_API = window.django.set_specs_api;
+const SET_TLA = window.django.tla;
 
 
 class SetDetailApp extends React.Component {
@@ -59,7 +60,15 @@ class SetDetailApp extends React.Component {
           const duplicate = found.indexOf(spec.name) > -1;
           found.push(spec.name);
           return !duplicate
-        }), (spec) => spec['name'])
+        }), (spec) => spec['name']).map((spec) => {
+          if (!spec.printings) return spec
+          const printing_info = spec.printings.find((p) => {return p.tla === window.django.tla})
+          if (!printing_info) return spec
+          _.forEach(['image_large', 'number', 'tcg_market_price', 'ck_price'], (e) => {
+            if (printing_info[e]) spec[e] = printing_info[e]
+          })
+          return spec
+        })
         this.setState({
           specs: specs,
           filtered_specs: specs,

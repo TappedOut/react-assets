@@ -5,9 +5,9 @@ import {ButtonToolbar, ButtonGroup, Modal, Button} from 'react-bootstrap';
 import Slider from 'react-rangeslider';
 import '../css/set-detail.scss';
 import 'react-rangeslider/lib/index.css';
-import ImageCardRow from './components/imageCardRow.js';
-import ImageCardTable from './components/imageCardTable.js';
-import ImageCardList from './components/imageCardList.js';
+import CardImages from './components/cardImages.js';
+import CardTable from './components/cardTable.js';
+import CardList from './components/cardList.js';
 import 'react-select/dist/react-select.css';
 import Select from 'react-select';
 const _ = require('lodash');
@@ -15,6 +15,15 @@ const _ = require('lodash');
 
 const SET_DETAIL_API = window.django.set_specs_api;
 const SET_TLA = window.django.tla;
+
+
+const COLOR_ORDER = {
+  'W': 1,
+  'U': 2,
+  'B': 3,
+  'R': 4,
+  'G': 5
+}
 
 
 class SetDetailApp extends React.Component {
@@ -30,6 +39,7 @@ class SetDetailApp extends React.Component {
       order_by: 'name',
       choices: {},
       images_width: 300,
+      backsides: {},
       filters: {
         name: '',
         green: false,
@@ -56,13 +66,18 @@ class SetDetailApp extends React.Component {
     ).then(
       response => {
         let found = [];
+        let backsides = {};
         const specs = _.sortBy(response.data.specs.filter((spec) => {
           const duplicate = found.indexOf(spec.name) > -1;
           found.push(spec.name);
+          if (spec.flip && !spec.is_front) {
+            backsides[spec.name] = spec
+            return false
+          }
           return !duplicate
         }), (spec) => spec['name']).map((spec) => {
           if (!spec.printings) return spec
-          const printing_info = spec.printings.find((p) => {return p.tla === window.django.tla})
+          const printing_info = spec.printings.find((p) => {return p.tla === SET_TLA})
           if (!printing_info) return spec
           _.forEach(['image_large', 'number', 'tcg_market_price', 'ck_price'], (e) => {
             if (printing_info[e]) spec[e] = printing_info[e]
@@ -73,7 +88,8 @@ class SetDetailApp extends React.Component {
           specs: specs,
           filtered_specs: specs,
           vendors: response.data.vendors,
-          choices: response.data.choices
+          choices: response.data.choices,
+          backsides: backsides
         })
       },
       error => {
@@ -245,6 +261,18 @@ class SetDetailApp extends React.Component {
     let ordered = _.sortBy(specs, 'name');
     if (order !== 'name') {
       ordered = _.sortBy(ordered, (spec) => {
+        if (order === 'color') {
+          const colors = spec['effective_cost'] ? spec['effective_cost'] : []
+          if (colors.length === 1) {
+            return COLOR_ORDER[colors[0]]
+          }
+          if (colors.length > 1) {
+            return 6
+          }
+          if (colors.length === 0) {
+            return 7
+          }
+        }
         if (order === 'cmc') {
           return spec['mana_cost_converted']
         }
@@ -268,17 +296,19 @@ class SetDetailApp extends React.Component {
       main_content = <p style={{'height': '500px'}}>No cards found</p>
     } else {
       if (this.state.display === 'images') {
-        main_content = <ImageCardRow specs={this.state.filtered_specs} choices={this.state.choices} width={this.state.images_width} />;
+        main_content = <CardImages specs={this.state.filtered_specs} choices={this.state.choices}
+                                   width={this.state.images_width} backsides={this.state.backsides} />;
       }
       if (this.state.display === 'table') {
-        main_content = <ImageCardTable specs={this.state.filtered_specs} choices={this.state.choices}/>
+        main_content = <CardTable specs={this.state.filtered_specs} choices={this.state.choices} backsides={this.state.backsides}/>
       }
       if (this.state.display === 'list') {
-        main_content = <ImageCardList specs={this.state.filtered_specs} choices={this.state.choices} />;
+        main_content = <CardList specs={this.state.filtered_specs} choices={this.state.choices} backsides={this.state.backsides} />;
       }
     }
     let order_opts = [
       {'label': 'Name', 'value': 'name'},
+      {'label': 'Color', 'value': 'color'},
       {'label': 'Price', 'value': 'price'},
       {'label': 'CMC', 'value': 'cmc'},
       {'label': 'Number', 'value': 'number'},

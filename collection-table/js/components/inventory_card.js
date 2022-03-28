@@ -252,6 +252,7 @@ class InventoryCard extends Component {
         </td>
         <td>{this.props.data.set}</td>
         <td dangerouslySetInnerHTML={{__html: this.props.data.price}} />
+        {this.props.rank && <td>{this.props.data.rank ? this.props.data.rank : '-'}</td>}
         {this.props.init_data.can_edit &&
           <td>
             <div align="center">

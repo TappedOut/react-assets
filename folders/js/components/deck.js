@@ -24,6 +24,7 @@ class Deck extends Component {
               </div>
               <div className="deck-square-card"/>
             </div>
+            {this.props.canEdit &&
             <div className="row deck-btn-group">
               <div className="col-md-offset-8 col-sm-offset-8 col-xs-offset-8 col-md-4 col-sm-4 col-xs-4">
                 <btn onClick={this.handleDeleteBtnClick.bind(this)}
@@ -35,6 +36,7 @@ class Deck extends Component {
                 </btn>
               </div>
             </div>
+            }
           </div>
         </div>
       )

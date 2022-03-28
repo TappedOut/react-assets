@@ -8,6 +8,37 @@ class Deck extends Component {
 
   render() {
     const deck = this.props.deck;
+    if (deck.missing) {
+      return (
+        <div className="col-md-3 col-xs-12 col-sm-6 deck-group">
+          <div className="row">
+            <div className="deck-square-container">
+              <div className="deck-square-caption">
+                <div className="row">
+                  <div className="col-md-12">
+                    <p>
+                      {deck.name} is now private.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="deck-square-card"/>
+            </div>
+            <div className="row deck-btn-group">
+              <div className="col-md-offset-8 col-sm-offset-8 col-xs-offset-8 col-md-4 col-sm-4 col-xs-4">
+                <btn onClick={this.handleDeleteBtnClick.bind(this)}
+                     className="btn btn-block btn-danger"
+                     data-toggle="tooltip"
+                     data-placement="bottom"
+                     title="Remove deck from this folder">
+                  <span className="glyphicon glyphicon-remove"/>
+                </btn>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
     let formatClass = 'badge badge-tiny';
     if (deck.formatTLA) {
       formatClass += ' fmt-' + deck.formatTLA.toLowerCase();
@@ -99,8 +130,8 @@ class Deck extends Component {
               </div>
             </a>
             <a href={deck.url}>
-                <div class="deck-square-card">
-                    <img class="deck-square-card-img img-responsive"
+                <div className="deck-square-card">
+                    <img className="deck-square-card-img img-responsive"
                          src={deck.featuredImage}
                          onError="this.onerror=null;$(this).hide();"
                     />

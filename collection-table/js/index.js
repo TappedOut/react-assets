@@ -226,7 +226,7 @@ class CollectionTableApp extends React.Component {
     const val = event.target.value;
     const filter_data = {...this.state.filter_data, name: val};
     this.setState({name_filter: val, filter_data: filter_data, page: 1});
-    this.debouncedSearch(filter_data, this.state.ordering, 1, this.state.vendor)
+    this.debouncedSearch(filter_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
   }
 
   handleExport(event) {
@@ -276,7 +276,7 @@ class CollectionTableApp extends React.Component {
   }
 
   removeDeckCB = () => {
-    this.debouncedSearch(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor)
+    this.debouncedSearch(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor, this.state.rank)
   }
 
   render() {

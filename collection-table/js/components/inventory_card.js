@@ -257,7 +257,7 @@ class InventoryCard extends Component {
           <td>
             <div align="center">
               <OverlayTrigger trigger="click" rootClose placement="left" overlay={edit_popover}>
-                <button id="popover-btn" className="btn btn-success" disabled={this.props.data.edit_disabled || !this.state.owned_pk}>
+                <button id="popover-btn" className="btn btn-xs btn-success" disabled={this.props.data.edit_disabled || !this.state.owned_pk}>
                   <span className="glyphicon glyphicon-wrench" aria-hidden="true" />
                 </button>
               </OverlayTrigger>

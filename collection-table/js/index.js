@@ -19,6 +19,17 @@ const _ = require('lodash');
 const INIT_URL = window.django.init_url;
 
 
+const RANK_HEADER = {
+  '': '',
+  'edh': 'Commander',
+  'as_commander': 'As commander',
+  'legacy': 'Legacy',
+  'standard': 'Standard',
+  'pauper': 'Pauper',
+  'modern': 'Modern'
+}
+
+
 class CollectionTableApp extends React.Component {
   constructor(props) {
     super(props);
@@ -42,6 +53,7 @@ class CollectionTableApp extends React.Component {
       filter_data: {owned: true},
       error: '',
       ordering: 'name',
+      rank: '',
       show_price_modal: false,
       ck_price: 0,
       tcg_price: 0,
@@ -56,23 +68,24 @@ class CollectionTableApp extends React.Component {
     this.toggleFilters = this.toggleFilters.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
     this.handleOrderChange = this.handleOrderChange.bind(this);
+    this.handleRankChange = this.handleRankChange.bind(this);
     this.handleVendorChange = this.handleVendorChange.bind(this);
     this.handleQtyEditToggle = this.handleQtyToggleEdit.bind(this);
     this.handleWantsQtyEditToggle = this.handleWantsQtyToggleEdit.bind(this);
     this.handleNameFilter = this.handleNameFilter.bind(this);
-    this.debouncedSearch = _.debounce((data, order, page, vendor) => {this.searchCards(data, order, page, vendor)}, 1000)
+    this.debouncedSearch = _.debounce((data, order, page, vendor, rank) => {this.searchCards(data, order, page, vendor, rank)}, 1000)
     this.initialize(INIT_URL);
   }
 
   componentDidMount() {
     document.addEventListener('card-added', event => {
-        this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor)
+        this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor, this.state.rank)
       })
   }
 
   componentWillUnmount() {
     document.removeEventListener('card-added', event => {
-        this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor)
+        this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor, this.state.rank)
       })
   }
 
@@ -87,7 +100,7 @@ class CollectionTableApp extends React.Component {
           vendor: response.data.vendor,
           price_header: response.data.price_header
         })
-        this.searchCards({owned: true}, 'name', 1, response.data.vendor);
+        this.searchCards({owned: true}, 'name', 1, response.data.vendor, '');
       }
     ).catch(error => {
       let error_msg = 'Error getting the card data.';
@@ -100,13 +113,14 @@ class CollectionTableApp extends React.Component {
     });
   }
 
-  searchCards(data, order, page, vendor) {
+  searchCards(data, order, page, vendor, rank) {
     this.setState({loading: true})
     let get_data = {
       'start': 50 * (page - 1),
       'end': 50 * page,
       'ordering': order,
-      'vendor': vendor
+      'vendor': vendor,
+      'rank': rank
     }
     for (let [key, value] of Object.entries(data)) {
       if (Array.isArray(value) && value.length) {
@@ -178,22 +192,28 @@ class CollectionTableApp extends React.Component {
   handleFilter(data) {
     const filter_data = {...this.state.filter_data, ...data};
     this.setState({filter_data: filter_data, page: 1});
-    this.searchCards(filter_data, this.state.ordering, 1, this.state.vendor)
+    this.searchCards(filter_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
   }
 
   handleCardEdit() {
-    this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor)
+    this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor, this.state.rank)
   }
 
   handlePageChange(page) {
     this.setState({page: page});
-    this.searchCards(this.state.filter_data, this.state.ordering, page, this.state.vendor)
+    this.searchCards(this.state.filter_data, this.state.ordering, page, this.state.vendor, this.state.rank)
   }
 
   handleOrderChange(event) {
     const value = event.target.value;
     this.setState({ordering: value});
-    this.searchCards(this.state.filter_data, value, this.state.page, this.state.vendor)
+    this.searchCards(this.state.filter_data, value, this.state.page, this.state.vendor, this.state.rank)
+  }
+
+  handleRankChange(event) {
+    const value = event.target.value;
+    this.setState({rank: value});
+    this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor, value)
   }
 
   handleVendorChange(event) {
@@ -206,7 +226,7 @@ class CollectionTableApp extends React.Component {
     const val = event.target.value;
     const filter_data = {...this.state.filter_data, name: val};
     this.setState({name_filter: val, filter_data: filter_data, page: 1});
-    this.debouncedSearch(filter_data, this.state.ordering, 1, this.state.vendor)
+    this.debouncedSearch(filter_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
   }
 
   handleExport(event) {
@@ -222,7 +242,7 @@ class CollectionTableApp extends React.Component {
       form: new_form,
       card_display: 'in_coll'
     });
-    this.searchCards(new_form, this.state.ordering, 1, this.state.vendor)
+    this.searchCards(new_form, this.state.ordering, 1, this.state.vendor, this.state.rank)
   }
 
   handleAllCardsBtnClick = () => {
@@ -232,7 +252,7 @@ class CollectionTableApp extends React.Component {
       form: new_form,
       card_display: 'all'
     });
-    this.searchCards(new_form, this.state.ordering, 1, this.state.vendor)
+    this.searchCards(new_form, this.state.ordering, 1, this.state.vendor, this.state.rank)
   }
 
   handleHaveMatchesBtnClick = () => {
@@ -242,7 +262,7 @@ class CollectionTableApp extends React.Component {
       form: new_form,
       card_display: 'matches_h'
     });
-    this.searchCards(new_form, this.state.ordering, 1, this.state.vendor)
+    this.searchCards(new_form, this.state.ordering, 1, this.state.vendor, this.state.rank)
   }
 
   handleWantMatchesBtnClick = () => {
@@ -252,11 +272,11 @@ class CollectionTableApp extends React.Component {
       form: new_form,
       card_display: 'matches_w'
     });
-    this.searchCards(new_form, this.state.ordering, 1, this.state.vendor)
+    this.searchCards(new_form, this.state.ordering, 1, this.state.vendor, this.state.rank)
   }
 
   removeDeckCB = () => {
-    this.debouncedSearch(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor)
+    this.debouncedSearch(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor, this.state.rank)
   }
 
   render() {
@@ -294,6 +314,7 @@ class CollectionTableApp extends React.Component {
             onQtyToggle={this.handleQtyEditToggle}
             row_number={i}
             show_qty_edit={i === this.state.row_qty_editing}
+            rank={this.state.rank}
           />
         )
       }
@@ -325,6 +346,7 @@ class CollectionTableApp extends React.Component {
     // selects
     const export_options = this.state.init_data.selects.export.map(opts => <option value={opts.value}>{opts.label}</option>)
     const order_options = this.state.init_data.selects.ordering.map(opts => <option value={opts.value}>{opts.label}</option>)
+    const rank_options = this.state.init_data.selects.rank.map(opts => <option value={opts.value}>{opts.label}</option>)
     const price_display_options = this.state.init_data.selects.price_display.map(opts => <option value={opts.value}>{opts.label}</option>)
 
     // price
@@ -340,8 +362,10 @@ class CollectionTableApp extends React.Component {
     let card_display = <div />
 
     if (this.state.init_data.type === 'inventory') {
-      row_amount = this.state.init_data.can_edit ? '6' : '5'
-      headers = <InventoryHeader init_data={this.state.init_data} price_header={this.state.price_header} />
+      let row_amount = 5
+      if (this.state.init_data.can_edit) row_amount++;
+      if (this.state.rank) row_amount++;
+      headers = <InventoryHeader init_data={this.state.init_data} price_header={this.state.price_header} rank={RANK_HEADER[this.state.rank]} />
       filters = <InventoryFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
       buttons = (
         <div>
@@ -405,6 +429,19 @@ class CollectionTableApp extends React.Component {
                 className="btn btn-md btn-block">
                 Filter
               </button>
+            </div>
+            <div className="col-lg-6 col-xs-6">
+              <div className="row">
+                <div className="col-lg-4 col-xs-4">
+                  Rank by
+                </div>
+                <div className="col-lg-8 col-xs-8">
+                  <select name="rank" className="form-control" onChange={this.handleRankChange} value={this.state.rank}>
+                    <option value="">-----</option>
+                    {rank_options}
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
         </div>

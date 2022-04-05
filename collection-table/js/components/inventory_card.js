@@ -252,11 +252,12 @@ class InventoryCard extends Component {
         </td>
         <td>{this.props.data.set}</td>
         <td dangerouslySetInnerHTML={{__html: this.props.data.price}} />
+        {this.props.rank && <td>{this.props.data.rank ? this.props.data.rank : '-'}</td>}
         {this.props.init_data.can_edit &&
           <td>
             <div align="center">
               <OverlayTrigger trigger="click" rootClose placement="left" overlay={edit_popover}>
-                <button id="popover-btn" className="btn btn-success" disabled={this.props.data.edit_disabled || !this.state.owned_pk}>
+                <button id="popover-btn" className="btn btn-xs btn-success" disabled={this.props.data.edit_disabled || !this.state.owned_pk}>
                   <span className="glyphicon glyphicon-wrench" aria-hidden="true" />
                 </button>
               </OverlayTrigger>

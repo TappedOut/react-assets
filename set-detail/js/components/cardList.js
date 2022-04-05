@@ -87,6 +87,11 @@ export default class CardList extends React.Component {
               {this.cardBlock(this.props.backsides[spec.flip])}
             </div>}
             <div className="row">
+              <div className="col-xs-12">
+                <p>{this.props.rank_label}: #{spec.rank_display}</p>
+              </div>
+            </div>
+            <div className="row">
               {!!spec.tcg_market_price &&
                 <div className="col-xs-6">
                   <a href={tcg_price_url} target="_blank">TCG Market Price: ${spec.tcg_market_price}</a>

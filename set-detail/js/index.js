@@ -115,7 +115,7 @@ class SetDetailApp extends React.Component {
 
   filterSpecs = (filters) => {
     if (Object.values(filters).every(value => !value)) {
-      this.changeOrder(this.state.order, this.state.specs)
+      this.changeOrder(this.state.order_by, this.state.specs)
       return
     }
     const filtered = this.state.specs.filter(spec => {
@@ -181,7 +181,7 @@ class SetDetailApp extends React.Component {
       }
       return keep
     })
-    this.changeOrder(this.state.order, filtered)
+    this.changeOrder(this.state.order_by, filtered)
   }
 
   chunkArray = (inputArray, perChunk) => {
@@ -285,35 +285,67 @@ class SetDetailApp extends React.Component {
         if (order === 'type') {
           return spec['type']
         }
+        if (order.startsWith('rank_')) {
+          if (order === 'rank_cmdr' && spec['rank_cmdr'] && spec['cmdr_rank']['edh']) {
+            return spec['cmdr_rank']['edh']
+          }
+          const order_key = order.replace('rank_', '')
+          if (spec['rank'] && spec['rank'][order_key]) {
+            return spec['rank'][order_key]
+          }
+          return 999999
+        }
       })
     }
-    this.setState({filtered_specs: ordered, order: order})
+    this.setState({filtered_specs: ordered, order_by: order})
   }
 
   render() {
     let main_content;
-    if (!this.state.filtered_specs.length) {
-      main_content = <p style={{'height': '500px'}}>No cards found</p>
-    } else {
-      if (this.state.display === 'images') {
-        main_content = <CardImages specs={this.state.filtered_specs} choices={this.state.choices}
-                                   width={this.state.images_width} backsides={this.state.backsides} />;
-      }
-      if (this.state.display === 'table') {
-        main_content = <CardTable specs={this.state.filtered_specs} choices={this.state.choices} backsides={this.state.backsides}/>
-      }
-      if (this.state.display === 'list') {
-        main_content = <CardList specs={this.state.filtered_specs} choices={this.state.choices} backsides={this.state.backsides} />;
-      }
-    }
     let order_opts = [
       {'label': 'Name', 'value': 'name'},
       {'label': 'Color', 'value': 'color'},
       {'label': 'Price', 'value': 'price'},
       {'label': 'CMC', 'value': 'cmc'},
       {'label': 'Number', 'value': 'number'},
-      {'label': 'Type', 'value': 'type'}
+      {'label': 'Type', 'value': 'type'},
+      {'label': 'Commander format rank', 'value': 'rank_edh'},
+      {'label': 'As commander rank', 'value': 'rank_cmdr'},
+      {'label': 'Standard rank', 'value': 'rank_standard'},
+      {'label': 'Modern rank', 'value': 'rank_modern'},
+      {'label': 'Legacy rank', 'value': 'rank_legacy'}
     ]
+    if (!this.state.filtered_specs.length) {
+      main_content = <p style={{'height': '500px'}}>No cards found</p>
+    } else {
+      let rank_label = 'Commander rank';
+      let rank_key = 'rank_edh'
+      if (this.state.order_by.startsWith('rank_')) {
+        rank_key = this.state.order_by;
+        rank_label = order_opts.find((o) => o.value === rank_key).label.replace(' format', '');
+      }
+      rank_key = rank_key.replace('rank_', '')
+      let filtered_specs = this.state.filtered_specs.map((spec) => {
+        if (rank_key === 'cmdr' && spec['cmdr_rank'] && spec['cmdr_rank']['edh']) {
+          spec['rank_display'] = spec['cmdr_rank']['edh']
+        } else if (spec['rank'] && spec['rank'][rank_key]) {
+          spec['rank_display'] = spec['rank'][rank_key]
+        } else {
+          spec['rank_display'] = '--'
+        }
+        return spec
+      })
+      if (this.state.display === 'images') {
+        main_content = <CardImages specs={filtered_specs} choices={this.state.choices}
+                                   width={this.state.images_width} backsides={this.state.backsides} rank_label={rank_label} />;
+      }
+      if (this.state.display === 'table') {
+        main_content = <CardTable specs={filtered_specs} choices={this.state.choices} backsides={this.state.backsides} rank_label={rank_label} />
+      }
+      if (this.state.display === 'list') {
+        main_content = <CardList specs={filtered_specs} choices={this.state.choices} backsides={this.state.backsides} rank_label={rank_label} />;
+      }
+    }
     order_opts = order_opts.map(opt => <option value={opt.value}>{opt.label}</option> )
     let active_filters;
     if (window.django.is_mobile) {

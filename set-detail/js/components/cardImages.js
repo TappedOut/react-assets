@@ -12,7 +12,7 @@ export default class CardImages extends React.Component {
   }
   render() {
     const images = this.props.specs.map(spec =>
-      <CardImage spec={spec} width={this.props.width} backsides={this.props.backsides} />
+      <CardImage spec={spec} width={this.props.width} backsides={this.props.backsides} rank_label={this.props.rank_label} />
     )
     return (
       <div style={{"display": "flex", "flex-wrap": "wrap"}}>

@@ -30,9 +30,10 @@ export default class CardTable extends React.Component {
       price_url = price_url ? `${price_url}${choices.vendor_param['CK']}` : ''
       const popoverHoverFocus = (
         <Popover id="popover-trigger-hover-focus" title="">
-          <img className="img-responsive" style={{'width': '400px'}} src={spec.image_large} />
+          <img className="img-responsive" style={{'width': '400px'}} src={spec.image_large}/>
         </Popover>
       );
+      const rank = spec.rank_display !== '--' ? `#${spec.rank_display}` : spec.rank_display;
       return (<tr>
         <td>
           <OverlayTrigger
@@ -47,8 +48,10 @@ export default class CardTable extends React.Component {
         <td>{spec.type}</td>
         <td dangerouslySetInnerHTML={{__html: spec.html_mana}}></td>
         <td><a href={price_url} target="_blank">$ {spec.ck_price}</a></td>
+        <td>{rank}</td>
       </tr>)
     })
+
     return (
       <Table striped bordered hover responsive>
         <thead>
@@ -57,6 +60,7 @@ export default class CardTable extends React.Component {
             <th>Type</th>
             <th>Mana Cost</th>
             <th>Price</th>
+            <th>{this.props.rank_label}</th>
           </tr>
         </thead>
         <tbody>

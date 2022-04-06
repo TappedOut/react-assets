@@ -346,7 +346,6 @@ class CollectionTableApp extends React.Component {
     // selects
     const export_options = this.state.init_data.selects.export.map(opts => <option value={opts.value}>{opts.label}</option>)
     const order_options = this.state.init_data.selects.ordering.map(opts => <option value={opts.value}>{opts.label}</option>)
-    const rank_options = this.state.init_data.selects.rank.map(opts => <option value={opts.value}>{opts.label}</option>)
     const price_display_options = this.state.init_data.selects.price_display.map(opts => <option value={opts.value}>{opts.label}</option>)
 
     // price
@@ -362,6 +361,7 @@ class CollectionTableApp extends React.Component {
     let card_display = <div />
 
     if (this.state.init_data.type === 'inventory') {
+      const rank_options = this.state.init_data.selects.rank.map(opts => <option value={opts.value}>{opts.label}</option>)
       let row_amount = 5
       if (this.state.init_data.can_edit) row_amount++;
       if (this.state.rank) row_amount++;

@@ -56,6 +56,17 @@ function cardSetup(originalCard, board='none', created=true) {
   card.updated = false;
   card.updateCount = 0;  // Forces re-rendering when needed
   card.foil = is_foil(card);
+  if (created) {
+    let current_print = card.printings.find(
+      printing => printing.tla === card.tla
+    );
+    if (!current_print) {
+      current_print = card.printings.find(
+        printing => printing.tla === card.cannonical_set
+      );
+    }
+    card.alteration = current_print.alterations && current_print.alterations.length ? current_print.alterations[0][0] : '';
+  }
 
   let cardId = get_card_id(card, board);
   card.cardId = cardId;
@@ -385,7 +396,7 @@ export default class BoardsEditorApp extends React.Component {
     );
 
     if (latest_print.alterations && latest_print.alterations.length) {
-      sourceCard['alteration'] = latest_print.alterations[0];
+      sourceCard['alteration'] = latest_print.alterations[0][0];
     }
 
     let {deck, deckByPositions, deckByCategories} =

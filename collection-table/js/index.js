@@ -426,7 +426,7 @@ class CollectionTableApp extends React.Component {
                 onClick={this.toggleFilters}
                 aria-controls="filter-well"
                 aria-expanded={this.state.filter_open}
-                className="btn btn-md btn-block">
+                className="btn btn-default btn-md btn-block">
                 Filter
               </button>
             </div>
@@ -538,7 +538,7 @@ class CollectionTableApp extends React.Component {
                 onClick={this.toggleFilters}
                 aria-controls="filter-well"
                 aria-expanded={this.state.filter_open}
-                className="btn btn-md btn-block">
+                className="btn btn-default btn-md btn-block">
                 Filter
               </button>
             </div>
@@ -643,7 +643,7 @@ class CollectionTableApp extends React.Component {
                 onClick={this.toggleFilters}
                 aria-controls="filter-well"
                 aria-expanded={this.state.filter_open}
-                className="btn btn-md btn-block">
+                className="btn btn-default btn-md btn-block">
                 Filter
               </button>
             </div>

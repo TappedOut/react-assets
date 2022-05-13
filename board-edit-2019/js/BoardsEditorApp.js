@@ -14,7 +14,7 @@ import CardSearchModal from './components/CardSearchModal';
 import NewCardsBoard from './components/NewCardsBoard';
 import ColorChartWrapper from './components/ColorChart';
 import TypeChartWrapper from './components/TypeChart';
-import { get_card_id } from "./utils";
+import { get_card_id, is_foil } from "./utils";
 import { buildColorSeries, buildLandColorSeries,
   buildTypeSeries, buildCurveSeries } from './utils/charts';
 import deck_group from './utils/deck_grouping';
@@ -55,7 +55,18 @@ function cardSetup(originalCard, board='none', created=true) {
   card.original_tla = card.tla;
   card.updated = false;
   card.updateCount = 0;  // Forces re-rendering when needed
-  if ([true, 'fnm'].indexOf(card.foil) > -1) card.foil = 'foil';
+  card.foil = is_foil(card);
+  if (created) {
+    let current_print = card.printings.find(
+      printing => printing.tla === card.tla
+    );
+    if (!current_print) {
+      current_print = card.printings.find(
+        printing => printing.tla === card.cannonical_set
+      );
+    }
+    card.alteration = current_print.alterations && current_print.alterations.length ? current_print.alterations[0][0] : '';
+  }
 
   let cardId = get_card_id(card, board);
   card.cardId = cardId;
@@ -227,7 +238,6 @@ export default class BoardsEditorApp extends React.Component {
           },
         });
         this.categoryChoices = choicesFromAPI(response.data.category_choices);
-        this.foilChoices = choicesFromAPI(response.data.foil_choices);
         this.rarityChoices = choicesFromAPI(response.data.rarity_choices);
         this.colorChoices = choicesFromAPI(response.data.alt_color_choices);
         this.loadDeckData()
@@ -385,7 +395,9 @@ export default class BoardsEditorApp extends React.Component {
       printing => printing.tla === sourceCard.cannonical_set
     );
 
-    if (latest_print.foil_only) sourceCard['foil'] = 'foil';
+    if (latest_print.alterations && latest_print.alterations.length) {
+      sourceCard['alteration'] = latest_print.alterations[0][0];
+    }
 
     let {deck, deckByPositions, deckByCategories} =
       this.handleBoardsMove(sourceCard, targetBoardName, qty, siblingCardId);
@@ -827,7 +839,7 @@ export default class BoardsEditorApp extends React.Component {
         _.pick(
           card,
           ['alter', 'alter_pk', 'b', 'cardId', 'categories', 'cmdr',
-           'condition', 'created', 'foil', 'ihash', 'language', 'name',
+           'condition', 'created', 'alteration', 'ihash', 'language', 'name',
            'need_qty', 'qty', 'signed', 'tla', 'variation', 'updated',
            'alt_cmc', 'alt_rarity', 'alt_color', 'alt_mana_cost'
           ]
@@ -835,7 +847,7 @@ export default class BoardsEditorApp extends React.Component {
       ).filter(specs =>
         !specs.created || specs.qty >= 1
       ).map(specs =>
-        specs.foil ? specs : _.omit(specs, ['foil'])
+        specs.alteration ? specs : _.omit(specs, ['alteration'])
       ).map(specs =>
         specs.tla ? specs : _.omit(specs, ['tla'])
       )},
@@ -1757,7 +1769,6 @@ export default class BoardsEditorApp extends React.Component {
           { !this.props.spoilerView && cardToEdit &&
           <CardEditModal card={cardToEdit}
                          handleCardEditEnd={this.handleCardEditEnd}
-                         foilChoices={this.foilChoices}
                          colorChoices={this.colorChoices}
                          rarityChoices={this.rarityChoices}
           />
@@ -1790,7 +1801,6 @@ export default class BoardsEditorApp extends React.Component {
           { !this.props.spoilerView && cardToEdit &&
           <CardEditModal card={cardToEdit}
                          handleCardEditEnd={this.handleCardEditEnd}
-                         foilChoices={this.foilChoices}
                          colorChoices={this.colorChoices}
                          rarityChoices={this.rarityChoices}
           />

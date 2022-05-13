@@ -23,8 +23,8 @@ export function get_card_id(card, board) {
   if (card.condition && card.condition !== 'NM')
     hash.update(`condition-${slugify(card.condition)}`);
 
-  if (card.foil)
-    hash.update(`foil-${slugify(card.foil === true ? 'foil' : card.foil)}`);
+  if (card.alteration)
+    hash.update(`alteration-${slugify(card.alteration)}`);
 
   if (card.language && card.language.toUpperCase() !== 'EN')
     hash.update(`language-${slugify(card.language)}`);
@@ -56,4 +56,8 @@ export function get_card_id(card, board) {
   hash.update(`token-${slugify(card.name)}`);
 
   return hash.digest('hex');
+}
+
+export function is_foil(card) {
+  return ['f', 'f-pp', 'f-pre', 'f-etch', 'f-oversized', 'f-&', 'f-list'].indexOf(card.alteration) > -1;
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import Select from "react-select";
+import {is_foil} from "../utils"
 
 export default class CardEditModal extends React.Component {
   constructor(props) {
@@ -119,6 +120,7 @@ export default class CardEditModal extends React.Component {
 
   handleSaveChanges = () => {
     let card = {...this.state.card};
+    card.foil = is_foil(card);
     card.qty = parseInt(card.qty) || 1;
     card.need_qty = parseInt(card.need_qty) || 0;
     card.variation = card.variation && card.tla ? card.variation : null;
@@ -157,12 +159,18 @@ export default class CardEditModal extends React.Component {
     let current_print = this.state.card.printings.find(
       printing => printing.tla === this.state.card.tla
     );
-    let latest_print = this.state.card.printings.find(
-      printing => printing.tla === this.state.card.cannonical_set
-    );
+    if (!current_print) {
+      current_print = this.state.card.printings.find(
+        printing => printing.tla === this.state.card.cannonical_set
+      );
+    }
+    let alterations;
     if (current_print && current_print.variations && current_print.variations.length) {
       variations = current_print.variations.map(
         variation => {
+          if (card.variation && (variation.identifier === card.variation)) {
+            alterations = variation.alterations;
+          }
           return {
             identifier: variation.identifier ? variation.identifier :
               variation.wizards_id ? variation.wizards_id : variation.code,
@@ -172,17 +180,12 @@ export default class CardEditModal extends React.Component {
       );
       if (current_print.set_number) set_number = current_print.set_number
     }
+    alterations = alterations ? alterations : current_print.alterations
+    let alteration_options = alterations && alterations.length ?
+      alterations.map(opts => <option value={opts[0]}>{opts[1]}</option>) :
+      [<option value="">Default</option>, <option value="f">Foil</option>]
 
-    let foil_options = [
-      <option key={0} value="">Not foil</option>,
-    ];
-    this.props.foilChoices.map((foil) => foil_options.push(<option value={foil.value}>{foil.label}</option>));
     let rarity_options = this.props.rarityChoices.map((rarity) => <option value={rarity.value}>{rarity.label}</option>);
-    if (current_print && current_print.foil_only) {
-      foil_options.shift()
-    } else if (!current_print && latest_print && latest_print.foil_only) {
-      foil_options.shift()
-    }
     let categories = [];
     if (card.categories) {
       card.categories.map((cat) => categories.push(
@@ -302,12 +305,12 @@ export default class CardEditModal extends React.Component {
                     </select>
                   </div>
                   <div className={"form-group" +
-                  `${card.hasErrors.includes('foil') ? " has-error" : ""}`}>
-                    <label htmlFor="card-foil">Foil:</label>
-                    <select id="card-foil" name="foil" value={this.state.card.foil}
+                  `${card.hasErrors.includes('alteration') ? " has-error" : ""}`}>
+                    <label htmlFor="card-alteration">Alteration:</label>
+                    <select id="card-alteration" name="alteration" value={this.state.card.alteration}
                             className="form-control"
                             onChange={this.handleInputChange}>
-                      {foil_options}
+                      {alteration_options}
                     </select>
                   </div>
                   <div className="row">

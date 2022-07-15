@@ -33,6 +33,7 @@ const RANK_HEADER = {
 class CollectionTableApp extends React.Component {
   constructor(props) {
     super(props);
+    var stored_order = localStorage.getItem('invorder')
     this.state = {
       cards: [],
       init_data: {},
@@ -52,7 +53,7 @@ class CollectionTableApp extends React.Component {
       filter_open: false,
       filter_data: {owned: true},
       error: '',
-      ordering: 'name',
+      ordering: stored_order ? stored_order : 'name',
       rank: '',
       show_price_modal: false,
       ck_price: 0,
@@ -207,6 +208,7 @@ class CollectionTableApp extends React.Component {
   handleOrderChange(event) {
     const value = event.target.value;
     this.setState({ordering: value});
+    localStorage.setItem('invorder', value);
     this.searchCards(this.state.filter_data, value, this.state.page, this.state.vendor, this.state.rank)
   }
 

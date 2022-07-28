@@ -79,7 +79,7 @@ class SetDetailApp extends React.Component {
           if (!spec.printings) return spec
           const printing_info = spec.printings.find((p) => {return p.tla === SET_TLA})
           if (!printing_info) return spec
-          _.forEach(['image_large', 'number', 'tcg_market_price', 'ck_price'], (e) => {
+          _.forEach(['image', 'number', 'tcg_market_price', 'ck_price'], (e) => {
             if (printing_info[e]) spec[e] = printing_info[e]
           })
           return spec

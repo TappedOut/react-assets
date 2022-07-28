@@ -4,7 +4,7 @@ import React from 'react';
 export default function NewCardPin(props) {
   let {card, handleCardMoveStart, imagesMaxWidth, toggleImages, isMobile} = props;
 
-  let cardDataImage = card.image_large;
+  let cardDataImage = card.image;
   const cardLinkClass = toggleImages ? '' : 'board-card-hover';
   const cardSpanClass = toggleImages ? '' : 'board-card';
   const cardDivClass = `card-draggable panel panel-default new-card card-color__${card.color_category}${isMobile && ' new-card-mobile'}`

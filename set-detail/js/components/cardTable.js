@@ -6,7 +6,7 @@ export default class CardTable extends React.Component {
   renderBackside = (spec) => {
     const popoverHoverFocus = (
         <Popover id="popover-trigger-hover-focus" title="">
-          <img className="img-responsive" style={{'width': '400px'}} src={spec.image_large} />
+          <img className="img-responsive" style={{'width': '400px'}} src={spec.image} />
         </Popover>
       );
     return (

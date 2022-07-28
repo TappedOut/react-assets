@@ -20,7 +20,7 @@ export default class CardPinSpoiler extends React.Component {
   renderWholeCard = () => {
     let { card, imagesMaxWidth} = this.props;
 
-    let cardDataImage = `${card.alter_image || card.image_large}`;
+    let cardDataImage = `${card.alter_image || card.image}`;
 
     if (process.env.NODE_ENV === 'development') {
       cardDataImage = cardDataImage.replace('33.33.33.11:8000/media',

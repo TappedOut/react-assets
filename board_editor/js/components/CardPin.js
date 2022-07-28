@@ -14,7 +14,7 @@ export default class CardPin extends React.Component {
     let cardLinkClass = `${toggleImages ? '' : 'board-card-hover'} ` +
       `card-link${card.foil ? ' foil-card' : ''}` +
       `${card.alter ? ' alter-card' : ''} `;
-    let cardDataImage = `${card.alter_image || card.image_large}`;
+    let cardDataImage = `${card.alter_image || card.image}`;
     let cardSet = card.tla ? ` (${card.tla})` : '';
 
     if (process.env.NODE_ENV === 'development' ||

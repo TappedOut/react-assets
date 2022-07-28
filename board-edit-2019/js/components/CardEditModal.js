@@ -132,14 +132,14 @@ export default class CardEditModal extends React.Component {
       if (card.variation && current_print.variations && current_print.variations.length) {
         let variation = current_print.variations.find(variation => '' + variation.identifier === card.variation);
         if (variation && variation.image) {
-          card.image_large = variation.image
+          card.image = variation.image
         } else {
           card.variation = null
         }
       } else {
         card.variation = null;
-        if (current_print.image_large) {
-          card.image_large = current_print.image_large
+        if (current_print.image) {
+          card.image = current_print.image
         }
       }
     }

@@ -15,11 +15,11 @@ export default class CardImage extends React.Component {
 
   render() {
     let spec = this.props.spec
-    let image = spec.image_large
+    let image = spec.image
     const front_color = this.state.front ? 'black' : "rgb(76 72 72)"
     const back_color = !this.state.front ? 'black' : "rgb(76 72 72)"
-    if (!this.state.front && this.props.backsides[this.props.spec['flip']] && this.props.backsides[this.props.spec['flip']]['image_large']) {
-      image = this.props.backsides[this.props.spec['flip']]['image_large']
+    if (!this.state.front && this.props.backsides[this.props.spec['flip']] && this.props.backsides[this.props.spec['flip']]['image']) {
+      image = this.props.backsides[this.props.spec['flip']]['image']
     }
     let font_size = '12px'
     if (this.props.width < 160) {

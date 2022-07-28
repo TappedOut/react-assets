@@ -4,7 +4,7 @@ import React from 'react';
 export default function NewCardPin(props) {
   let {card, handleCardMoveStart, imagesMaxWidth, toggleImages} = props;
 
-  let cardDataImage = card.image_large;
+  let cardDataImage = card.image;
   const cardLinkClass = toggleImages ? '' : 'board-card-hover';
   const cardSpanClass = toggleImages ? '' : 'board-card';
 

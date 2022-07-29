@@ -164,10 +164,10 @@ class SetDetailApp extends React.Component {
         keep = keep && subtype.toLowerCase().includes(filters.subtype.toLowerCase())
       }
       if (filters.cmc_from){
-        keep = keep && spec['mana_cost_converted'] >= filters.cmc_from
+        keep = keep && spec['mana_value'] >= filters.cmc_from
       }
       if (filters.cmc_to){
-        keep = keep && spec['mana_cost_converted'] <= filters.cmc_to
+        keep = keep && spec['mana_value'] <= filters.cmc_to
       }
       if (filters.rules){
         const rules = spec['rules'] ? spec['rules'] : ''
@@ -274,7 +274,7 @@ class SetDetailApp extends React.Component {
           }
         }
         if (order === 'cmc') {
-          return spec['mana_cost_converted']
+          return spec['mana_value']
         }
         if (order === 'price') {
           return spec['ck_price']

@@ -111,23 +111,23 @@ function group_by_multicategories(deck, category, default_category) {
 }
 
 function group_by_stack_cost(deck) {
-  let cmc_grouped =_.groupBy(deck, 'mana_cost_converted');
+  let cmc_grouped =_.groupBy(deck, 'mana_value');
   let stack_cmc = {};
   let zero_cost = cmc_grouped['0'];
   if (zero_cost && zero_cost.length) {
     let lands = zero_cost.filter(
       (card) => card.cannonical_type === 'Land').map(
-        (card) => _.pick(card, ['mana_cost_converted', 'cardId']));
+        (card) => _.pick(card, ['mana_value', 'cardId']));
     let cards = zero_cost.filter(
       (card) => card.cannonical_type !== 'Land').map(
-        (card) => _.pick(card, ['mana_cost_converted', 'cardId']));
+        (card) => _.pick(card, ['mana_value', 'cardId']));
     if (lands.length) stack_cmc['0'] = lands;
     if (cards.length) stack_cmc['0a'] = cards
   }
   Object.keys(cmc_grouped).forEach(function(key) {
     if (key !== '0') {
       stack_cmc[key + 'b'] = cmc_grouped[key].map(
-        (card) => _.pick(card, ['mana_cost_converted', 'cardId']))
+        (card) => _.pick(card, ['mana_value', 'cardId']))
     }
   });
 
@@ -163,7 +163,7 @@ let deck_group = {
   'block': (deck) => { return clean_groups(group_by_parameter(deck, 'latest_block')) },
   'name': () => { return {} },
   'board': () => { return {} },
-  'cost': (deck) => { return clean_groups(group_by_parameter(deck, 'mana_cost_converted')) },
+  'cost': (deck) => { return clean_groups(group_by_parameter(deck, 'mana_value')) },
   'stackCost': (deck) => { return clean_groups(group_by_stack_cost(deck)) },
   'keyword': (deck) => { return group_by_multicategories(deck, 'keywords', 'None') },
   'tcg_avg_price': (deck) => { return clean_groups(group_by_tcg_avg(deck)) },

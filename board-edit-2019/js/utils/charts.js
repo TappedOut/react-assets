@@ -107,7 +107,7 @@ export function buildCurveSeries(deck){
   deck = deck.filter(
     (card) => !card.is_basic_land &&
       card.cannonical_type !== 'Land' &&
-      card.mana_cost_converted !== undefined
+      card.mana_value !== undefined
   );
   let result = [];
   let color_hex = [];
@@ -123,7 +123,7 @@ export function buildCurveSeries(deck){
     'C': []
   };
   deck.forEach((card) => {
-    let cost = card.mana_cost_converted;
+    let cost = card.mana_value;
     let card_colors = card.reg_effective_cost ? card.reg_effective_cost : card.effective_cost;
     let color = card_colors.length ? card_colors.length === 1 ? card_colors[0] : 'O' : 'L';
     if (costs[color].length >= cost + 1 ) {

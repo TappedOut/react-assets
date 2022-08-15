@@ -30,7 +30,7 @@ export default class CardTable extends React.Component {
       price_url = price_url ? `${price_url}${choices.vendor_param['CK']}` : ''
       const popoverHoverFocus = (
         <Popover id="popover-trigger-hover-focus" title="">
-          <img className="img-responsive" style={{'width': '400px'}} src={spec.image_large}/>
+          <img className="img-responsive" style={{'width': '400px'}} src={spec.image}/>
         </Popover>
       );
       const rank = spec.rank_display !== '--' ? `#${spec.rank_display}` : spec.rank_display;

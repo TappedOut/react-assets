@@ -3,9 +3,19 @@ import React from 'react';
 export default class CardMoveModal extends React.Component {
   constructor(props) {
     super(props);
-
+    let currentInfo;
+    let currentImg;
+    let tla;
+    if (props.newCard) {
+      currentInfo = props.cardInfo[props.card];
+      currentImg = currentInfo.image;
+      tla = currentInfo.cannonical_set
+    }
     this.state = {
       card: props.card,
+      cardInfo: currentInfo,
+      currentImg: currentImg,
+      tla: tla,
       qty: '1',
       move: false,
       source: props.source,
@@ -19,7 +29,7 @@ export default class CardMoveModal extends React.Component {
       .on('hide.bs.modal',
         () => this.props
           .handleCardMoveEnd(this.state.move ? this.state.card : null,
-            this.state.target, this.state.qty));
+            this.state.target, this.state.qty, this.state.tla));
   }
 
   handleInputChange = (event) => {
@@ -31,6 +41,18 @@ export default class CardMoveModal extends React.Component {
       [target.name]: value
     });
   };
+
+  handleTLAChange = (event) => {
+    let target = event.target;
+    let value = target.value.trim();
+    let img = this.state.cardInfo.printings.find(
+        printing => printing.tla === value
+      ).image;
+    this.setState({
+      tla: value,
+      currentImg: img
+    });
+  }
 
   handleMove = () => {
     this.setState({qty: parseInt(this.state.qty) || 1, move: true},
@@ -53,6 +75,20 @@ export default class CardMoveModal extends React.Component {
                   id="card-move-modal-label">Move Card</h4>
             </div>
             <div className="modal-body">
+              {this.state.currentImg && <img style={{'margin': 'auto', 'max-width': '300px'}} className="img-responsive" src={this.state.currentImg} />}
+              {this.state.tla &&
+                <div className="form-group">
+                  <label htmlFor="card-tla">Printing:</label>
+                  <select id="card-tla" name="tla" value={this.state.tla}
+                          className="form-control"
+                          onChange={this.handleTLAChange}>
+                    {this.state.cardInfo.printings.map((printing, idx) =>
+                      <option key={idx} value={printing.tla}>
+                        {printing.name}</option>)
+                    }
+                  </select>
+                </div>
+              }
               <div className="form-group">
                 <label htmlFor="card-qty">Quantity:</label>
                 <input id="card-qty" type="number" name="qty"

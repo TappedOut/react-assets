@@ -388,8 +388,16 @@ export default class BoardsEditorApp extends React.Component {
   };
 
   handleBoardsAdd = (sourceCardId, targetBoardName,
-                     qty=null, siblingCardId=null) => {
+                     qty=null, siblingCardId=null, tla=null) => {
     let sourceCard = {...this.state.foundCards[sourceCardId]};
+
+    if (tla) {
+      sourceCard['tla'] = tla
+      const current_print = sourceCard.printings.find(
+        printing => printing.tla === tla
+      );
+      sourceCard['image'] = current_print.image
+    }
 
     let latest_print = sourceCard.printings.find(
       printing => printing.tla === sourceCard.cannonical_set
@@ -516,13 +524,13 @@ export default class BoardsEditorApp extends React.Component {
     this.setState({ newCard: !!newCard, cardToMove: cardId });
   };
 
-  handleCardMoveEnd = (cardId, target, qty) => {
+  handleCardMoveEnd = (cardId, target, qty, tla=null) => {
     let newCard = this.state.newCard;
     this.setState(
       { newCard: false, cardToMove: null },
       () => {
         if (cardId !== null && newCard)
-          this.handleBoardsAdd(cardId, target, qty);
+          this.handleBoardsAdd(cardId, target, qty, null, tla);
         else if (cardId !== null)
           this.handleBoardsUpdate(cardId, target, qty);
       });
@@ -1774,7 +1782,7 @@ export default class BoardsEditorApp extends React.Component {
           />
           }
           { !this.props.spoilerView && cardToMove &&
-          <CardMoveModal card={cardToMove} source={sourceToMove}
+          <CardMoveModal card={cardToMove} source={sourceToMove} cardInfo={this.state.foundCards} newCard={this.state.newCard}
                          handleCardMoveEnd={this.handleCardMoveEnd} />
           }
           { !this.props.spoilerView && this.state.advancedSearch &&
@@ -1806,7 +1814,7 @@ export default class BoardsEditorApp extends React.Component {
           />
           }
           { !this.props.spoilerView && cardToMove &&
-          <CardMoveModal card={cardToMove} source={sourceToMove}
+          <CardMoveModal card={cardToMove} source={sourceToMove} cardInfo={this.state.foundCards} newCard={this.state.newCard}
                          handleCardMoveEnd={this.handleCardMoveEnd} />
           }
           { !this.props.spoilerView && this.state.advancedSearch &&

@@ -793,7 +793,8 @@ export default class BoardsEditorApp extends React.Component {
         specs.foil ? specs : _.omit(specs, ['foil'])
       ).map(specs =>
         specs.tla ? specs : _.omit(specs, ['tla'])
-      ),
+      ).map(specs =>
+      specs.alt_color ? specs : _.omit(specs, ['alt_color'])),
       { headers: { 'X-CSRFToken': Cookies.get('csrftoken') } }
     );
   };

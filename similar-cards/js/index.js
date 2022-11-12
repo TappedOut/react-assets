@@ -224,9 +224,8 @@ class SimilarCardsApp extends React.Component {
         return keep
       }).map(card => {
         return (
-          <div style={{'margin': '8px 0 8px 0', 'cursor': 'pointer'}} className="col-lg-2 col-md-4 col-xs-12">
-            <img onClick={() => this.handleCardClick(card)} className="img-responsive" src={card.image}
-                 alt={card.name}/>
+          <div style={{'margin': '8px 8px 8px 8px', 'cursor': 'pointer', 'display': 'inline-block', 'width': '300px'}}>
+            <img onClick={() => this.handleCardClick(card)} className="img-responsive" src={card.image} alt={card.name}/>
           </div>
         )
       })
@@ -367,7 +366,7 @@ class SimilarCardsApp extends React.Component {
               </div>
             </div>
             <div className="row">
-              <div style={{'overflow': 'auto', 'height': 'calc(100vh - 200px)'}} className="col-lg-12 col-xs-12">
+              <div style={{'overflow': 'auto', 'height': 'calc(100vh - 200px)', "display": "flex", "flex-wrap": "wrap"}} className="col-lg-12 col-xs-12">
                 {similar}
               </div>
             </div>

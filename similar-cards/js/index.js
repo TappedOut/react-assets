@@ -340,7 +340,7 @@ class SimilarCardsApp extends React.Component {
                           <div className="row">
                             {colorCheckboxes}
                           </div>
-                          <h3>Exclude Colors</h3>
+                          <h3>Exclude</h3>
                           <div className="row">
                             {excludeColorCheckboxes}
                           </div>
@@ -352,7 +352,7 @@ class SimilarCardsApp extends React.Component {
                         </Modal.Footer>
                       </Modal>
                     </div>
-                    <div className="col-lg-6 col-xs-6">
+                    <div className="col-lg-6 col-xs-12">
                       <div className="form-group">
                         <label>Price</label>
                         <div className="row">

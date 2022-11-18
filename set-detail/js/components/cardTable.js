@@ -34,6 +34,7 @@ export default class CardTable extends React.Component {
         </Popover>
       );
       const rank = spec.rank_display !== '--' ? `#${spec.rank_display}` : spec.rank_display;
+      const link = !this.props.cardClickCB ? <a href={spec.url}>{spec.name}</a> : <a style={{'cursor': 'pointer'}} onClick={() => this.props.cardClickCB(spec)}>{spec.name}</a>
       return (<tr>
         <td>
           <OverlayTrigger
@@ -41,14 +42,14 @@ export default class CardTable extends React.Component {
             placement="right"
             overlay={popoverHoverFocus}
           >
-            <a href={spec.url}>{spec.name}</a>
+            {link}
           </OverlayTrigger>
           {hasBackside && this.renderBackside(this.props.backsides[spec.flip])}
         </td>
         <td>{spec.type}</td>
         <td dangerouslySetInnerHTML={{__html: spec.html_mana}}></td>
         <td><a href={price_url} target="_blank">$ {spec.ck_price}</a></td>
-        <td>{rank}</td>
+        {this.props.rank_label && <td>{rank}</td>}
       </tr>)
     })
 
@@ -60,7 +61,7 @@ export default class CardTable extends React.Component {
             <th>Type</th>
             <th>Mana Cost</th>
             <th>Price</th>
-            <th>{this.props.rank_label}</th>
+            {this.props.rank_label && <th>{this.props.rank_label}</th>}
           </tr>
         </thead>
         <tbody>

@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
-import {ButtonToolbar, ButtonGroup, Button} from 'react-bootstrap';
 import Slider from 'react-rangeslider';
 import '../css/set-detail.scss';
 import 'react-rangeslider/lib/index.css';
@@ -342,14 +341,12 @@ class SetDetailApp extends React.Component {
     return (
       <div style={{"margin-bottom": "15px"}} className="row">
         <div className="col-lg-2 col-md-2 col-xs-7">
-          <ButtonToolbar>
-            <ButtonGroup bsSize="small">
-              <Button onClick={() => this.handleDisplayChange('table')} disabled={this.state.display === 'table'}>Table</Button>
-              <Button onClick={() => this.handleDisplayChange('images')} disabled={this.state.display === 'images'}>Images</Button>
-              {window.django.is_mobile &&
-              <Button onClick={() => this.handleDisplayChange('list')} disabled={this.state.display === 'list'}>List</Button>}
-            </ButtonGroup>
-          </ButtonToolbar>
+          <div className="btn-group" role="group" style={{'display': 'flex'}}>
+            <button className="btn btn-default btn-sm" style={{'flex': 1}} onClick={() => this.handleDisplayChange('table')} disabled={this.state.display === 'table'}>Table</button>
+            <button className="btn btn-default btn-sm" style={{'flex': 1}} onClick={() => this.handleDisplayChange('images')} disabled={this.state.display === 'images'}>Images</button>
+            {window.django.is_mobile &&
+            <button className="btn btn-default btn-sm" style={{'flex': 1}} onClick={() => this.handleDisplayChange('list')} disabled={this.state.display === 'list'}>List</button>}
+          </div>
         </div>
         <div className="col-lg-1 col-md-2 col-xs-5">
           <select onChange={this.handleOrderChange} className="form-control input-sm">

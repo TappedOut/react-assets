@@ -37,11 +37,12 @@ export default class CardList extends React.Component {
       if (spec.subtype) {
         mtgtype += ` - ${spec.subtype}`
       }
+    const link = !this.props.cardClickCB ? <a href={spec.url}>{spec.name}</a> : <a style={{'cursor': 'pointer'}} onClick={() => this.props.cardClickCB(spec)}>{spec.name}</a>
     return (
       <div>
         <div className="row" style={{'margin-bottom': "10px"}}>
           <div className="col-xs-6">
-            <span><a href={spec.url}>{spec.name}</a></span>
+            <span><a href={link}>{spec.name}</a></span>
           </div>
           <div className="col-xs-6">
             <span dangerouslySetInnerHTML={{__html: spec.html_mana}} className="pull-right"></span>

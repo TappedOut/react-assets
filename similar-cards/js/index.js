@@ -7,9 +7,10 @@ import 'react-rangeslider/lib/index.css';
 import '../../set-detail/css/set-detail.scss';
 import CardImage from './components/cardImage';
 import CardTable from '../../set-detail/js/components/cardTable';
+import CardList from '../../set-detail/js/components/cardList';
 import Filter from '../../set-detail/js/components/filters';
 import { Async } from 'react-select';
-import {ProgressBar, Button, ButtonToolbar, ButtonGroup} from 'react-bootstrap'
+import {ProgressBar} from 'react-bootstrap'
 const _ = require('lodash');
 import 'react-select/dist/react-select.css';
 
@@ -407,14 +408,12 @@ class SimilarCardsApp extends React.Component {
     return (
       <div style={{"margin-bottom": "15px"}} className="row">
         <div className="col-lg-2 col-md-2 col-xs-7">
-          <ButtonToolbar>
-            <ButtonGroup bsSize="small">
-              <Button onClick={() => this.handleDisplayChange('table')} disabled={this.state.display === 'table'}>Table</Button>
-              <Button onClick={() => this.handleDisplayChange('images')} disabled={this.state.display === 'images'}>Images</Button>
-              {window.django.is_mobile &&
-              <Button onClick={() => this.handleDisplayChange('list')} disabled={this.state.display === 'list'}>List</Button>}
-            </ButtonGroup>
-          </ButtonToolbar>
+          <div className="btn-group" role="group" style={{'display': 'flex'}}>
+            <button className="btn btn-default btn-sm" style={{'flex': 1}} onClick={() => this.handleDisplayChange('table')} disabled={this.state.display === 'table'}>Table</button>
+            <button className="btn btn-default btn-sm" style={{'flex': 1}} onClick={() => this.handleDisplayChange('images')} disabled={this.state.display === 'images'}>Images</button>
+            {window.django.is_mobile &&
+            <button className="btn btn-default btn-sm" style={{'flex': 1}} onClick={() => this.handleDisplayChange('list')} disabled={this.state.display === 'list'}>List</button>}
+          </div>
         </div>
         <div className="col-lg-1 col-md-2 col-xs-5">
           <select onChange={this.handleOrderChange} className="form-control input-sm">
@@ -468,7 +467,6 @@ class SimilarCardsApp extends React.Component {
     this.selectedColors = _.keys(this.state.filters.colors).filter(c => this.state.filters.colors[c] === 1)
     this.selectedExcludeColors = _.keys(this.state.filters.colors).filter(c => this.state.filters.colors[c] === -1)
     if (!this.state.loading_similar) {
-      debugger;
       const filtered_cards = this.orderCards(this.filterCards(this.state.similar))
       if (this.state.display === 'images') {
         similar = filtered_cards.map(card => {
@@ -487,6 +485,16 @@ class SimilarCardsApp extends React.Component {
                              choices={this.state.choices}
                              backsides={this.state.backsides}
                              cardClickCB={this.handleCardClick}/>
+          </div>
+        )
+      }
+      if (this.state.display === 'list') {
+        similar = (
+          <div className="col-lg-12 col-xs-12">
+            <CardList specs={filtered_cards}
+                      choices={this.state.choices}
+                      backsides={this.state.backsides}
+                      cardClickCB={this.handleCardClick}/>
           </div>
         )
       }

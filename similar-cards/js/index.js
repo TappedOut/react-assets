@@ -6,12 +6,21 @@ import 'react-select/dist/react-select.css';
 import 'react-rangeslider/lib/index.css';
 import '../../set-detail/css/set-detail.scss';
 import CardImage from './components/cardImage';
-import CardTable from '../../set-detail/js/components/cardTable'
+import CardTable from '../../set-detail/js/components/cardTable';
+import Filter from '../../set-detail/js/components/filters';
 import { Async } from 'react-select';
-import {ProgressBar, Button, Modal, Checkbox, ButtonToolbar, ButtonGroup} from 'react-bootstrap'
+import {ProgressBar, Button, ButtonToolbar, ButtonGroup} from 'react-bootstrap'
 const _ = require('lodash');
 import 'react-select/dist/react-select.css';
-import Select from 'react-select';
+
+
+const COLOR_ORDER = {
+  'W': 1,
+  'U': 2,
+  'B': 3,
+  'R': 4,
+  'G': 5
+}
 
 
 const SIMILAR_CARD_API = window.django.similar_api.replace(`\/${window.django.card_slug}`, '');
@@ -21,10 +30,18 @@ const AUTOCOMPLETE_API = window.django.autocomplete_api
 class SimilarCardsApp extends React.Component {
   constructor(props) {
     super(props);
+    let img_width = parseInt(localStorage.getItem('toImgWidth'))
+    if (!img_width || img_width < 100 || img_width > 500) {
+      img_width = 300
+    }
+    let card_display = localStorage.getItem('toCardDisplay');
+    if (!_.includes(['images', 'table', 'list'], card_display) || (card_display === 'list' && !window.django.is_mobile)) {
+      card_display = 'images'
+    }
     this.state = {
       loading: true,
       loading_similar: false,
-      display: 'images',
+      display: card_display,
       order_by: 'similar',
       choices: {},
       backsides: {},
@@ -33,7 +50,7 @@ class SimilarCardsApp extends React.Component {
       current_value: {'name': '', 'slug': ''},
       similar: null,
       similar_error: false,
-      images_width: 300,
+      images_width: img_width,
       filters: {
         name: '',
           formats: {
@@ -68,7 +85,6 @@ class SimilarCardsApp extends React.Component {
         subtype: '',
         companion: ''
       },
-      showFilters: false,
       showColors: false,
       showExtra: false
     }
@@ -106,10 +122,12 @@ class SimilarCardsApp extends React.Component {
     this.setState({
       images_width: value
     })
+    localStorage.setItem('toImgWidth', value);
   };
 
   handleDisplayChange = (val) => {
     this.setState({display: val})
+    localStorage.setItem('toCardDisplay', val);
   }
 
   throttledAutocomplete = _.throttle((searchUrl, callback) => {
@@ -139,55 +157,6 @@ class SimilarCardsApp extends React.Component {
 
   handleInputChange = (inputValue) => {
     this.setState({current_input_value: inputValue});
-  }
-
-  handleFilterInputChange = (event) => {
-    const target = event.target;
-    let value = target.type === 'checkbox' ? target.checked : target.value;
-    const name = target.name;
-    const new_filters = {...this.state.filters, [name]: value}
-    this.setState({
-      filters: new_filters
-    });
-  }
-
-  handleFilterSelectChange = (name, selected) => {
-    let value = ''
-    if (selected) {
-      value = Array.isArray(selected) ? selected.map(v => {
-        return v['value']
-      }) : selected['value'];
-    }
-    const new_filters = {...this.state.filters, [name]: value}
-    this.setState({
-      filters: new_filters,
-    });
-  }
-
-  handleFormatToggle = (format) => {
-    let formats = {...this.state.filters.formats}
-    formats[format] = !this.state.filters.formats[format]
-    this.setState({filters: {...this.state.filters, formats: formats}})
-  }
-
-  handleFiltersClose = () => {
-    this.setState({showFilters: false});
-  }
-
-  handleFiltersShow = () => {
-    this.setState({showFilters: true});
-  }
-
-  handleColorToggle = (color) => {
-    let colors = {...this.state.filters.colors}
-    if (this.state.filters.colors[color] === 0) {
-      colors[color] = 1
-    } else if (this.state.filters.colors[color] === 1) {
-      colors[color] = -1
-    } else {
-      colors[color] = 0
-    }
-    this.setState({filters: {...this.state.filters, colors: colors}})
   }
 
   resetFilters = () => {
@@ -226,15 +195,13 @@ class SimilarCardsApp extends React.Component {
       companion: ''
     }
     this.setState({filters: empty})
-    this.filterSpecs(empty)
   }
 
-  handlePriceFromChange = (event) => {
-    this.setState({filters: {...this.state.filters, price_from: event.target.value}});
-  }
-
-  handlePriceToChange = (event) => {
-    this.setState({filters: {...this.state.filters, price_to: event.target.value}});
+  handleFilterChange = (name, value) => {
+    const new_filters = {...this.state.filters, [name]: value}
+    this.setState({
+      filters: new_filters
+    });
   }
 
   filterCards = (cards) => {
@@ -295,6 +262,11 @@ class SimilarCardsApp extends React.Component {
       }
       keep = keep && tokeep
 
+      // name
+      if (this.state.filters.name){
+        keep = keep && card['name'].toLowerCase().includes(this.state.filters.name.toLowerCase())
+      }
+
       // type
       if (this.state.filters.type) {
         keep = keep && this.state.filters.type === card.type
@@ -314,8 +286,81 @@ class SimilarCardsApp extends React.Component {
         keep = keep && card['mana_value'] <= this.state.filters.cmc_to
       }
 
+      // rarity
+      if (this.state.filters.rarity){
+        keep = keep && card['rarity'] === this.state.filters.rarity
+      }
+
+      // Mana Cost TODO: normalize mana_cost
+      if (this.state.filters.mana_cost){
+        const mana_cost = card['mana_cost'] ? card['mana_cost'] : '';
+        keep = keep && mana_cost.includes(this.state.filters.mana_cost)
+      }
+
+      // Companion
+      if (this.state.filters.companion){
+        keep = keep && card['companions'].indexOf(this.state.filters.companion) > -1
+      }
+
+      // Rules
+      if (this.state.filters.rules){
+        const rules = card['rules'] ? card['rules'] : ''
+        keep = keep && rules.toLowerCase().includes(this.state.filters.rules.toLowerCase())
+      }
+
       return keep
     })
+  }
+
+  handleOrderChange = (event) => {
+    this.setState({order_by: event.target.value})
+  }
+
+  orderCards = (specs) => {
+    const order = this.state.order_by;
+    let ordered = _.sortBy(specs, 'name');
+    if (order !== 'name') {
+      ordered = _.sortBy(ordered, (spec) => {
+        if (order === 'color') {
+          const colors = spec['effective_cost'] ? spec['effective_cost'] : []
+          if (colors.length === 1) {
+            return COLOR_ORDER[colors[0]]
+          }
+          if (colors.length > 1) {
+            return 6
+          }
+          if (colors.length === 0) {
+            return 7
+          }
+        }
+        if (order === 'cmc') {
+          return spec['mana_value']
+        }
+        if (order === 'price') {
+          return spec['ck_price']
+        }
+        if (order === 'number') {
+          return spec['number']
+        }
+        if (order === 'type') {
+          return spec['type']
+        }
+        if (order === 'similar') {
+          return spec['similar']
+        }
+        if (order.startsWith('rank_')) {
+          if (order === 'rank_cmdr' && spec['rank_cmdr'] && spec['cmdr_rank']['edh']) {
+            return spec['cmdr_rank']['edh']
+          }
+          const order_key = order.replace('rank_', '')
+          if (spec['rank'] && spec['rank'][order_key]) {
+            return spec['rank'][order_key]
+          }
+          return 999999
+        }
+      })
+    }
+    return ordered
   }
 
   renderLeftBlock = () => {
@@ -357,115 +402,49 @@ class SimilarCardsApp extends React.Component {
     )
   }
 
-  renderFilters = () => {
-    let formatCheckboxes = _.keys(this.state.filters.formats).map(formatName => {
-      return (
-        <div className="col-lg-3 col-xs-6">
-          <Checkbox
-            onChange={() => this.handleFormatToggle(formatName)}
-            checked={this.state.filters.formats[formatName]}
-          >{formatName}</Checkbox>
-        </div>
-      )
-    })
-    let colorCheckboxes = _.keys(this.state.filters.colors).map(color => {
-      let icon = 'minus'
-      let icon_color = 'white'
-      if (this.state.filters.colors[color] === 1) {
-        icon = 'ok'
-        icon_color = 'green'
-      } else if (this.state.filters.colors[color] === -1) {
-        icon = 'remove'
-        icon_color = 'red'
-      }
-      return (
-        <div className="col-lg-4 col-xs-4">
-          <div className="form-group">
-            <button onClick={() => this.handleColorToggle(color)} className="btn btn-sm btn-default btn-block">
-              <i className={`ms ms-${color} ms-cost ms-shadow ms-1point2x`}></i>&nbsp;&nbsp;
-              <span style={{'color': icon_color}} className={`glyphicon glyphicon-${icon}`} aria-hidden="true"></span>
-            </button>
-          </div>
-        </div>
-      )
-    })
+  renderWidthOrder = (order_opts) => {
+    order_opts = order_opts.map(opt => <option value={opt.value}>{opt.label}</option>)
     return (
-      <div className="row">
-        <div className="col-lg-12 col-xs-12">
-          <div className="well">
-            <div className="row">
-              <div className="col-lg-3 col-md-4 col-xs-12">
-                {colorCheckboxes}
-              </div>
-              <div className="col-lg-3 col-md-4 col-xs-12">
-                <div className="form-group">
-                  <label>Price</label>
-                  <div className="row">
-                    <div className="col-lg-5 col-xs-5"><input name="price_from" type="number" className="form-control" onChange={this.handlePriceFromChange} value={this.state.filters.price_from} /></div>
-                    <div className="col-lg-1 col-xs-1">to</div>
-                    <div className="col-lg-5 col-xs-5"><input name="price_to" type="number" className="form-control" onChange={this.handlePriceToChange} value={this.state.filters.price_to} /></div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-lg-3 col-md-4 col-xs-12">
-                <Button variant="primary" onClick={this.handleFiltersShow} block>
-                  More Filters
-                </Button>
-                <Button variant="primary" onClick={this.resetFilters} block>
-                  Reset Filters
-                </Button>
-                <Modal show={this.state.showFilters} onHide={this.handleFiltersClose}>
-                  <Modal.Body>
-                    <div className="row">
-                      {formatCheckboxes}
-                    </div>
-                    <div className="row">
-                      <div className="col-lg-6 col-xs-12">
-                        <div className="form-group">
-                          <label className="control-label">Type</label>
-                          <Select
-                            name="type"
-                            onChange={(v) => this.handleFilterSelectChange('type', v)}
-                            value={this.state.filters.type}
-                            options={this.state.choices.type_opts}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-6 col-xs-12">
-                        <div className="form-group">
-                          <label className="control-label">Subtype</label>
-                          <input name="subtype" value={this.state.filters.subtype} className="form-control" onChange={this.handleFilterInputChange}/>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-lg-6 col-xs-12">
-                        <div className="form-group">
-                          <label>CMC</label>
-                          <div className="row">
-                            <div className="col-lg-5 col-xs-5"><input name="cmc_from" type="text" className="form-control" onChange={this.handleFilterInputChange} value={this.state.filters.cmc_from} /></div>
-                            <div className="col-lg-1 col-xs-1">to</div>
-                            <div className="col-lg-5 col-xs-5"><input name="cmc_to" type="text" className="form-control" onChange={this.handleFilterInputChange} value={this.state.filters.cmc_to} /></div>
-                            </div>
-                          </div>
-                      </div>
-                    </div>
-                  </Modal.Body>
-                  <Modal.Footer>
-                    <Button variant="secondary" onClick={this.handleFiltersClose}>
-                      Close
-                    </Button>
-                  </Modal.Footer>
-                </Modal>
-              </div>
-            </div>
-          </div>
+      <div style={{"margin-bottom": "15px"}} className="row">
+        <div className="col-lg-2 col-md-2 col-xs-7">
+          <ButtonToolbar>
+            <ButtonGroup bsSize="small">
+              <Button onClick={() => this.handleDisplayChange('table')} disabled={this.state.display === 'table'}>Table</Button>
+              <Button onClick={() => this.handleDisplayChange('images')} disabled={this.state.display === 'images'}>Images</Button>
+              {window.django.is_mobile &&
+              <Button onClick={() => this.handleDisplayChange('list')} disabled={this.state.display === 'list'}>List</Button>}
+            </ButtonGroup>
+          </ButtonToolbar>
+        </div>
+        <div className="col-lg-1 col-md-2 col-xs-5">
+          <select onChange={this.handleOrderChange} className="form-control input-sm">
+            {order_opts}
+          </select>
+        </div>
+        <div className="col-lg-2 col-md-2 col-xs-12">
+          {this.state.display === 'images' &&
+            <span className="slider-container">
+              <Slider
+                min={100}
+                tooltip={false}
+                max={500}
+                step={1}
+                value={this.state.images_width}
+                onChange={this.handleImagesMaxWidth}
+              />
+            </span>
+          }
         </div>
       </div>
     )
   }
 
-  renderWidthOrder = () => {
+  render() {
+    if (this.state.loading) {
+      return (<div style={{'margin-top': '18px'}}>
+        <ProgressBar active now={100} />
+      </div>)
+    }
     let order_opts = [
       {'label': 'Similar', 'value': 'similar'},
       {'label': 'Name', 'value': 'name'},
@@ -480,48 +459,6 @@ class SimilarCardsApp extends React.Component {
       {'label': 'Modern rank', 'value': 'rank_modern'},
       {'label': 'Legacy rank', 'value': 'rank_legacy'}
     ]
-    order_opts = order_opts.map(opt => <option value={opt.value}>{opt.label}</option>)
-    return (
-      <div style={{"margin-bottom": "15px"}} className="row">
-        <div className="col-lg-offset-7 col-lg-2 col-md-offset-6 col-md-2 col-xs-12">
-          {this.state.display === 'images' &&
-            <span className="slider-container">
-              <Slider
-                min={100}
-                tooltip={false}
-                max={500}
-                step={1}
-                value={this.state.images_width}
-                onChange={this.handleImagesMaxWidth}
-              />
-            </span>
-          }
-        </div>
-        <div className="col-lg-2 col-md-2 col-xs-7">
-          <ButtonToolbar>
-            <ButtonGroup bsSize="small">
-              <Button onClick={() => this.handleDisplayChange('table')} disabled={this.state.display === 'table'}>Table</Button>
-              <Button onClick={() => this.handleDisplayChange('images')} disabled={this.state.display === 'images'}>Images</Button>
-              {/*{window.django.is_mobile &&*/}
-              {/*<Button onClick={() => this.handleDisplayChange('list')} disabled={this.state.display === 'list'}>List</Button>}*/}
-            </ButtonGroup>
-          </ButtonToolbar>
-        </div>
-        {/*<div className="col-lg-1 col-md-2 col-xs-5">*/}
-        {/*  <select onChange={this.handleOrderChange} className="form-control input-sm">*/}
-        {/*    {order_opts}*/}
-        {/*  </select>*/}
-        {/*</div>*/}
-      </div>
-    )
-  }
-
-  render() {
-    if (this.state.loading) {
-      return (<div style={{'margin-top': '18px'}}>
-        <ProgressBar active now={100} />
-      </div>)
-    }
 
     let similar = <ProgressBar active now={100} />
     if (this.state.similar_error) {
@@ -531,8 +468,10 @@ class SimilarCardsApp extends React.Component {
     this.selectedColors = _.keys(this.state.filters.colors).filter(c => this.state.filters.colors[c] === 1)
     this.selectedExcludeColors = _.keys(this.state.filters.colors).filter(c => this.state.filters.colors[c] === -1)
     if (!this.state.loading_similar) {
+      debugger;
+      const filtered_cards = this.orderCards(this.filterCards(this.state.similar))
       if (this.state.display === 'images') {
-        similar = this.filterCards(this.state.similar).map(card => {
+        similar = filtered_cards.map(card => {
           return <CardImage width={this.state.images_width} card={card} handleClick={() => this.handleCardClick(card)}/>
         })
         similar = (
@@ -544,7 +483,7 @@ class SimilarCardsApp extends React.Component {
       if (this.state.display === 'table') {
         similar = (
           <div className="col-lg-12 col-xs-12">
-            <CardTable specs={this.filterCards(this.state.similar)}
+            <CardTable specs={filtered_cards}
                              choices={this.state.choices}
                              backsides={this.state.backsides}
                              cardClickCB={this.handleCardClick}/>
@@ -553,8 +492,7 @@ class SimilarCardsApp extends React.Component {
       }
     }
     const leftBlock = this.renderLeftBlock()
-    const filters = this.renderFilters()
-    const widthOrder = this.renderWidthOrder()
+    const widthOrder = this.renderWidthOrder(order_opts)
 
     return (
       <div>
@@ -563,7 +501,7 @@ class SimilarCardsApp extends React.Component {
             {leftBlock}
           </div>
           <div className="col-lg-10 col-md-9 col-xs-12">
-            {filters}
+            <Filter filters={this.state.filters} choices={this.state.choices} filterChange={this.handleFilterChange} resetFilters={this.resetFilters} />
             {widthOrder}
             <div className="row">
               {similar}

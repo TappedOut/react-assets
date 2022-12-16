@@ -105,7 +105,6 @@ class SetDetailApp extends React.Component {
         })
         this.setState({
           specs: specs,
-          filtered_specs: specs,
           vendors: response.data.vendors,
           choices: response.data.choices,
           backsides: backsides
@@ -140,13 +139,16 @@ class SetDetailApp extends React.Component {
 
       // formats
       const card_formats = card.formats && card.formats.length ? card.formats : []
-      let anyfmt = false
-      _.each(card_formats, f => {
-        if (_.includes(this.selectedFormats, f)) {
-          anyfmt = true
-        }
-      })
-      keep = keep && anyfmt
+      const all_checked = _.keys(this.state.filters.formats).length === this.selectedFormats.length;
+      if (!all_checked) {
+        let anyfmt = false
+        _.each(card_formats, f => {
+          if (_.includes(this.selectedFormats, f)) {
+            anyfmt = true
+          }
+        })
+        keep = keep && anyfmt
+      }
 
       // color
       const colors = card['effective_cost'] ? card['effective_cost'] : []
@@ -181,19 +183,19 @@ class SetDetailApp extends React.Component {
       // price
       let fromkeep = true
       const priceFrom = parseFloat(this.state.filters.price_from)
-      if ((priceFrom && card.ck_price && priceFrom > card.ck_price) || !card.ck_price) {
+      if (priceFrom && (priceFrom > card.ck_price || !card.ck_price)) {
         fromkeep = false
       }
       keep = keep && fromkeep
       let tokeep = true
       const priceTo = parseFloat(this.state.filters.price_to)
-      if ((priceTo && card.ck_price && priceTo < card.ck_price) || !card.ck_price) {
+      if (priceTo && (priceTo < card.ck_price || !card.ck_price)) {
         tokeep = false
       }
       keep = keep && tokeep
 
       // name
-      if (this.state.filters.name){
+      if (this.state.filters.name) {
         keep = keep && card['name'].toLowerCase().includes(this.state.filters.name.toLowerCase())
       }
 
@@ -203,37 +205,37 @@ class SetDetailApp extends React.Component {
       }
 
       // subtype
-      if (this.state.filters.subtype){
+      if (this.state.filters.subtype) {
         const subtype = card['subtype'] ? card['subtype'] : ''
         keep = keep && subtype.toLowerCase().includes(this.state.filters.subtype.toLowerCase())
       }
 
       // cmc
-      if (this.state.filters.cmc_from || this.state.filters.cmc_from === 0){
+      if (this.state.filters.cmc_from || this.state.filters.cmc_from === 0) {
         keep = keep && card['mana_value'] >= this.state.filters.cmc_from
       }
-      if (this.state.filters.cmc_to || this.state.filters.cmc_to === 0){
+      if (this.state.filters.cmc_to || this.state.filters.cmc_to === 0) {
         keep = keep && card['mana_value'] <= this.state.filters.cmc_to
       }
 
       // rarity
-      if (this.state.filters.rarity){
+      if (this.state.filters.rarity) {
         keep = keep && card['rarity'] === this.state.filters.rarity
       }
 
       // Mana Cost TODO: normalize mana_cost
-      if (this.state.filters.mana_cost){
+      if (this.state.filters.mana_cost) {
         const mana_cost = card['mana_cost'] ? card['mana_cost'] : '';
         keep = keep && mana_cost.includes(this.state.filters.mana_cost)
       }
 
       // Companion
-      if (this.state.filters.companion){
+      if (this.state.filters.companion) {
         keep = keep && card['companions'].indexOf(this.state.filters.companion) > -1
       }
 
       // Rules
-      if (this.state.filters.rules){
+      if (this.state.filters.rules) {
         const rules = card['rules'] ? card['rules'] : ''
         keep = keep && rules.toLowerCase().includes(this.state.filters.rules.toLowerCase())
       }

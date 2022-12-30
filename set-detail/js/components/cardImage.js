@@ -36,14 +36,16 @@ export default class CardImage extends React.Component {
           <button onClick={this.handleImgToggle} type="button" className="btn btn-default" disabled={!this.state.front} style={{"width": "50%", "background-color": back_color, "color": "white"}}>Backside</button>
         </div>}
         <table style={{'background-color': 'black', 'font-size': font_size}} className="table table-bordered">
+          {spec.tcg_market_price &&
           <tr style={{'border': '1px solid #ddd'}}>
             <td onClick={() => this.handlePriceClick('TCG', spec)} style={{"text-align": "center", "width":"60%", "cursor": "pointer", "padding": "4px"}}>TCG Market Price</td>
             <td onClick={() => this.handlePriceClick('TCG', spec)} style={{"text-align": "center", "width":"40%", "cursor": "pointer", "padding": "4px"}}>${spec.tcg_market_price}</td>
-          </tr>
+          </tr>}
+          {spec.ck_price &&
           <tr style={{'border': '1px solid #ddd'}}>
             <td onClick={() => this.handlePriceClick('CK', spec)} style={{"text-align": "center", "width":"60%", "cursor": "pointer", "padding": "4px"}}>Card Kingdom</td>
             <td onClick={() => this.handlePriceClick('CK', spec)} style={{"text-align": "center", "width":"40%", "cursor": "pointer", "padding": "4px"}}>${spec.ck_price}</td>
-          </tr>
+          </tr>}
           {spec.rank_display !== '--' &&
           <tr style={{'border': '1px solid #ddd'}}>
             <td style={{"text-align": "center", "width":"60%", "cursor": "pointer", "padding": "4px"}}>{this.props.rank_label}</td>

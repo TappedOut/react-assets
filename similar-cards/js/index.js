@@ -2,18 +2,17 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import Slider from 'react-rangeslider';
-import '../css/set-detail.scss';
-import 'react-rangeslider/lib/index.css';
-import CardImages from './components/cardImages.js';
-import CardTable from './components/cardTable.js';
-import CardList from './components/cardList.js';
-import Filter from "./components/filters";
 import 'react-select/dist/react-select.css';
+import 'react-rangeslider/lib/index.css';
+import '../../set-detail/css/set-detail.scss';
+import CardImage from './components/cardImage';
+import CardTable from '../../set-detail/js/components/cardTable';
+import CardList from '../../set-detail/js/components/cardList';
+import Filter from '../../set-detail/js/components/filters';
+import { Async } from 'react-select';
+import {ProgressBar} from 'react-bootstrap'
 const _ = require('lodash');
-
-
-const SET_DETAIL_API = window.django.set_specs_api;
-const SET_TLA = window.django.tla;
+import 'react-select/dist/react-select.css';
 
 
 const COLOR_ORDER = {
@@ -25,7 +24,11 @@ const COLOR_ORDER = {
 }
 
 
-class SetDetailApp extends React.Component {
+const SIMILAR_CARD_API = window.django.similar_api.replace(`\/${window.django.card_slug}`, '');
+const AUTOCOMPLETE_API = window.django.autocomplete_api
+
+
+class SimilarCardsApp extends React.Component {
   constructor(props) {
     super(props);
     let img_width = parseInt(localStorage.getItem('toImgWidth'))
@@ -37,14 +40,18 @@ class SetDetailApp extends React.Component {
       card_display = 'images'
     }
     this.state = {
-      specs: [],
+      loading: true,
+      loading_similar: false,
       display: card_display,
-      vendors: ['tcg'],
-      api_error: '',
-      order_by: 'name',
+      order_by: 'similar',
       choices: {},
-      images_width: img_width,
       backsides: {},
+      current: null,
+      current_input_value: '',
+      current_value: {'name': '', 'slug': ''},
+      similar: null,
+      similar_error: false,
+      images_width: img_width,
       filters: {
         name: '',
           formats: {
@@ -79,47 +86,38 @@ class SetDetailApp extends React.Component {
         subtype: '',
         companion: ''
       },
+      showColors: false,
+      showExtra: false
     }
+    this.getSimilar(window.django.card_slug)
+  }
+
+  getSimilar = (card_slug) => {
+    let url = `${SIMILAR_CARD_API}${card_slug}`;
     axios.get(
-      SET_DETAIL_API,
+      url,
     ).then(
       response => {
-        let found = [];
-        let backsides = {};
-        const specs = _.sortBy(response.data.specs.filter((spec) => {
-          const duplicate = found.indexOf(spec.name) > -1;
-          found.push(spec.name);
-          if (spec.flip && !spec.is_front) {
-            backsides[spec.name] = spec
-            return false
-          }
-          return !duplicate
-        }), (spec) => spec['name']).map((spec) => {
-          if (!spec.printings) return spec
-          const printing_info = spec.printings.find((p) => {return p.tla === SET_TLA})
-          if (!printing_info) return spec
-          _.forEach(['image', 'number', 'tcg_market_price', 'ck_price'], (e) => {
-            if (printing_info[e]) spec[e] = printing_info[e]
-          })
-          return spec
-        })
         this.setState({
-          specs: specs,
-          vendors: response.data.vendors,
+          similar: response.data.similar,
+          current: response.data.current,
+          current_input_value: response.data.current.name,
+          current_name: {'name': response.data.current.name, 'slug': response.data.current.slug},
           choices: response.data.choices,
-          backsides: backsides
+          loading: false,
+          loading_similar: false,
+          similar_error: false
         })
       },
       error => {
-        this.setState({error: 'Error getting card info. Please refresh the page.'})
+        this.setState({
+          similar: null,
+          similar_error: true,
+          current_name: {'name': this.state.current_input_value, 'slug': null}
+        })
       }
     )
   }
-
-  get_price = (spec) => {
-    return spec['ck_price']
-  }
-
 
   handleImagesMaxWidth = (value) => {
     this.setState({
@@ -131,6 +129,80 @@ class SetDetailApp extends React.Component {
   handleDisplayChange = (val) => {
     this.setState({display: val})
     localStorage.setItem('toCardDisplay', val);
+  }
+
+  throttledAutocomplete = _.throttle((searchUrl, callback) => {
+    axios.get(searchUrl)
+      .then((response) => callback(null, { options: response.data }))
+      .catch((error) => callback(error, null))
+  }, 1000);
+
+  handleAutocomplete = (input, callback) => {
+    if (input && input.length >= 3) {
+      let searchUrl = `${AUTOCOMPLETE_API}?name=${input}`
+      this.throttledAutocomplete(searchUrl, callback);
+    }
+  };
+
+  handleCurrentChange = (card) => {
+    if (card) {
+      this.setState({current: card, current_input_value: card.name, loading_similar: true});
+      this.getSimilar(card.slug)
+    }
+  }
+
+  handleCardClick = (card) => {
+    this.setState({current: card, current_input_value: card.name, loading_similar: true});
+    this.getSimilar(card.slug)
+  }
+
+  handleInputChange = (inputValue) => {
+    this.setState({current_input_value: inputValue});
+  }
+
+  resetFilters = () => {
+    const empty = {
+      name: '',
+        formats: {
+        'Commander / EDH': true,
+        'Modern': true,
+        'Standard': true,
+        'Legacy': true,
+        'Vintage': true,
+        'Pauper': true,
+        'Pauper EDH': true,
+        'Duel Commander': true,
+        'Pauper Duel Commander': true,
+        'Commander: Rule 0': true,
+        'Canadian Highlander': true
+      },
+      colors: {
+        'u': 0,
+        'b': 0,
+        'g': 0,
+        'r': 0,
+        'w': 0,
+        'c': 0,
+      },
+      price_from: '',
+      price_to: '',
+      type: '',
+      rarity: '',
+      mana_cost: '',
+      cmc_from: '',
+      cmc_to: '',
+      rules: '',
+      subtype: '',
+      companion: ''
+    }
+    this.setState({filters: empty})
+  }
+
+  handleFilterChange = (name, value) => {
+    const new_filters = {...this.state.filters, [name]: value}
+    this.setState({
+      filters: new_filters
+    });
   }
 
   filterCards = (cards) => {
@@ -244,52 +316,6 @@ class SetDetailApp extends React.Component {
     })
   }
 
-  resetFilters = () => {
-    const empty = {
-      name: '',
-        formats: {
-        'Commander / EDH': true,
-        'Modern': true,
-        'Standard': true,
-        'Legacy': true,
-        'Vintage': true,
-        'Pauper': true,
-        'Pauper EDH': true,
-        'Duel Commander': true,
-        'Pauper Duel Commander': true,
-        'Commander: Rule 0': true,
-        'Canadian Highlander': true
-      },
-      colors: {
-        'u': 0,
-        'b': 0,
-        'g': 0,
-        'r': 0,
-        'w': 0,
-        'c': 0,
-      },
-      price_from: '',
-      price_to: '',
-      type: '',
-      rarity: '',
-      mana_cost: '',
-      cmc_from: '',
-      cmc_to: '',
-      rules: '',
-      subtype: '',
-      companion: ''
-    }
-    this.setState({filters: empty})
-    this.filterSpecs(empty)
-  }
-
-  handleFilterChange = (name, value) => {
-    const new_filters = {...this.state.filters, [name]: value}
-    this.setState({
-      filters: new_filters
-    });
-  }
-
   handleOrderChange = (event) => {
     this.setState({order_by: event.target.value})
   }
@@ -323,6 +349,9 @@ class SetDetailApp extends React.Component {
         if (order === 'type') {
           return spec['type']
         }
+        if (order === 'similar') {
+          return spec['similar']
+        }
         if (order.startsWith('rank_')) {
           if (order === 'rank_cmdr' && spec['rank_cmdr'] && spec['cmdr_rank']['edh']) {
             return spec['cmdr_rank']['edh']
@@ -336,6 +365,45 @@ class SetDetailApp extends React.Component {
       })
     }
     return ordered
+  }
+
+  renderLeftBlock = () => {
+    return (
+      <div>
+        <div style={{'margin-bottom': '15px'}} className="row">
+          <div className="col-lg-12 col-xs-12">
+            <Async arrowRenderer={null}
+              autoload={false}
+              cache={false}
+              clearable={false}
+              labelKey="name"
+              loadOptions={_.debounce(this.handleAutocomplete, 2000)}
+              loadingPlaceholder="Searching..."
+              onInputChange={this.handleInputChange}
+              onInputKeyDown={this.handleEnterSearch}
+              onChange={this.handleCurrentChange}
+              onCloseResetsInput={false}
+              onSelectResetsInput={false}
+              onBlurResetsInput={false}
+              openOnFocus={true}
+              value={this.state.current_name}
+              valueKey="slug"/>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-lg-12 col-xs-12">
+            <img className="img-responsive" alt={this.state.current.name} src={this.state.current.image} />
+          </div>
+        </div>
+        {this.state.current &&
+          <div className="row">
+            <div style={{'margin-top': '10px'}} className="col-lg-12 col-xs-12">
+              <a className="btn btn-sm btn-default btn-block" href={this.state.current.url}>Card Page</a>
+            </div>
+          </div>
+        }
+      </div>
+    )
   }
 
   renderWidthOrder = (order_opts) => {
@@ -374,8 +442,13 @@ class SetDetailApp extends React.Component {
   }
 
   render() {
-    let main_content;
+    if (this.state.loading) {
+      return (<div style={{'margin-top': '18px'}}>
+        <ProgressBar active now={100} />
+      </div>)
+    }
     let order_opts = [
+      {'label': 'Similar', 'value': 'similar'},
       {'label': 'Name', 'value': 'name'},
       {'label': 'Color', 'value': 'color'},
       {'label': 'Price', 'value': 'price'},
@@ -388,55 +461,67 @@ class SetDetailApp extends React.Component {
       {'label': 'Modern rank', 'value': 'rank_modern'},
       {'label': 'Legacy rank', 'value': 'rank_legacy'}
     ]
+
+    let similar = <ProgressBar active now={100} />
+    if (this.state.similar_error) {
+      similar = <p>No similar data found. Please try a different card.</p>
+    }
     this.selectedFormats = _.keys(this.state.filters.formats).filter(f => this.state.filters.formats[f])
     this.selectedColors = _.keys(this.state.filters.colors).filter(c => this.state.filters.colors[c] === 1)
     this.selectedExcludeColors = _.keys(this.state.filters.colors).filter(c => this.state.filters.colors[c] === -1)
-    let filtered_specs = this.orderCards(this.filterCards(this.state.specs))
-
-    if (!filtered_specs.length) {
-      main_content = <p style={{'height': '500px'}}>No cards found</p>
-    } else {
-      let rank_label = 'Commander rank';
-      let rank_key = 'rank_edh'
-      if (this.state.order_by.startsWith('rank_')) {
-        rank_key = this.state.order_by;
-        rank_label = order_opts.find((o) => o.value === rank_key).label.replace(' format', '');
-      }
-      rank_key = rank_key.replace('rank_', '')
-      filtered_specs = filtered_specs.map((spec) => {
-        if (rank_key === 'cmdr' && spec['cmdr_rank'] && spec['cmdr_rank']['edh']) {
-          spec['rank_display'] = spec['cmdr_rank']['edh']
-        } else if (spec['rank'] && spec['rank'][rank_key]) {
-          spec['rank_display'] = spec['rank'][rank_key]
-        } else {
-          spec['rank_display'] = '--'
-        }
-        return spec
-      })
+    if (!this.state.loading_similar) {
+      const filtered_cards = this.orderCards(this.filterCards(this.state.similar))
       if (this.state.display === 'images') {
-        main_content = <CardImages specs={filtered_specs} choices={this.state.choices}
-                                   width={this.state.images_width} backsides={this.state.backsides} rank_label={rank_label} />;
+        similar = filtered_cards.map(card => {
+          return <CardImage width={this.state.images_width} card={card} handleClick={() => this.handleCardClick(card)}/>
+        })
+        similar = (
+          <div style={{'overflow': 'auto', 'height': 'calc(100vh - 200px)', "display": "flex", "flex-wrap": "wrap"}}
+               className="col-lg-12 col-xs-12">
+            {similar}
+          </div>)
       }
       if (this.state.display === 'table') {
-        main_content = <CardTable specs={filtered_specs} choices={this.state.choices} backsides={this.state.backsides} rank_label={rank_label} />
+        similar = (
+          <div className="col-lg-12 col-xs-12">
+            <CardTable specs={filtered_cards}
+                             choices={this.state.choices}
+                             backsides={this.state.backsides}
+                             cardClickCB={this.handleCardClick}/>
+          </div>
+        )
       }
       if (this.state.display === 'list') {
-        main_content = <CardList specs={filtered_specs} choices={this.state.choices} backsides={this.state.backsides} rank_label={rank_label} />;
+        similar = (
+          <div className="col-lg-12 col-xs-12">
+            <CardList specs={filtered_cards}
+                      choices={this.state.choices}
+                      backsides={this.state.backsides}
+                      cardClickCB={this.handleCardClick}/>
+          </div>
+        )
       }
     }
+    const leftBlock = this.renderLeftBlock()
     const widthOrder = this.renderWidthOrder(order_opts)
+
     return (
       <div>
-        <Filter filters={this.state.filters} choices={this.state.choices} filterChange={this.handleFilterChange} resetFilters={this.resetFilters} />
-        {widthOrder}
-        <div className="row">
-          <div className="col-lg-12">
-            {main_content}
+        <div className="row" style={{'margin-top': '18px'}}>
+          <div className="col-lg-2 col-md-3 col-xs-12">
+            {leftBlock}
+          </div>
+          <div className="col-lg-10 col-md-9 col-xs-12">
+            <Filter filters={this.state.filters} choices={this.state.choices} filterChange={this.handleFilterChange} resetFilters={this.resetFilters} />
+            {widthOrder}
+            <div className="row">
+              {similar}
+            </div>
           </div>
         </div>
       </div>
-    )
+      )
+    }
   }
-}
 
-ReactDOM.render(<SetDetailApp />, document.getElementById('set-detail-root'));
+ReactDOM.render(<SimilarCardsApp />, document.getElementById('similar-root'));

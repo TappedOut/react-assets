@@ -264,9 +264,9 @@ class BinderFilters extends Component {
           <div className="col-lg-5 col-xs-12">
             <label>Converted Cost</label>
             <div className="row">
-              <div className="col-lg-5 col-xs-5"><input name="cmc_from" className="form-control" onChange={this.handleInputChange} checked={this.state.form.cost_from} /></div>
+              <div className="col-lg-5 col-xs-5"><input type="number" name="cmc_from" className="form-control" onChange={this.handleInputChange} checked={this.state.form.cost_from} /></div>
               <div className="col-lg-1 col-xs-1">to</div>
-              <div className="col-lg-5 col-xs-5"><input name="cmc_to" className="form-control" onChange={this.handleInputChange} checked={this.state.form.cost_to} /></div>
+              <div className="col-lg-5 col-xs-5"><input type="number" name="cmc_to" className="form-control" onChange={this.handleInputChange} checked={this.state.form.cost_to} /></div>
             </div>
           </div>
         </div>

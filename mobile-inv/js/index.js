@@ -116,13 +116,13 @@ class MobileInvApp extends React.Component {
               <ButtonGroup>
                 {pages}
               </ButtonGroup>
-              <div style={{'margin-top': '5px'}} className="form-group">
-                <label htmlFor="owned">
-                  <input id="owned" type="checkbox" name="owned"
-                        checked={this.state.owned} disabled={this.state.loading}
-                        onChange={this.handleOwnedChange}/> Only Owned
-                </label>
-              </div>
+              {/*<div style={{'margin-top': '5px'}} className="form-group">*/}
+              {/*  <label htmlFor="owned">*/}
+              {/*    <input id="owned" type="checkbox" name="owned"*/}
+              {/*          checked={this.state.owned} disabled={this.state.loading}*/}
+              {/*          onChange={this.handleOwnedChange}/> Only Owned*/}
+              {/*  </label>*/}
+              {/*</div>*/}
             </div>
           </div>
         </div>

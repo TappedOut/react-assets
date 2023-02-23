@@ -46,7 +46,7 @@ class Folder extends Component {
       description: this.state.descInputValue
     };
     axios.post(
-      `api/folder/${this.props.folder.id}/edit/`,
+      `/api/folder/${this.props.folder.id}/edit/`,
       folder_data
     ).then(
       response => {
@@ -82,7 +82,7 @@ class Folder extends Component {
   }
 
   getFolderDecks() {
-    const API_FOLDER_DECKS = `api/folder/${this.props.folder.id}/decks/`;
+    const API_FOLDER_DECKS = `/api/folder/${this.props.folder.id}/decks/`;
     axios.get(
       `${API_FOLDER_DECKS}?start=${this.state.nextDecksIndex}`
     ).then(

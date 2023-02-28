@@ -69,7 +69,7 @@ class App extends Component {
   }
 
   getDecks(index) {
-    const API_FOLDER_DECKS = `api/folder/${this.state.folderId}/decks/`;
+    const API_FOLDER_DECKS = `/api/folder/${this.state.folderId}/decks/`;
     axios.get(
       `${API_FOLDER_DECKS}?start=${this.state.nextDecksIndex}&amount=${PER_PAGE_AMOUNT}`
     ).then(

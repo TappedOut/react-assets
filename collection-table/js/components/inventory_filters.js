@@ -24,6 +24,24 @@ class InventoryFilters extends Component {
           </div>
           <div className="col-lg-3 col-xs-12">
             <div className="form-group">
+              <label className="control-label">Type</label>
+                <Select
+                  name="cardtype"
+                  onChange={(v) => this.props.handleSelectChange('cardtype', v)}
+                  value={this.props.filter_data.cardtype}
+                  options={this.props.init_data.selects.type}
+                />
+            </div>
+          </div>
+          <div className="col-lg-3 col-xs-12">
+            <div className="form-group">
+              <label className="control-label">Subtype</label>
+                <input name="subtype" className="form-control input-sm" onChange={this.props.handleInputChange} value={this.props.filter_data.subtype} />
+                <div className="help-block">Aura, Vampire, Rogue, etc.</div>
+            </div>
+          </div>
+          <div className="col-lg-3 col-xs-12">
+            <div className="form-group">
               <label className="control-label">Collection</label>
                 <Select
                   name="collection"
@@ -49,37 +67,6 @@ class InventoryFilters extends Component {
           </div>
           <div className="col-lg-3 col-xs-12">
             <div className="form-group">
-              <label className="control-label">Type</label>
-                <Select
-                  name="cardtype"
-                  onChange={(v) => this.props.handleSelectChange('cardtype', v)}
-                  value={this.props.filter_data.cardtype}
-                  options={this.props.init_data.selects.type}
-                />
-            </div>
-          </div>
-          <div className="col-lg-3 col-xs-12">
-            <div className="form-group">
-              <label className="control-label">Subtype</label>
-                <input name="subtype" className="form-control input-sm" onChange={this.props.handleInputChange} value={this.props.filter_data.subtype} />
-                <div className="help-block">Aura, Vampire, Rogue, etc.</div>
-            </div>
-          </div>
-          <div className="col-lg-3 col-xs-12">
-            <div className="form-group">
-              <label className="control-label">Proxy</label>
-                <Select
-                  name="proxy"
-                  onChange={(v) => this.props.handleSelectChange('proxy', v)}
-                  value={this.props.filter_data.proxy}
-                  options={proxy_opts}
-                />
-            </div>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-lg-3 col-xs-12">
-            <div className="form-group">
               <label className="control-label">Sets</label>
                 <Select
                   multi
@@ -91,17 +78,7 @@ class InventoryFilters extends Component {
                 />
             </div>
           </div>
-          <div className="col-lg-5 col-xs-12">
-            <div className="form-group">
-              <label>{this.props.init_data.price_header}</label>
-              <div className="row">
-                <div className="col-lg-5"><input name="price_from" type="text" className="form-control" onChange={this.props.handleInputChange} value={this.props.filter_data.price_from} /></div>
-                <div className="col-lg-1">to</div>
-                <div className="col-lg-5"><input name="price_to" type="text" className="form-control" onChange={this.props.handleInputChange} value={this.props.filter_data.price_to} /></div>
-              </div>
-            </div>
-          </div>
-          <div className="col-lg-3 col-lg-offset-1 col-xs-12">
+          <div className="col-lg-3 col-xs-12">
             <div className="form-group">
               <label className="control-label">Border</label>
               <Select
@@ -112,8 +89,29 @@ class InventoryFilters extends Component {
               />
             </div>
           </div>
+          <div className="col-lg-3 col-xs-12">
+            <div className="form-group">
+              <label className="control-label">Frame</label>
+              <Select
+                name="frame"
+                onChange={(v) => this.props.handleSelectChange('frame', v)}
+                value={this.props.filter_data.frame}
+                options={this.props.init_data.selects.frame}
+              />
+            </div>
+          </div>
         </div>
         <div className="row">
+          <div className="col-lg-6 col-xs-12">
+            <div className="form-group">
+              <label>{this.props.init_data.price_header}</label>
+              <div className="row">
+                <div className="col-lg-5"><input name="price_from" type="text" className="form-control" onChange={this.props.handleInputChange} value={this.props.filter_data.price_from} /></div>
+                <div className="col-lg-1">to</div>
+                <div className="col-lg-5"><input name="price_to" type="text" className="form-control" onChange={this.props.handleInputChange} value={this.props.filter_data.price_to} /></div>
+              </div>
+            </div>
+          </div>
           <div className="col-lg-3 col-xs-12">
             <div className="form-group">
               <label className="control-label">Language</label>
@@ -136,30 +134,9 @@ class InventoryFilters extends Component {
               />
             </div>
           </div>
-          <div className="col-lg-3 col-xs-12">
-            <div className="form-group">
-              <div className="checkbox">
-                <label htmlFor="owned">
-                  <input id="owned" name="owned" type="checkbox" onChange={this.props.handleInputChange} checked={this.props.filter_data.owned} />
-                    Owned cards only
-                </label>
-              </div>
-            </div>
-          </div>
-          <div className="col-lg-3 col-xs-12">
-            <div className="form-group">
-              <label className="control-label">Frame</label>
-              <Select
-                name="frame"
-                onChange={(v) => this.props.handleSelectChange('frame', v)}
-                value={this.props.filter_data.frame}
-                options={this.props.init_data.selects.frame}
-              />
-            </div>
-          </div>
         </div>
         <div className="row">
-          <div className="col-lg-7 col-xs-12">
+          <div className="col-lg-6 col-xs-12">
             <div className="form-group">
               <label>Cost</label>
               <div className="row">
@@ -175,12 +152,35 @@ class InventoryFilters extends Component {
               </div>
             </div>
           </div>
-          <div className="col-lg-5 col-xs-12">
+          <div className="col-lg-6 col-xs-12">
             <label>Converted Cost</label>
             <div className="row">
               <div className="col-lg-5 col-xs-5"><input type="number" name="cmc_from" className="form-control" onChange={this.props.handleInputChange} checked={this.props.filter_data.cost_from} /></div>
               <div className="col-lg-1 col-xs-1">to</div>
               <div className="col-lg-5 col-xs-5"><input type="number" name="cmc_to" className="form-control" onChange={this.props.handleInputChange} checked={this.props.filter_data.cost_to} /></div>
+            </div>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-lg-3 col-xs-12">
+            <div className="form-group">
+              <label className="control-label">Proxy</label>
+                <Select
+                  name="proxy"
+                  onChange={(v) => this.props.handleSelectChange('proxy', v)}
+                  value={this.props.filter_data.proxy}
+                  options={proxy_opts}
+                />
+            </div>
+          </div>
+          <div className="col-lg-3 col-xs-12">
+            <div className="form-group">
+              <div className="checkbox">
+                <label htmlFor="owned">
+                  <input id="owned" name="owned" type="checkbox" onChange={this.props.handleInputChange} checked={this.props.filter_data.owned} />
+                    Owned cards only
+                </label>
+              </div>
             </div>
           </div>
         </div>

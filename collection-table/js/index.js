@@ -586,16 +586,12 @@ class CollectionTableApp extends React.Component {
     if (this.state.init_data.type === 'binder') {
       row_amount = 5
       headers = <BinderHeader init_data={this.state.init_data} price_header={this.state.price_header} />
-      filters = <BinderFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
+      filters = <BinderFilters init_data={this.state.init_data} filter_data={this.state.filter_data}
+                               handleInputChange={this.handleInputChange} handleSelectChange={this.handleSelectChange} />
       buttons = (
         <div>
           {this.state.init_data.can_edit &&
             <div className="row">
-              <div id="ck-buylist-container" className="col-lg-6 col-xs-6">
-                <button type="button" id="ck-buylist-button" className="btn btn-sm btn-warning btn-block"
-                        disabled>Calculating CK buylist price...
-                </button>
-              </div>
               <div className="col-lg-6 col-xs-12">
                 <button className="btn btn-block btn-warning" onClick={handlePriceShow}><span className="glyphicon glyphicon-shopping-cart"/> Checkout Binder</button>
                 <Modal show={this.state.show_price_modal} onHide={handlePriceHide}>
@@ -630,10 +626,7 @@ class CollectionTableApp extends React.Component {
                   </Modal.Footer>
                 </Modal>
               </div>
-            </div>
-          }
-          <div className="row" style={{'margin-top': '15px'}}>
-            <div className="col-lg-6 col-xs-6">
+              <div className="col-lg-6 col-xs-6">
               <form action="." method="get" className="navbar-search">
                 <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
                   <option value="">Export/Download</option>
@@ -641,7 +634,8 @@ class CollectionTableApp extends React.Component {
                 </select>
               </form>
             </div>
-          </div>
+            </div>
+          }
           <div className="row" style={{'margin-top': '15px'}}>
             <div className="col-lg-6 col-xs-6">
               <div className="row">
@@ -669,14 +663,18 @@ class CollectionTableApp extends React.Component {
             </div>
           </div>
           <div className="row" style={{'margin-top': '15px'}}>
-            <div className="col-lg-6 col-xs-6">
-              <button
-                onClick={this.toggleFilters}
-                aria-controls="filter-well"
-                aria-expanded={this.state.filter_open}
-                className="btn btn-default btn-md btn-block">
-                Filter
-              </button>
+            <div className="col-lg-6 col-md-6 col-xs-12">
+              {colorCheckboxes}
+            </div>
+            <div className="col-lg-6 col-md-6 col-xs-12">
+              <div className="btn-group" role="group" style={{'display': 'flex'}}>
+                <button className="btn btn-default" style={{'flex': 1}} onClick={this.toggleFilters}>
+                  Filters
+                </button>
+                <button className="btn btn-default" style={{'flex': 1}} onClick={this.handleFilterReset}>
+                  Reset
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -699,19 +697,12 @@ class CollectionTableApp extends React.Component {
     if (this.state.init_data.type === 'wishlist') {
       row_amount = 5
       headers = <WishlistHeader init_data={this.state.init_data} price_header={this.state.price_header} />
-      filters = <WishlistFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
+      filters = <WishlistFilters init_data={this.state.init_data} filter_data={this.state.filter_data}
+                                 handleInputChange={this.handleInputChange} handleSelectChange={this.handleSelectChange} />
       decks = <WishlistDecks api_url={this.state.init_data.urls.wishlist_decks} remove_deck_cb={this.removeDeckCB} />
       buttons = (
         <div>
           <div className="row" style={{'margin-top': '15px'}}>
-            <div className="col-lg-6 col-xs-6">
-              <form action="." method="get" className="navbar-search">
-                <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
-                  <option value="">Export/Download</option>
-                  {export_options}
-                </select>
-              </form>
-            </div>
             <div className="col-lg-6 col-xs-12">
               <button className="btn btn-block btn-warning" onClick={handlePriceShow}><span className="glyphicon glyphicon-shopping-cart"/> Checkout Wishlist</button>
               <Modal show={this.state.show_price_modal} onHide={handlePriceHide}>
@@ -746,6 +737,14 @@ class CollectionTableApp extends React.Component {
                 </Modal.Footer>
               </Modal>
             </div>
+            <div className="col-lg-6 col-xs-6">
+              <form action="." method="get" className="navbar-search">
+                <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
+                  <option value="">Export/Download</option>
+                  {export_options}
+                </select>
+              </form>
+            </div>
           </div>
           <div className="row" style={{'margin-top': '15px'}}>
             <div className="col-lg-6 col-xs-6">
@@ -775,16 +774,22 @@ class CollectionTableApp extends React.Component {
           </div>
           <div className="row" style={{'margin-top': '15px'}}>
             <div className="col-lg-6 col-xs-6">
-              <button
-                onClick={this.toggleFilters}
-                aria-controls="filter-well"
-                aria-expanded={this.state.filter_open}
-                className="btn btn-default btn-md btn-block">
-                Filter
-              </button>
-            </div>
-            <div className="col-lg-6 col-xs-6">
               {decks}
+            </div>
+          </div>
+          <div className="row" style={{'margin-top': '15px'}}>
+            <div className="col-lg-6 col-md-6 col-xs-12">
+              {colorCheckboxes}
+            </div>
+            <div className="col-lg-6 col-md-6 col-xs-12">
+              <div className="btn-group" role="group" style={{'display': 'flex'}}>
+                <button className="btn btn-default" style={{'flex': 1}} onClick={this.toggleFilters}>
+                  Filters
+                </button>
+                <button className="btn btn-default" style={{'flex': 1}} onClick={this.handleFilterReset}>
+                  Reset
+                </button>
+              </div>
             </div>
           </div>
         </div>

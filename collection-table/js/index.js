@@ -51,7 +51,6 @@ class CollectionTableApp extends React.Component {
       first_load: false,
       export_value: '',
       filter_open: false,
-      filter_data: {owned: true},
       error: '',
       ordering: stored_order ? stored_order : 'name',
       rank: '',
@@ -61,7 +60,38 @@ class CollectionTableApp extends React.Component {
       card_string: '',
       name_filter: '',
       buy_price: 0,
-      card_display: 'in_coll'
+      card_display: 'in_coll',
+      colors: {
+        'u': 0,
+        'b': 0,
+        'g': 0,
+        'r': 0,
+        'w': 0,
+        'c': 0,
+      },
+      filter_data: {
+        rules: '',
+        colors: [],
+        colors_exclude: [],
+        collection: '',
+        rarity: '',
+        cardtype: '',
+        subtype: '',
+        sets: [],
+        price_from: '',
+        price_to: '',
+        language: '',
+        owned: true,
+        display: 'owned',
+        foil: '',
+        mana_cost: '',
+        cmc_from: '',
+        cmc_to: '',
+        cost_control: '',
+        border_color: '',
+        frame: '',
+        proxy: ''
+      }
     }
 
     this.handleExport = this.handleExport.bind(this);
@@ -74,7 +104,12 @@ class CollectionTableApp extends React.Component {
     this.handleQtyEditToggle = this.handleQtyToggleEdit.bind(this);
     this.handleWantsQtyEditToggle = this.handleWantsQtyToggleEdit.bind(this);
     this.handleNameFilter = this.handleNameFilter.bind(this);
+    this.handleFilterReset = this.handleFilterReset.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleSelectChange = this.handleSelectChange.bind(this);
+    this.handleColorChange = this.handleColorChange.bind(this);
     this.debouncedSearch = _.debounce((data, order, page, vendor, rank) => {this.searchCards(data, order, page, vendor, rank)}, 1000)
+    this.debouncedFilter = _.debounce(() => {this.handleFilter()}, 1000)
     this.initialize(INIT_URL);
   }
 
@@ -190,10 +225,86 @@ class CollectionTableApp extends React.Component {
     this.setState({filter_open: !this.state.filter_open})
   }
 
-  handleFilter(data) {
-    const filter_data = {...this.state.filter_data, ...data};
-    this.setState({filter_data: filter_data, page: 1});
+  handleFilter() {
+    let filter_data = {...this.state.filter_data}
+    const selectedColors = _.keys(this.state.colors).filter(c => this.state.colors[c] === 1)
+    const selectedExcludeColors = _.keys(this.state.colors).filter(c => this.state.colors[c] === -1)
+    filter_data['colors'] = selectedColors
+    filter_data['colors_exclude'] = selectedExcludeColors
     this.searchCards(filter_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
+  }
+
+  handleFilterReset() {
+    const blank = {
+      rules: '',
+      colors: [],
+      colors_exclude: [],
+      collection: '',
+      rarity: '',
+      cardtype: '',
+      subtype: '',
+      sets: [],
+      price_from: '',
+      price_to: '',
+      language: '',
+      owned: true,
+      display: 'owned',
+      foil: '',
+      mana_cost: '',
+      cmc_from: '',
+      cmc_to: '',
+      cost_control: '',
+      border_color: '',
+      frame: '',
+      proxy: ''
+    }
+    const color_blank = {
+      'u': 0,
+      'b': 0,
+      'g': 0,
+      'r': 0,
+      'w': 0,
+      'c': 0,
+    }
+    this.setState({filter_data: blank, colors: color_blank})
+    this.debouncedFilter()
+  }
+
+  handleInputChange(event) {
+    const target = event.target;
+    let value = target.type === 'checkbox' ? target.checked : target.value;
+    const name = target.name;
+    const new_data = {...this.state.filter_data, [name]: value}
+    if (name === 'owned') value ? new_data['display'] = 'owned' : new_data['display'] = 'collapse'
+    this.setState({filter_data: new_data});
+    this.debouncedFilter()
+  }
+
+  handleSelectChange(name, selected) {
+    let value = ''
+    if (selected) {
+      value = Array.isArray(selected) ? selected.map(v => {
+        return v['value']
+      }) : selected['value'];
+    }
+    const new_data = {...this.state.filter_data, [name]: value}
+    this.setState({
+      filter_data: new_data
+    });
+    this.debouncedFilter()
+  }
+
+  handleColorChange = (color) => {
+    let colors = {...this.state.colors}
+    if (this.state.colors[color] === 0) {
+      colors[color] = 1
+    } else if (this.state.colors[color] === 1) {
+      colors[color] = -1
+    } else {
+      colors[color] = 0
+    }
+    this.setState({colors: colors})
+    this.debouncedFilter()
   }
 
   handleCardEdit() {
@@ -239,42 +350,42 @@ class CollectionTableApp extends React.Component {
 
   handleInBinderBtnClick = () => {
     if (this.state.in_binder === true) return
-    const new_form = {...this.state.form, display: 'owned'}
+    const new_data = {...this.state.filter_data, display: 'owned'}
     this.setState({
-      form: new_form,
+      filter_data: new_data,
       card_display: 'in_coll'
     });
-    this.searchCards(new_form, this.state.ordering, 1, this.state.vendor, this.state.rank)
+    this.searchCards(new_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
   }
 
   handleAllCardsBtnClick = () => {
     if (this.state.all_cards === true) return
-    const new_form = {...this.state.form, display: 'collapse'}
+    const new_data = {...this.state.filter_data, display: 'collapse'}
     this.setState({
-      form: new_form,
+      filter_data: new_data,
       card_display: 'all'
     });
-    this.searchCards(new_form, this.state.ordering, 1, this.state.vendor, this.state.rank)
+    this.searchCards(new_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
   }
 
   handleHaveMatchesBtnClick = () => {
     if (this.state.in_binder === true) return
-    const new_form = {...this.state.form, display: 'matches_h'}
+    const new_data = {...this.state.filter_data, display: 'matches_h'}
     this.setState({
-      form: new_form,
+      filter_data: new_data,
       card_display: 'matches_h'
     });
-    this.searchCards(new_form, this.state.ordering, 1, this.state.vendor, this.state.rank)
+    this.searchCards(new_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
   }
 
   handleWantMatchesBtnClick = () => {
     if (this.state.in_binder === true) return
-    const new_form = {...this.state.form, in_binder: false, all_cards: false, matches_h: false, matches_w: false, display: 'matches_w'}
+    const new_data = {...this.state.filter_data, in_binder: false, all_cards: false, matches_h: false, matches_w: false, display: 'matches_w'}
     this.setState({
-      form: new_form,
+      filter_data: new_data,
       card_display: 'matches_w'
     });
-    this.searchCards(new_form, this.state.ordering, 1, this.state.vendor, this.state.rank)
+    this.searchCards(new_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
   }
 
   removeDeckCB = () => {
@@ -350,6 +461,29 @@ class CollectionTableApp extends React.Component {
     const order_options = this.state.init_data.selects.ordering.map(opts => <option value={opts.value}>{opts.label}</option>)
     const price_display_options = this.state.init_data.selects.price_display.map(opts => <option value={opts.value}>{opts.label}</option>)
 
+    // colors
+    let colorCheckboxes = _.keys(this.state.colors).map(color => {
+      let icon = 'minus'
+      let icon_color = 'white'
+      if (this.state.colors[color] === 1) {
+        icon = 'ok'
+        icon_color = 'green'
+      } else if (this.state.colors[color] === -1) {
+        icon = 'remove'
+        icon_color = 'red'
+      }
+      return (
+        <div className="col-lg-4 col-xs-4">
+          <div className="form-group">
+            <button onClick={() => this.handleColorChange(color)} className="btn btn-sm btn-default btn-block">
+              <i className={`ms ms-${color} ms-cost ms-shadow ms-1point2x`}></i>&nbsp;&nbsp;
+              <span style={{'color': icon_color}} className={`glyphicon glyphicon-${icon}`} aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+      )
+    })
+
     // price
     const handlePriceShow = () => this.setState({show_price_modal: true});
     const handlePriceHide = () => this.setState({show_price_modal: false});
@@ -368,7 +502,8 @@ class CollectionTableApp extends React.Component {
       if (this.state.init_data.can_edit) row_amount++;
       if (this.state.rank) row_amount++;
       headers = <InventoryHeader init_data={this.state.init_data} price_header={this.state.price_header} rank={RANK_HEADER[this.state.rank]} />
-      filters = <InventoryFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
+      filters = <InventoryFilters init_data={this.state.init_data} filter_data={this.state.filter_data}
+                                  handleInputChange={this.handleInputChange} handleSelectChange={this.handleSelectChange} />
       buttons = (
         <div>
           {this.state.init_data.can_edit &&
@@ -376,26 +511,11 @@ class CollectionTableApp extends React.Component {
               <div className="col-lg-6 col-xs-6">
                 <button className="btn btn-sm btn-success btn-block" data-toggle="modal" data-target="#addModal"><span className="glyphicon glyphicon-plus" /> Add Card</button>
               </div>
-              <div id="ck-buylist-container" className="col-lg-6 col-xs-6">
-                <button type="button" id="ck-buylist-button" className="btn btn-sm btn-warning btn-block"
-                        disabled>CK Buy Price $ {this.state.buy_price}
-                </button>
+              <div className="col-lg-6 col-xs-6">
+                <a className="btn btn-sm btn-primary btn-block" href={this.state.init_data.urls.find_decks}>Find decks</a>
               </div>
             </div>
           }
-          <div className="row" style={{'margin-top': '15px'}}>
-            <div className="col-lg-6 col-xs-6">
-              <a className="btn btn-sm btn-primary btn-block" href={this.state.init_data.urls.find_decks}>Find decks</a>
-            </div>
-            <div className="col-lg-6 col-xs-6">
-              <form action="." method="get" className="navbar-search">
-                <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
-                  <option value="">Export/Download</option>
-                  {export_options}
-                </select>
-              </form>
-            </div>
-          </div>
           <div className="row" style={{'margin-top': '15px'}}>
             <div className="col-lg-6 col-xs-6">
               <div className="row">
@@ -424,15 +544,6 @@ class CollectionTableApp extends React.Component {
           </div>
           <div className="row" style={{'margin-top': '15px'}}>
             <div className="col-lg-6 col-xs-6">
-              <button
-                onClick={this.toggleFilters}
-                aria-controls="filter-well"
-                aria-expanded={this.state.filter_open}
-                className="btn btn-default btn-md btn-block">
-                Filter
-              </button>
-            </div>
-            <div className="col-lg-6 col-xs-6">
               <div className="row">
                 <div className="col-lg-4 col-xs-4">
                   Rank by
@@ -445,6 +556,29 @@ class CollectionTableApp extends React.Component {
                 </div>
               </div>
             </div>
+            <div className="col-lg-6 col-xs-6">
+              <form action="." method="get" className="navbar-search">
+                <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
+                  <option value="">Export/Download</option>
+                  {export_options}
+                </select>
+              </form>
+            </div>
+          </div>
+          <div className="row" style={{'margin-top': '15px'}}>
+            <div className="col-lg-6 col-md-6 col-xs-12">
+              {colorCheckboxes}
+            </div>
+            <div className="col-lg-6 col-md-6 col-xs-12">
+              <div className="btn-group" role="group" style={{'display': 'flex'}}>
+                <button className="btn btn-default" style={{'flex': 1}} onClick={this.toggleFilters}>
+                  Filters
+                </button>
+                <button className="btn btn-default" style={{'flex': 1}} onClick={this.handleFilterReset}>
+                  Reset
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )
@@ -452,16 +586,12 @@ class CollectionTableApp extends React.Component {
     if (this.state.init_data.type === 'binder') {
       row_amount = 5
       headers = <BinderHeader init_data={this.state.init_data} price_header={this.state.price_header} />
-      filters = <BinderFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
+      filters = <BinderFilters init_data={this.state.init_data} filter_data={this.state.filter_data}
+                               handleInputChange={this.handleInputChange} handleSelectChange={this.handleSelectChange} />
       buttons = (
         <div>
           {this.state.init_data.can_edit &&
             <div className="row">
-              <div id="ck-buylist-container" className="col-lg-6 col-xs-6">
-                <button type="button" id="ck-buylist-button" className="btn btn-sm btn-warning btn-block"
-                        disabled>Calculating CK buylist price...
-                </button>
-              </div>
               <div className="col-lg-6 col-xs-12">
                 <button className="btn btn-block btn-warning" onClick={handlePriceShow}><span className="glyphicon glyphicon-shopping-cart"/> Checkout Binder</button>
                 <Modal show={this.state.show_price_modal} onHide={handlePriceHide}>
@@ -496,10 +626,7 @@ class CollectionTableApp extends React.Component {
                   </Modal.Footer>
                 </Modal>
               </div>
-            </div>
-          }
-          <div className="row" style={{'margin-top': '15px'}}>
-            <div className="col-lg-6 col-xs-6">
+              <div className="col-lg-6 col-xs-6">
               <form action="." method="get" className="navbar-search">
                 <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
                   <option value="">Export/Download</option>
@@ -507,7 +634,8 @@ class CollectionTableApp extends React.Component {
                 </select>
               </form>
             </div>
-          </div>
+            </div>
+          }
           <div className="row" style={{'margin-top': '15px'}}>
             <div className="col-lg-6 col-xs-6">
               <div className="row">
@@ -535,14 +663,18 @@ class CollectionTableApp extends React.Component {
             </div>
           </div>
           <div className="row" style={{'margin-top': '15px'}}>
-            <div className="col-lg-6 col-xs-6">
-              <button
-                onClick={this.toggleFilters}
-                aria-controls="filter-well"
-                aria-expanded={this.state.filter_open}
-                className="btn btn-default btn-md btn-block">
-                Filter
-              </button>
+            <div className="col-lg-6 col-md-6 col-xs-12">
+              {colorCheckboxes}
+            </div>
+            <div className="col-lg-6 col-md-6 col-xs-12">
+              <div className="btn-group" role="group" style={{'display': 'flex'}}>
+                <button className="btn btn-default" style={{'flex': 1}} onClick={this.toggleFilters}>
+                  Filters
+                </button>
+                <button className="btn btn-default" style={{'flex': 1}} onClick={this.handleFilterReset}>
+                  Reset
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -565,19 +697,12 @@ class CollectionTableApp extends React.Component {
     if (this.state.init_data.type === 'wishlist') {
       row_amount = 5
       headers = <WishlistHeader init_data={this.state.init_data} price_header={this.state.price_header} />
-      filters = <WishlistFilters onFilter={this.handleFilter} init_data={this.state.init_data} />
+      filters = <WishlistFilters init_data={this.state.init_data} filter_data={this.state.filter_data}
+                                 handleInputChange={this.handleInputChange} handleSelectChange={this.handleSelectChange} />
       decks = <WishlistDecks api_url={this.state.init_data.urls.wishlist_decks} remove_deck_cb={this.removeDeckCB} />
       buttons = (
         <div>
           <div className="row" style={{'margin-top': '15px'}}>
-            <div className="col-lg-6 col-xs-6">
-              <form action="." method="get" className="navbar-search">
-                <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
-                  <option value="">Export/Download</option>
-                  {export_options}
-                </select>
-              </form>
-            </div>
             <div className="col-lg-6 col-xs-12">
               <button className="btn btn-block btn-warning" onClick={handlePriceShow}><span className="glyphicon glyphicon-shopping-cart"/> Checkout Wishlist</button>
               <Modal show={this.state.show_price_modal} onHide={handlePriceHide}>
@@ -612,6 +737,14 @@ class CollectionTableApp extends React.Component {
                 </Modal.Footer>
               </Modal>
             </div>
+            <div className="col-lg-6 col-xs-6">
+              <form action="." method="get" className="navbar-search">
+                <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
+                  <option value="">Export/Download</option>
+                  {export_options}
+                </select>
+              </form>
+            </div>
           </div>
           <div className="row" style={{'margin-top': '15px'}}>
             <div className="col-lg-6 col-xs-6">
@@ -641,16 +774,22 @@ class CollectionTableApp extends React.Component {
           </div>
           <div className="row" style={{'margin-top': '15px'}}>
             <div className="col-lg-6 col-xs-6">
-              <button
-                onClick={this.toggleFilters}
-                aria-controls="filter-well"
-                aria-expanded={this.state.filter_open}
-                className="btn btn-default btn-md btn-block">
-                Filter
-              </button>
-            </div>
-            <div className="col-lg-6 col-xs-6">
               {decks}
+            </div>
+          </div>
+          <div className="row" style={{'margin-top': '15px'}}>
+            <div className="col-lg-6 col-md-6 col-xs-12">
+              {colorCheckboxes}
+            </div>
+            <div className="col-lg-6 col-md-6 col-xs-12">
+              <div className="btn-group" role="group" style={{'display': 'flex'}}>
+                <button className="btn btn-default" style={{'flex': 1}} onClick={this.toggleFilters}>
+                  Filters
+                </button>
+                <button className="btn btn-default" style={{'flex': 1}} onClick={this.handleFilterReset}>
+                  Reset
+                </button>
+              </div>
             </div>
           </div>
         </div>

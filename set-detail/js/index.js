@@ -318,7 +318,7 @@ class SetDetailApp extends React.Component {
           return spec['ck_price']
         }
         if (order === 'number') {
-          return spec['number']
+          return parseInt(spec['number'])
         }
         if (order === 'type') {
           return spec['type']

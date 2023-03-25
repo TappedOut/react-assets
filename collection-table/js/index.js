@@ -158,6 +158,10 @@ class CollectionTableApp extends React.Component {
       'vendor': vendor,
       'rank': rank
     }
+    const selectedColors = _.keys(this.state.colors).filter(c => this.state.colors[c] === 1)
+    const selectedExcludeColors = _.keys(this.state.colors).filter(c => this.state.colors[c] === -1)
+    data['colors'] = selectedColors
+    data['colors_exclude'] = selectedExcludeColors
     for (let [key, value] of Object.entries(data)) {
       if (Array.isArray(value) && value.length) {
         get_data[key] = value.join(',')
@@ -226,12 +230,7 @@ class CollectionTableApp extends React.Component {
   }
 
   handleFilter() {
-    let filter_data = {...this.state.filter_data}
-    const selectedColors = _.keys(this.state.colors).filter(c => this.state.colors[c] === 1)
-    const selectedExcludeColors = _.keys(this.state.colors).filter(c => this.state.colors[c] === -1)
-    filter_data['colors'] = selectedColors
-    filter_data['colors_exclude'] = selectedExcludeColors
-    this.searchCards(filter_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
+    this.searchCards(this.state.filter_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
   }
 
   handleFilterReset() {

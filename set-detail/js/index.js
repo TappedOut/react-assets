@@ -280,7 +280,7 @@ class SetDetailApp extends React.Component {
       companion: ''
     }
     this.setState({filters: empty})
-    this.filterSpecs(empty)
+    this.filterCards(empty)
   }
 
   handleFilterChange = (name, value) => {
@@ -338,7 +338,7 @@ class SetDetailApp extends React.Component {
     return ordered
   }
 
-  renderWidthOrder = (order_opts) => {
+  renderWidthOrder = (order_opts, filtered_count) => {
     order_opts = order_opts.map(opt => <option value={opt.value}>{opt.label}</option>)
     return (
       <div style={{"margin-bottom": "15px"}} className="row">
@@ -355,7 +355,7 @@ class SetDetailApp extends React.Component {
             {order_opts}
           </select>
         </div>
-        <div className="col-lg-2 col-md-2 col-xs-12">
+        <div className="col-lg-2 col-md-2 col-xs-8">
           {this.state.display === 'images' &&
             <span className="slider-container">
               <Slider
@@ -369,6 +369,7 @@ class SetDetailApp extends React.Component {
             </span>
           }
         </div>
+        <div className="col-lg-2 col-md-2 col-xs-4">{filtered_count} / {this.state.specs.length}</div>
       </div>
     )
   }
@@ -424,7 +425,7 @@ class SetDetailApp extends React.Component {
         main_content = <CardList specs={filtered_specs} choices={this.state.choices} backsides={this.state.backsides} rank_label={rank_label} />;
       }
     }
-    const widthOrder = this.renderWidthOrder(order_opts)
+    const widthOrder = this.renderWidthOrder(order_opts, filtered_specs.length)
     return (
       <div>
         <Filter filters={this.state.filters} choices={this.state.choices} filterChange={this.handleFilterChange} resetFilters={this.resetFilters} />

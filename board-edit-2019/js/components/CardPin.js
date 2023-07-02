@@ -163,7 +163,7 @@ export default class CardPin extends React.Component {
                  className="card-thumbnail-img"/>
           </div>
         }
-        <Collapse in={this.state.showHandlers}>
+        <Collapse in={this.state.showHandlers || !this.props.toggleImages}>
           <div>
             <div className={panelClass}>
               { !toggleImages && cardName }

@@ -6,8 +6,8 @@ export default class CardPinSpoiler extends React.Component {
   renderPartialCard = (key, dataMove) => {
     let {card, imagesMaxWidth} = this.props;
 
-    let divClass = `panel panel-default card-spoiler-partial card-color__${card.color_category}`
-    if (Cookies.get('totheme') === 'light') divClass += ` card-color-bg__${card.color_category}`
+    const isBg = Cookies.get('totheme') === 'light'
+    let divClass = `panel panel-default card-spoiler-partial card-color${isBg ? '-bg' : ''}__${card.color_category}`
 
     return (
       <div key={`${card.cardId}:${key}`}
@@ -31,8 +31,8 @@ export default class CardPinSpoiler extends React.Component {
         'static.tappedout.net');
     }
 
-    let divClass = `panel panel-default card-color__${card.color_category}`
-    if (Cookies.get('totheme') === 'light') divClass += ` card-color-bg__${card.color_category}`
+    const isBg = Cookies.get('totheme') === 'light'
+    let divClass = `panel panel-default card-color__${isBg ? '-bg' : ''}__${card.color_category}`
     if (card.hasErrors.length > 0) divClass += ' card-error'
 
     return (

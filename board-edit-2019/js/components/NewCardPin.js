@@ -8,8 +8,8 @@ export default function NewCardPin(props) {
   let cardDataImage = card.image;
   const cardLinkClass = toggleImages ? '' : 'board-card-hover';
   const cardSpanClass = toggleImages ? '' : 'board-card';
-  let cardDivClass = `card-draggable panel panel-default new-card card-color__${card.color_category}`
-  if (Cookies.get('totheme') === 'light') cardDivClass += ` card-color-bg__${card.color_category}`
+  const isBg = Cookies.get('totheme') === 'light'
+  let cardDivClass = `card-draggable panel panel-default new-card card-color${isBg ? '-bg' : ''}__${card.color_category}`
   if (isMobile) cardDivClass += ' new-card-mobile'
 
   if (process.env.NODE_ENV === 'development') {

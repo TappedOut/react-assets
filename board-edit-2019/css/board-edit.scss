@@ -2,17 +2,17 @@ $mtg-dark-black: rgb(21, 11, 0);
 $mtg-light-black: rgba(166, 159, 157, 0.5);
 $mtg-light-black-mirror: rgba(166, 159, 157, 0.5);
 $mtg-dark-blue: rgb(14, 104, 171);
-$mtg-light-blue: rgba(179, 206, 234, 0.5);
-$mtg-light-blue-mirror: rgba(179, 206, 234, 0.5);
+$mtg-light-blue: rgba(163, 196, 229, 0.5);
+$mtg-light-blue-mirror: rgba(163, 196, 229, 0.5);
 $mtg-dark-colorless: rgb(67, 70, 75);
 $mtg-light-colorless: rgba(178, 180, 181, 0.25);
 $mtg-light-colorless-mirror: rgba(178, 180, 181, 0.5);
 $mtg-dark-gold: rgb(190, 150, 0);
 $mtg-light-gold: rgba(255, 235, 20, 0.3);
 $mtg-light-gold-mirror: rgba(255, 235, 20, 0.25);
-$mtg-dark-green: rgb(0, 115, 62);
-$mtg-light-green: rgba(196, 211, 202, 1);
-$mtg-light-green-mirror: rgba(196, 211, 202, 0.5);
+$mtg-dark-green: rgb(22, 143, 87);
+$mtg-light-green: rgba(183, 219, 197, 1);
+$mtg-light-green-mirror: rgba(1183, 219, 197, 0.5);
 $mtg-dark-red: rgb(211, 32, 42);
 $mtg-light-red: rgba(235, 159, 130, 0.5);
 $mtg-light-red-mirror: rgba(235, 159, 130, 0.5);
@@ -47,22 +47,38 @@ $primary-hover-dark: #204d74;
   @include border-bottom-radius($size);
 }
 
-@mixin text-border($blur, $color) {
-  text-shadow: -1px 0 $blur $color, 0 1px $blur $color,
-                1px 0 $blur $color, 0 -1px $blur $color;
-}
-
-@mixin card-color($border) {
-  border: 1px solid $border!important;
+@mixin card-border($border) {
+  border: 2px solid $border!important;
 
   &.card-spoiler-partial {
     .card-spoiler-partial-title {
       color: $border;
 
       @if ($border == $mtg-dark-black or $border == $mtg-dark-colorless) {
-        @include text-border(2px, #AAA);
+        text-shadow: -1px 0 2px #AAA, 0 1px 2px #AAA,
+                     1px 0 2px #AAA, 0 -1px 2px #AAA;
       } @else {
-        @include text-border(2px, black);
+        text-shadow: -1px 0 2px black, 0 1px 2px black,
+                     1px 0 2px black, 0 -1px 2px black;
+      }
+    }
+  }
+}
+
+@mixin card-bg($border, $color) {
+  border: 1px solid $border!important;
+  background-color: $color;
+
+  &.card-spoiler-partial {
+    .card-spoiler-partial-title {
+      color: $border;
+
+      @if ($border == $mtg-dark-black or $border == $mtg-dark-colorless) {
+        text-shadow: -1px 0 2px #AAA, 0 1px 2px #AAA,
+                     1px 0 2px #AAA, 0 -1px 2px #AAA;
+      } @else {
+        text-shadow: -1px 0 2px black, 0 1px 2px black,
+                     1px 0 2px black, 0 -1px 2px black;
       }
     }
   }
@@ -366,59 +382,59 @@ h4 {
 }
 
 .card-color__black {
-  @include card-color($mtg-dark-black);
+  @include card-border($mtg-dark-black);
 }
 
 .card-color-bg__black {
-  background-color: $mtg-light-black;
+  @include card-bg($mtg-dark-black, $mtg-light-black)
 }
 
 .card-color__blue {
-  @include card-color($mtg-dark-blue);
+  @include card-border($mtg-dark-blue);
 }
 
 .card-color-bg__blue {
-  background-color: $mtg-light-blue;
+  @include card-bg($mtg-dark-blue, $mtg-light-blue)
 }
 
 .card-color__colorless {
-  @include card-color($mtg-dark-colorless);
+  @include card-border($mtg-dark-colorless);
 }
 
 .card-color-bg__colorless {
-  background-color: $mtg-light-colorless;
+  @include card-bg($mtg-dark-colorless, $mtg-light-colorless)
 }
 
 .card-color__green {
-  @include card-color($mtg-dark-green);
+  @include card-border($mtg-dark-green);
 }
 
 .card-color-bg__green {
-  background-color: $mtg-light-green;
+  @include card-bg($mtg-dark-green, $mtg-light-green)
 }
 
 .card-color__gold {
-  @include card-color($mtg-dark-gold);
+  @include card-border($mtg-dark-gold);
 }
 
 .card-color-bg__gold {
-  background-color: $mtg-light-gold;
+  @include card-bg($mtg-dark-gold, $mtg-light-gold)
 }
 
 .card-color__red {
-  @include card-color($mtg-dark-red);
+  @include card-border($mtg-dark-red);
 }
 
 .card-color-bg__red {
-  background-color: $mtg-light-red;
+  @include card-bg($mtg-dark-red, $mtg-light-red)
 }
 
 .card-color__white {
-  @include card-color($mtg-dark-white);
+  @include card-border($mtg-dark-white);
 }
 
 .card-color-bg__white {
-  background-color: $mtg-light-white;
+  @include card-bg($mtg-dark-white, $mtg-light-white)
 }
 
 .card-draggable {
@@ -497,59 +513,59 @@ form.form-horizontal {
     opacity: 1;
 
     .card-color__black {
-      @include card-color($mtg-dark-black);
+      @include card-border($mtg-dark-black);
     }
 
     .card-color-bg__black {
-      background-color: $mtg-light-black-mirror;
+      @include card-bg($mtg-dark-black, $mtg-light-black-mirror)
     }
 
     .card-color__blue {
-      @include card-color($mtg-dark-blue);
+      @include card-border($mtg-dark-blue);
     }
 
     .card-color-bg__blue {
-      background-color: $mtg-light-blue-mirror;
+      @include card-bg($mtg-dark-blue, $mtg-light-blue-mirror)
     }
 
     .card-color__colorless {
-      @include card-color($mtg-dark-colorless);
+      @include card-border($mtg-dark-colorless);
     }
 
     .card-color-bg__colorless {
-      background-color: $mtg-light-colorless-mirror;
+      @include card-bg($mtg-dark-colorless, $mtg-light-colorless-mirror)
     }
 
     .card-color__green {
-      @include card-color($mtg-dark-green);
+      @include card-border($mtg-dark-green);
     }
 
     .card-color-bg__green {
-      background-color: $mtg-light-green-mirror;
+      @include card-bg($mtg-dark-green, $mtg-light-green-mirror)
     }
 
     .card-color__gold {
-      @include card-color($mtg-dark-gold);
+      @include card-border($mtg-dark-gold);
     }
 
     .card-color-bg__gold {
-      background-color: $mtg-light-gold-mirror;
+      @include card-bg($mtg-dark-gold, $mtg-light-gold-mirror)
     }
 
     .card-color__red {
-      @include card-color($mtg-dark-red);
+      @include card-border($mtg-dark-red);
     }
 
     .card-color-bg__red {
-      background-color: $mtg-light-red-mirror;
+      @include card-bg($mtg-dark-red, $mtg-light-red-mirror)
     }
 
     .card-color__white {
-      @include card-color($mtg-dark-white);
+      @include card-border($mtg-dark-white);
     }
 
     .card-color-bg__white {
-      background-color: $mtg-light-white-mirror;
+      @include card-bg($mtg-dark-white, $mtg-light-white-mirror)
     }
   }
 }

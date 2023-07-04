@@ -74,8 +74,8 @@ export default class CardPin extends React.Component {
     let cardDataImage = `${card.alter_image || card.image}`;
     let cardSet = card.tla ? ` (${card.tla})` : '';
     let panelClass = `panel-body ${toggleImages ? '' : 'full-panel'}`;
-    let divClass = `card-draggable panel panel-default card-color__${card.color_category}`
-    if (Cookies.get('totheme') === 'light') divClass += ` card-color-bg__${card.color_category}`
+    const isBg = Cookies.get('totheme') === 'light'
+    let divClass = `card-draggable panel panel-default card-color${isBg ? '-bg' : ''}__${card.color_category}`
 
     if ((!this.props.isMobile && this.state.showOnTop) ||
         (this.props.isMobile && card.cardId === mobileCardOnTop)) {

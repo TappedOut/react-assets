@@ -1,4 +1,5 @@
 import React from 'react';
+import Cookies from "js-cookie";
 
 
 export default function NewCardPin(props) {
@@ -7,7 +8,9 @@ export default function NewCardPin(props) {
   let cardDataImage = card.image;
   const cardLinkClass = toggleImages ? '' : 'board-card-hover';
   const cardSpanClass = toggleImages ? '' : 'board-card';
-  const cardDivClass = `card-draggable panel panel-default new-card card-color__${card.color_category}${isMobile && ' new-card-mobile'}`
+  let cardDivClass = `card-draggable panel panel-default new-card card-color__${card.color_category}`
+  if (Cookies.get('totheme') === 'light') cardDivClass += ` card-color-bg__${card.color_category}`
+  if (isMobile) cardDivClass += ' new-card-mobile'
 
   if (process.env.NODE_ENV === 'development') {
     cardDataImage = cardDataImage.replace('33.33.33.11:8000/media',

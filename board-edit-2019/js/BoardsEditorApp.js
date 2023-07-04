@@ -223,6 +223,7 @@ export default class BoardsEditorApp extends React.Component {
       response => {
         this.setState({
           initData: response.data,
+          toggleImages: !response.data.reduce_images,
           searchInput: {
             name: '',
             type: '',

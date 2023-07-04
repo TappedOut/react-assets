@@ -32,13 +32,9 @@ class SetDetailApp extends React.Component {
     if (!img_width || img_width < 100 || img_width > 500) {
       img_width = 300
     }
-    let card_display = localStorage.getItem('toCardDisplay');
-    if (!_.includes(['images', 'table', 'list'], card_display) || (card_display === 'list' && !window.django.is_mobile)) {
-      card_display = 'images'
-    }
     this.state = {
       specs: [],
-      display: card_display,
+      display: 'images',
       vendors: ['tcg'],
       api_error: '',
       order_by: 'name',
@@ -87,7 +83,7 @@ class SetDetailApp extends React.Component {
         let found = [];
         let backsides = {};
         const specs = _.sortBy(response.data.specs.filter((spec) => {
-          const duplicate = found.indexOf(spec.name) > -1;
+          const duplicate = found.indexOf(spec.name) > -1
           found.push(spec.name);
           if (spec.flip && !spec.is_front) {
             backsides[spec.name] = spec
@@ -103,7 +99,13 @@ class SetDetailApp extends React.Component {
           })
           return spec
         })
+        let card_display = response.data.reduce_images ? 'table' : 'images'
+        const saved_display = localStorage.getItem('toCardDisplay')
+        if (_.includes(['images', 'table', 'list'], saved_display) && !(saved_display === 'list' && window.django.is_mobile)) {
+          card_display = saved_display;
+        }
         this.setState({
+          display: card_display,
           specs: specs,
           vendors: response.data.vendors,
           choices: response.data.choices,
@@ -119,7 +121,6 @@ class SetDetailApp extends React.Component {
   get_price = (spec) => {
     return spec['ck_price']
   }
-
 
   handleImagesMaxWidth = (value) => {
     this.setState({

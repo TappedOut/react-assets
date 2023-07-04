@@ -1,13 +1,17 @@
 import React from 'react';
+import Cookies from "js-cookie";
 
 
 export default class CardPinSpoiler extends React.Component {
   renderPartialCard = (key, dataMove) => {
     let {card, imagesMaxWidth} = this.props;
 
+    let divClass = `panel panel-default card-spoiler-partial card-color__${card.color_category}`
+    if (Cookies.get('totheme') === 'light') divClass += ` card-color-bg__${card.color_category}`
+
     return (
       <div key={`${card.cardId}:${key}`}
-           className={`panel panel-default card-spoiler-partial card-color__${card.color_category}`}>
+           className={divClass}>
         <div className='panel-heading card-spoiler-partial-title'
              data-move={dataMove}
              style={{fontSize: `${imagesMaxWidth/30 + 6}px`}}>
@@ -27,9 +31,12 @@ export default class CardPinSpoiler extends React.Component {
         'static.tappedout.net');
     }
 
+    let divClass = `panel panel-default card-color__${card.color_category}`
+    if (Cookies.get('totheme') === 'light') divClass += ` card-color-bg__${card.color_category}`
+    if (card.hasErrors.length > 0) divClass += ' card-error'
+
     return (
-      <div className={`panel panel-default card-color__${card.color_category}` +
-                      `${card.hasErrors.length > 0 ? " card-error" : ""}`} >
+      <div className={divClass} >
         <div className={'panel-heading card-thumbnail ' +
                         `${ card.foil ? 'card-thumbnail-foil' : '' }`}
              style={{width: `${imagesMaxWidth}px`, 'min-height': `${imagesMaxWidth * 1.42}px`}}>

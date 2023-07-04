@@ -1,20 +1,20 @@
 $mtg-dark-black: rgb(21, 11, 0);
-$mtg-light-black: rgba(166, 159, 157, 0.25);
+$mtg-light-black: rgba(166, 159, 157, 0.5);
 $mtg-light-black-mirror: rgba(166, 159, 157, 0.5);
 $mtg-dark-blue: rgb(14, 104, 171);
-$mtg-light-blue: rgba(179, 206, 234, 0.25);
+$mtg-light-blue: rgba(179, 206, 234, 0.5);
 $mtg-light-blue-mirror: rgba(179, 206, 234, 0.5);
 $mtg-dark-colorless: rgb(67, 70, 75);
 $mtg-light-colorless: rgba(178, 180, 181, 0.25);
 $mtg-light-colorless-mirror: rgba(178, 180, 181, 0.5);
 $mtg-dark-gold: rgb(190, 150, 0);
-$mtg-light-gold: rgba(255, 235, 20, 0.15);
+$mtg-light-gold: rgba(255, 235, 20, 0.3);
 $mtg-light-gold-mirror: rgba(255, 235, 20, 0.25);
 $mtg-dark-green: rgb(0, 115, 62);
-$mtg-light-green: rgba(196, 211, 202, 0.25);
+$mtg-light-green: rgba(196, 211, 202, 1);
 $mtg-light-green-mirror: rgba(196, 211, 202, 0.5);
 $mtg-dark-red: rgb(211, 32, 42);
-$mtg-light-red: rgba(235, 159, 130, 0.25);
+$mtg-light-red: rgba(235, 159, 130, 0.5);
 $mtg-light-red-mirror: rgba(235, 159, 130, 0.5);
 $mtg-dark-white: rgb(248, 231, 185);
 $mtg-light-white: rgba(249, 250, 244, 0.25);
@@ -52,9 +52,8 @@ $primary-hover-dark: #204d74;
                 1px 0 $blur $color, 0 -1px $blur $color;
 }
 
-@mixin card-color($border, $background) {
-  border: 1px solid $border;
-  background-color: $background;
+@mixin card-color($border) {
+  border: 1px solid $border!important;
 
   &.card-spoiler-partial {
     .card-spoiler-partial-title {
@@ -360,7 +359,6 @@ h4 {
 
   label {
     font-weight: bold;
-    color: #FFFEFB;
     position: relative;
     bottom: 0.55em;
     margin: 0 0.25em;
@@ -368,31 +366,59 @@ h4 {
 }
 
 .card-color__black {
-  @include card-color($mtg-dark-black, $mtg-light-black);
+  @include card-color($mtg-dark-black);
+}
+
+.card-color-bg__black {
+  background-color: $mtg-light-black;
 }
 
 .card-color__blue {
-  @include card-color($mtg-dark-blue, $mtg-light-blue);
+  @include card-color($mtg-dark-blue);
+}
+
+.card-color-bg__blue {
+  background-color: $mtg-light-blue;
 }
 
 .card-color__colorless {
-  @include card-color($mtg-dark-colorless, $mtg-light-colorless);
+  @include card-color($mtg-dark-colorless);
+}
+
+.card-color-bg__colorless {
+  background-color: $mtg-light-colorless;
 }
 
 .card-color__green {
-  @include card-color($mtg-dark-green, $mtg-light-green);
+  @include card-color($mtg-dark-green);
+}
+
+.card-color-bg__green {
+  background-color: $mtg-light-green;
 }
 
 .card-color__gold {
-  @include card-color($mtg-dark-gold, $mtg-light-gold);
+  @include card-color($mtg-dark-gold);
+}
+
+.card-color-bg__gold {
+  background-color: $mtg-light-gold;
 }
 
 .card-color__red {
-  @include card-color($mtg-dark-red, $mtg-light-red);
+  @include card-color($mtg-dark-red);
+}
+
+.card-color-bg__red {
+  background-color: $mtg-light-red;
 }
 
 .card-color__white {
-  @include card-color($mtg-dark-white, $mtg-light-white);
+  @include card-color($mtg-dark-white);
+}
+
+.card-color-bg__white {
+  background-color: $mtg-light-white;
 }
 
 .card-draggable {
@@ -471,31 +497,59 @@ form.form-horizontal {
     opacity: 1;
 
     .card-color__black {
-      @include card-color($mtg-dark-black, $mtg-light-black-mirror);
+      @include card-color($mtg-dark-black);
+    }
+
+    .card-color-bg__black {
+      background-color: $mtg-light-black-mirror;
     }
 
     .card-color__blue {
-      @include card-color($mtg-dark-blue, $mtg-light-blue-mirror);
+      @include card-color($mtg-dark-blue);
+    }
+
+    .card-color-bg__blue {
+      background-color: $mtg-light-blue-mirror;
     }
 
     .card-color__colorless {
-      @include card-color($mtg-dark-colorless, $mtg-light-colorless-mirror);
+      @include card-color($mtg-dark-colorless);
+    }
+
+    .card-color-bg__colorless {
+      background-color: $mtg-light-colorless-mirror;
     }
 
     .card-color__green {
-      @include card-color($mtg-dark-green, $mtg-light-green-mirror);
+      @include card-color($mtg-dark-green);
+    }
+
+    .card-color-bg__green {
+      background-color: $mtg-light-green-mirror;
     }
 
     .card-color__gold {
-      @include card-color($mtg-dark-gold, $mtg-light-gold-mirror);
+      @include card-color($mtg-dark-gold);
+    }
+
+    .card-color-bg__gold {
+      background-color: $mtg-light-gold-mirror;
     }
 
     .card-color__red {
-      @include card-color($mtg-dark-red, $mtg-light-red-mirror);
+      @include card-color($mtg-dark-red);
+    }
+
+    .card-color-bg__red {
+      background-color: $mtg-light-red-mirror;
     }
 
     .card-color__white {
-      @include card-color($mtg-dark-white, $mtg-light-white-mirror);
+      @include card-color($mtg-dark-white);
+    }
+
+    .card-color-bg__white {
+      background-color: $mtg-light-white-mirror;
     }
   }
 }
@@ -646,11 +700,6 @@ form.form-horizontal {
 .nav > li > a:hover, .nav > li > a:focus {
   text-decoration: none;
   background-color: #000;
- }
-
-.nav-tabs > li.active > a {
-  text-decoration: none;
-  background-color: #FFF;
  }
 
 .modal-btn {

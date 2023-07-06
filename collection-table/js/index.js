@@ -35,7 +35,7 @@ class CollectionTableApp extends React.Component {
     super(props);
     let stored_order = localStorage.getItem('invorder')
     let stored_order_dir = ''
-    if (stored_order[0] === '-') {
+    if (stored_order && stored_order[0] === '-') {
       stored_order = stored_order.slice(1)
       stored_order_dir = '-'
     }

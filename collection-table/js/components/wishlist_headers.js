@@ -20,7 +20,7 @@ class WishlistHeader extends Component {
           <th onClick={this.handleHeaderClick} style={{"text-align": "center", "width": "25%"}}>Card</th>
           <th onClick={this.handleHeaderClick} style={{"text-align": "center", "width": "12%"}}>Qty</th>
           <th onClick={this.handleHeaderClick} style={{"text-align": "center", "width": "15%"}}>Set</th>
-          <th onClick={this.handleHeaderClick} style={{"text-align": "center", "width": "15%", "font-size": "12px"}}>{this.props.price_header}</th>
+          <th onClick={this.handleHeaderClick} style={{"text-align": "center", "width": "15%", "font-size": "12px"}}>Price</th>
           <th onClick={this.handleHeaderClick} style={{"text-align": "center", "width": "15%"}}>Rarity</th>
         </tr>
       </thead>

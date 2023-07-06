@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import 'react-select/dist/react-select.css';
-import {Button, ButtonGroup, Collapse, Modal, ProgressBar} from 'react-bootstrap'
+import {Button, ButtonGroup, Collapse, Modal, ProgressBar, FormGroup, InputGroup, FormControl} from 'react-bootstrap'
 import InventoryFilters from "./components/inventory_filters";
 import BinderFilters from "./components/binder_filters";
 import WishlistFilters from "./components/wishlist_filters";
@@ -33,7 +33,12 @@ const RANK_HEADER = {
 class CollectionTableApp extends React.Component {
   constructor(props) {
     super(props);
-    var stored_order = localStorage.getItem('invorder')
+    let stored_order = localStorage.getItem('invorder')
+    let stored_order_dir = ''
+    if (stored_order[0] === '-') {
+      stored_order = stored_order.slice(1)
+      stored_order_dir = '-'
+    }
     this.state = {
       cards: [],
       init_data: {},
@@ -53,6 +58,7 @@ class CollectionTableApp extends React.Component {
       filter_open: false,
       error: '',
       ordering: stored_order ? stored_order : 'name',
+      order_dir: stored_order_dir,
       rank: '',
       show_price_modal: false,
       ck_price: 0,
@@ -99,6 +105,7 @@ class CollectionTableApp extends React.Component {
     this.toggleFilters = this.toggleFilters.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
     this.handleOrderChange = this.handleOrderChange.bind(this);
+    this.handleAscDescChange = this.handleAscDescChange.bind(this);
     this.handleRankChange = this.handleRankChange.bind(this);
     this.handleVendorChange = this.handleVendorChange.bind(this);
     this.handleQtyEditToggle = this.handleQtyToggleEdit.bind(this);
@@ -136,7 +143,8 @@ class CollectionTableApp extends React.Component {
           vendor: response.data.vendor,
           price_header: response.data.price_header
         })
-        this.searchCards({owned: true}, 'name', 1, response.data.vendor, '');
+        const order = `${this.state.order_dir}${this.state.ordering}`
+        this.searchCards({owned: true}, order, 1, response.data.vendor, '');
       }
     ).catch(error => {
       let error_msg = 'Error getting the card data.';
@@ -265,7 +273,7 @@ class CollectionTableApp extends React.Component {
       'w': 0,
       'c': 0,
     }
-    this.setState({filter_data: blank, colors: color_blank})
+    this.setState({filter_data: blank, colors: color_blank, name_filter: ''})
     this.debouncedFilter()
   }
 
@@ -316,8 +324,17 @@ class CollectionTableApp extends React.Component {
   }
 
   handleOrderChange(event) {
-    const value = event.target.value;
-    this.setState({ordering: value});
+    let value = event.target.value
+    this.setState({ordering: value})
+    value = `${this.state.order_dir}${value}`
+    localStorage.setItem('invorder', value)
+    this.searchCards(this.state.filter_data, value, this.state.page, this.state.vendor, this.state.rank)
+  }
+
+  handleAscDescChange() {
+    const new_dir = this.state.order_dir === '' ? '-' : ''
+    this.setState({order_dir: new_dir})
+    const value = `${new_dir}${this.state.ordering}`
     localStorage.setItem('invorder', value);
     this.searchCards(this.state.filter_data, value, this.state.page, this.state.vendor, this.state.rank)
   }
@@ -472,7 +489,7 @@ class CollectionTableApp extends React.Component {
         icon_color = 'red'
       }
       return (
-        <div className="col-lg-4 col-xs-4">
+        <div className="col-lg-2 col-xs-4">
           <div className="form-group">
             <button onClick={() => this.handleColorChange(color)} className="btn btn-sm btn-default btn-block">
               <i className={`ms ms-${color} ms-cost ms-shadow ms-1point2x`}></i>&nbsp;&nbsp;
@@ -488,10 +505,11 @@ class CollectionTableApp extends React.Component {
     const handlePriceHide = () => this.setState({show_price_modal: false});
 
     // Collection specific
-    let row_amount = 0;
-    let headers = [];
+    let row_amount = 0
+    let headers = []
     let filters = <div />
     let buttons = <div />
+    let big_button = <div />
     let decks = <div />
     let card_display = <div />
 
@@ -504,83 +522,40 @@ class CollectionTableApp extends React.Component {
       filters = <InventoryFilters init_data={this.state.init_data} filter_data={this.state.filter_data}
                                   handleInputChange={this.handleInputChange} handleSelectChange={this.handleSelectChange} />
       buttons = (
-        <div>
-          {this.state.init_data.can_edit &&
-            <div className="row">
-              <div className="col-lg-6 col-xs-6">
-                <button className="btn btn-sm btn-success btn-block" data-toggle="modal" data-target="#addModal"><span className="glyphicon glyphicon-plus" /> Add Card</button>
+        <div className="row">
+          <div className="col-lg-6 col-xs-12">
+            <div style={{'margin-bottom': '10px'}} className="row">
+              <div style={{'text-align': 'center', 'margin-top': '10px'}} className="col-lg-4 col-xs-4">
+                Price:
               </div>
-              <div className="col-lg-6 col-xs-6">
-                <a className="btn btn-sm btn-primary btn-block" href={this.state.init_data.urls.find_decks}>Find decks</a>
-              </div>
-            </div>
-          }
-          <div className="row" style={{'margin-top': '15px'}}>
-            <div className="col-lg-6 col-xs-6">
-              <div className="row">
-                <div className="col-lg-4 col-xs-4">
-                  Price
-                </div>
-                <div className="col-lg-8 col-xs-8">
-                  <select name="vendor" className="form-control" onChange={this.handleVendorChange} value={this.state.vendor}>
-                    {price_display_options}
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div className="col-lg-6 col-xs-6">
-              <div className="row">
-                <div className="col-lg-4 col-xs-4">
-                  Order by
-                </div>
-                <div className="col-lg-8 col-xs-8">
-                  <select name="ordering" className="form-control" onChange={this.handleOrderChange} value={this.state.ordering}>
-                    {order_options}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="row" style={{'margin-top': '15px'}}>
-            <div className="col-lg-6 col-xs-6">
-              <div className="row">
-                <div className="col-lg-4 col-xs-4">
-                  Rank by
-                </div>
-                <div className="col-lg-8 col-xs-8">
-                  <select name="rank" className="form-control" onChange={this.handleRankChange} value={this.state.rank}>
-                    <option value="">-----</option>
-                    {rank_options}
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div className="col-lg-6 col-xs-6">
-              <form action="." method="get" className="navbar-search">
-                <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
-                  <option value="">Export/Download</option>
-                  {export_options}
+              <div className="col-lg-8 col-xs-8">
+                <select name="vendor" className="form-control" onChange={this.handleVendorChange} value={this.state.vendor}>
+                  {price_display_options}
                 </select>
-              </form>
+              </div>
             </div>
           </div>
-          <div className="row" style={{'margin-top': '15px'}}>
-            <div className="col-lg-6 col-md-6 col-xs-12">
-              {colorCheckboxes}
-            </div>
-            <div className="col-lg-6 col-md-6 col-xs-12">
-              <div className="btn-group" role="group" style={{'display': 'flex'}}>
-                <button className="btn btn-default" style={{'flex': 1}} onClick={this.toggleFilters}>
-                  Filters
-                </button>
-                <button className="btn btn-default" style={{'flex': 1}} onClick={this.handleFilterReset}>
-                  Reset
-                </button>
+          <div className="col-lg-6 col-xs-12">
+            <div style={{'margin-bottom': '10px'}} className="row">
+              <div style={{'text-align': 'center', 'margin-top': '10px'}} className="col-lg-4 col-xs-4">
+                Rank by:
+              </div>
+              <div className="col-lg-8 col-xs-8">
+                <select name="rank" className="form-control" onChange={this.handleRankChange} value={this.state.rank}>
+                  <option value="">-----</option>
+                  {rank_options}
+                </select>
               </div>
             </div>
           </div>
         </div>
       )
+      if (this.state.init_data.can_edit) {
+        big_button = (
+          <a style={{'margin-bottom': '10px'}} className="btn btn-lg btn-warning btn-block"
+             href={this.state.init_data.urls.find_decks}>Build deck from inventory</a>
+        )
+      }
     }
     if (this.state.init_data.type === 'binder') {
       row_amount = 5
@@ -589,54 +564,8 @@ class CollectionTableApp extends React.Component {
                                handleInputChange={this.handleInputChange} handleSelectChange={this.handleSelectChange} />
       buttons = (
         <div>
-          {this.state.init_data.can_edit &&
-            <div className="row">
-              <div className="col-lg-6 col-xs-12">
-                <button className="btn btn-block btn-warning" onClick={handlePriceShow}><span className="glyphicon glyphicon-shopping-cart"/> Checkout Binder</button>
-                <Modal show={this.state.show_price_modal} onHide={handlePriceHide}>
-                  <Modal.Header>
-                    <Modal.Title>Checkout Binder</Modal.Title>
-                  </Modal.Header>
-                  <Modal.Body>
-                    <form target="_newtcg" name="tcg_checkout" method="post"
-                        action="https://store.tcgplayer.com/massentry/?utm_campaign=affiliate&amp;utm_medium=binder&amp;utm_source=TPPDOUT">
-                    <input type="hidden" name="c"  value={this.state.card_string}/>
-                    <input type="hidden" name="partner" value="TPPDOUT" />
-                    <input type="hidden" name="utm_campaign" value="affiliate"  />
-                    <input type="hidden" name="utm_medium" value={this.state.init_data.type} />
-                    <input type="hidden" name="utm_source" value="TPPDOUT" />
-                    <button type="submit" className="btn btn-block btn-warning">
-                      <span className="glyphicon glyphicon-shopping-cart"/> <span>{`TCG Player $${this.state.tcg_price}`}</span>
-                    </button>
-                    </form>
-
-                    <form target="_newck" name="ck_checkout" method="post" action="https://www.cardkingdom.com/builder/?utm_source=tappedout&amp;utm_medium=affiliate&amp;utm_campaign=tappedoutbinder&amp;partner=tappedout">
-                      <input type="hidden" name="c" value={this.state.card_string} />
-                      <input type="hidden" name="partner" value="tappedout" />
-                      <button style={{'margin-top': '10px'}} type="submit" className="btn btn-block btn-warning">
-                        <span className="glyphicon glyphicon-shopping-cart" /> <span>{`Card Kingdom $${this.state.tcg_price}`}</span>
-                      </button>
-                    </form>
-                  </Modal.Body>
-                  <Modal.Footer>
-                    <Button variant="secondary" onClick={handlePriceHide}>
-                      Close
-                    </Button>
-                  </Modal.Footer>
-                </Modal>
-              </div>
-              <div className="col-lg-6 col-xs-6">
-              <form action="." method="get" className="navbar-search">
-                <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
-                  <option value="">Export/Download</option>
-                  {export_options}
-                </select>
-              </form>
-            </div>
-            </div>
-          }
-          <div className="row" style={{'margin-top': '15px'}}>
-            <div className="col-lg-6 col-xs-6">
+          <div className="row">
+            <div className="col-lg-6 col-xs-12">
               <div className="row">
                 <div className="col-lg-4 col-xs-4">
                   Price
@@ -648,36 +577,47 @@ class CollectionTableApp extends React.Component {
                 </div>
               </div>
             </div>
-            <div className="col-lg-6 col-xs-6">
-              <div className="row">
-                <div className="col-lg-4 col-xs-4">
-                  Order by
-                </div>
-                <div className="col-lg-8 col-xs-8">
-                  <select name="ordering" className="form-control" onChange={this.handleOrderChange} value={this.state.ordering}>
-                    {order_options}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="row" style={{'margin-top': '15px'}}>
-            <div className="col-lg-6 col-md-6 col-xs-12">
-              {colorCheckboxes}
-            </div>
-            <div className="col-lg-6 col-md-6 col-xs-12">
-              <div className="btn-group" role="group" style={{'display': 'flex'}}>
-                <button className="btn btn-default" style={{'flex': 1}} onClick={this.toggleFilters}>
-                  Filters
-                </button>
-                <button className="btn btn-default" style={{'flex': 1}} onClick={this.handleFilterReset}>
-                  Reset
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       )
+      if (this.state.init_data.can_edit) {
+        big_button = (
+          <div>
+            <button className="btn btn-block btn-lg btn-warning" onClick={handlePriceShow}><span className="glyphicon glyphicon-shopping-cart"/> Checkout Binder</button>
+            <Modal show={this.state.show_price_modal} onHide={handlePriceHide}>
+              <Modal.Header>
+                <Modal.Title>Checkout Binder</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <form target="_newtcg" name="tcg_checkout" method="post"
+                    action="https://store.tcgplayer.com/massentry/?utm_campaign=affiliate&amp;utm_medium=binder&amp;utm_source=TPPDOUT">
+                <input type="hidden" name="c"  value={this.state.card_string}/>
+                <input type="hidden" name="partner" value="TPPDOUT" />
+                <input type="hidden" name="utm_campaign" value="affiliate"  />
+                <input type="hidden" name="utm_medium" value={this.state.init_data.type} />
+                <input type="hidden" name="utm_source" value="TPPDOUT" />
+                <button type="submit" className="btn btn-block btn-warning">
+                  <span className="glyphicon glyphicon-shopping-cart"/> <span>{`TCG Player $${this.state.tcg_price}`}</span>
+                </button>
+                </form>
+
+                <form target="_newck" name="ck_checkout" method="post" action="https://www.cardkingdom.com/builder/?utm_source=tappedout&amp;utm_medium=affiliate&amp;utm_campaign=tappedoutbinder&amp;partner=tappedout">
+                  <input type="hidden" name="c" value={this.state.card_string} />
+                  <input type="hidden" name="partner" value="tappedout" />
+                  <button style={{'margin-top': '10px'}} type="submit" className="btn btn-block btn-warning">
+                    <span className="glyphicon glyphicon-shopping-cart" /> <span>{`Card Kingdom $${this.state.tcg_price}`}</span>
+                  </button>
+                </form>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={handlePriceHide}>
+                  Close
+                </Button>
+              </Modal.Footer>
+            </Modal>
+          </div>
+        )
+      }
       const in_coll_label = this.state.init_data.is_owner ? 'In Binder' : 'All'
       const display_matches = !this.state.init_data.is_owner && this.state.init_data.is_authenticated;
       if (this.state.init_data.is_authenticated) {
@@ -702,50 +642,6 @@ class CollectionTableApp extends React.Component {
       buttons = (
         <div>
           <div className="row" style={{'margin-top': '15px'}}>
-            <div className="col-lg-6 col-xs-12">
-              <button className="btn btn-block btn-warning" onClick={handlePriceShow}><span className="glyphicon glyphicon-shopping-cart"/> Checkout Wishlist</button>
-              <Modal show={this.state.show_price_modal} onHide={handlePriceHide}>
-                <Modal.Header>
-                  <Modal.Title>Checkout Wishlist</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                  <form target="_newtcg" name="tcg_checkout" method="post"
-                      action="https://store.tcgplayer.com/massentry/?utm_campaign=affiliate&amp;utm_medium=wishlist&amp;utm_source=TPPDOUT">
-                  <input id="tcg-cards-input" type="hidden" name="c"  value={this.state.card_string}/>
-                  <input type="hidden" name="partner" value="TPPDOUT" />
-                  <input type="hidden" name="utm_campaign" value="affiliate"  />
-                  <input type="hidden" name="utm_medium" value={this.state.init_data.type} />
-                  <input type="hidden" name="utm_source" value="TPPDOUT" />
-                  <button type="submit" className="btn btn-block btn-warning">
-                    <span className="glyphicon glyphicon-shopping-cart"/> <span>{` TCG Player $${this.state.tcg_price}`}</span>
-                  </button>
-                  </form>
-
-                  <form target="_newck" name="ck_checkout" method="post" action="https://www.cardkingdom.com/builder/?utm_source=tappedout&amp;utm_medium=affiliate&amp;utm_campaign=tappedoutbinder&amp;partner=tappedout">
-                    <input type="hidden" name="c" value={this.state.card_string} />
-                    <input type="hidden" name="partner" value="tappedout" />
-                    <button style={{'margin-top': '10px'}} type="submit" className="btn btn-block btn-warning">
-                      <span className="glyphicon glyphicon-shopping-cart" /> <span>{`Card Kingdom $${this.state.tcg_price}`}</span>
-                    </button>
-                  </form>
-                </Modal.Body>
-                <Modal.Footer>
-                  <Button variant="secondary" onClick={handlePriceHide}>
-                    Close
-                  </Button>
-                </Modal.Footer>
-              </Modal>
-            </div>
-            <div className="col-lg-6 col-xs-6">
-              <form action="." method="get" className="navbar-search">
-                <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
-                  <option value="">Export/Download</option>
-                  {export_options}
-                </select>
-              </form>
-            </div>
-          </div>
-          <div className="row" style={{'margin-top': '15px'}}>
             <div className="col-lg-6 col-xs-6">
               <div className="row">
                 <div className="col-lg-4 col-xs-4">
@@ -759,38 +655,45 @@ class CollectionTableApp extends React.Component {
               </div>
             </div>
             <div className="col-lg-6 col-xs-6">
-              <div className="row">
-                <div className="col-lg-4 col-xs-4">
-                  Order by
-                </div>
-                <div className="col-lg-8 col-xs-8">
-                  <select name="ordering" className="form-control" onChange={this.handleOrderChange} value={this.state.ordering}>
-                    {order_options}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="row" style={{'margin-top': '15px'}}>
-            <div className="col-lg-6 col-xs-6">
               {decks}
             </div>
           </div>
-          <div className="row" style={{'margin-top': '15px'}}>
-            <div className="col-lg-6 col-md-6 col-xs-12">
-              {colorCheckboxes}
-            </div>
-            <div className="col-lg-6 col-md-6 col-xs-12">
-              <div className="btn-group" role="group" style={{'display': 'flex'}}>
-                <button className="btn btn-default" style={{'flex': 1}} onClick={this.toggleFilters}>
-                  Filters
+        </div>
+      )
+      big_button = (
+        <div>
+          <button className="btn btn-block btn-lg btn-warning" onClick={handlePriceShow}><span className="glyphicon glyphicon-shopping-cart"/> Checkout Wishlist</button>
+          <Modal show={this.state.show_price_modal} onHide={handlePriceHide}>
+            <Modal.Header>
+              <Modal.Title>Checkout Wishlist</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <form target="_newtcg" name="tcg_checkout" method="post"
+                  action="https://store.tcgplayer.com/massentry/?utm_campaign=affiliate&amp;utm_medium=wishlist&amp;utm_source=TPPDOUT">
+              <input id="tcg-cards-input" type="hidden" name="c"  value={this.state.card_string}/>
+              <input type="hidden" name="partner" value="TPPDOUT" />
+              <input type="hidden" name="utm_campaign" value="affiliate"  />
+              <input type="hidden" name="utm_medium" value={this.state.init_data.type} />
+              <input type="hidden" name="utm_source" value="TPPDOUT" />
+              <button type="submit" className="btn btn-block btn-warning">
+                <span className="glyphicon glyphicon-shopping-cart"/> <span>{` TCG Player $${this.state.tcg_price}`}</span>
+              </button>
+              </form>
+
+              <form target="_newck" name="ck_checkout" method="post" action="https://www.cardkingdom.com/builder/?utm_source=tappedout&amp;utm_medium=affiliate&amp;utm_campaign=tappedoutbinder&amp;partner=tappedout">
+                <input type="hidden" name="c" value={this.state.card_string} />
+                <input type="hidden" name="partner" value="tappedout" />
+                <button style={{'margin-top': '10px'}} type="submit" className="btn btn-block btn-warning">
+                  <span className="glyphicon glyphicon-shopping-cart" /> <span>{`Card Kingdom $${this.state.tcg_price}`}</span>
                 </button>
-                <button className="btn btn-default" style={{'flex': 1}} onClick={this.handleFilterReset}>
-                  Reset
-                </button>
-              </div>
-            </div>
-          </div>
+              </form>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handlePriceHide}>
+                Close
+              </Button>
+            </Modal.Footer>
+          </Modal>
         </div>
       )
     }
@@ -804,28 +707,7 @@ class CollectionTableApp extends React.Component {
             </div>
           </div>
           <div className="col-lg-4 col-xs-12">
-            <div className="well">
-              <table className="table">
-                <tbody>
-                  <tr>
-                    <td>Last Update</td>
-                    <td><a href="#diffModal" data-target="#diffModal" data-toggle="modal">{this.state.init_data.last_update} ago</a></td>
-                  </tr>
-                  <tr>
-                    <td>Total Unique</td>
-                    <td>{this.state.total_cards}</td>
-                  </tr>
-                  <tr>
-                    <td>Total Cards</td>
-                    <td>{this.state.total_qty}</td>
-                  </tr>
-                  <tr>
-                    <td>Total Price</td>
-                    <td>${this.state.total_price}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            {big_button}
           </div>
         </div>
         <Collapse in={this.state.filter_open}>
@@ -833,24 +715,44 @@ class CollectionTableApp extends React.Component {
             <div className="col-lg-12 col-xs-12">
               <div className="well">
                 {filters}
+                <div className="row">
+                  {colorCheckboxes}
+                </div>
               </div>
             </div>
           </div>
         </Collapse>
         <div style={{'margin-bottom': "10px"}} className="row">
+          <div className="col-lg-4 col-xs-12">
+            <FormGroup>
+              <InputGroup>
+                <FormControl componentClass="select" onChange={this.handleOrderChange} value={this.state.ordering}>
+                  {order_options}
+                </FormControl>
+                <InputGroup.Button>
+                  <Button onClick={this.handleAscDescChange}>
+                    {this.state.order_dir === '' ?
+                      <span className="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                      :
+                      <span className="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>}
+                  </Button>
+                </InputGroup.Button>
+              </InputGroup>
+            </FormGroup>
+          </div>
+          <div className="col-lg-4 col-xs-12">
+            <FormGroup>
+              <InputGroup>
+                <FormControl placeholder="Search" name="name" type="text" className="form-control" onChange={this.handleNameFilter} value={this.state.name_filter} />
+                <InputGroup.Button>
+                  <Button bsStyle="info" onClick={this.toggleFilters}><span className="glyphicon glyphicon-filter" aria-hidden="true"></span></Button>
+                  <Button bsStyle="danger" onClick={this.handleFilterReset}><span className="glyphicon glyphicon-remove" aria-hidden="true"></span></Button>
+                </InputGroup.Button>
+              </InputGroup>
+            </FormGroup>
+          </div>
           <div className="col-lg-6 col-xs-12">
-            <ButtonGroup>
-              {pages}
-            </ButtonGroup>
-          </div>
-          <div className="col-lg-3 col-xs-12">
             {card_display}
-          </div>
-          <div className="col-lg-3 col-xs-12">
-            <div className="form-inline pull-right">
-              <label style={{'margin-right': '10px'}} className="control-label">Search</label>
-              <input name="name" type="text" className="form-control" onChange={this.handleNameFilter} value={this.state.name_filter}/>
-            </div>
           </div>
         </div>
         <div className="row">
@@ -875,6 +777,38 @@ class CollectionTableApp extends React.Component {
             <ButtonGroup>
               {pages}
             </ButtonGroup>
+          </div>
+        </div>
+        <div style={{'margin-top': '15px'}} className="row">
+          <div className="col-lg-6 col-md-6 col-xs-12">
+            <div className="well">
+              <table className="table">
+                <tbody>
+                  <tr>
+                    <td>Last Update</td>
+                    <td><a href="#diffModal" data-target="#diffModal" data-toggle="modal">{this.state.init_data.last_update} ago</a></td>
+                  </tr>
+                  <tr>
+                    <td>Total Unique</td>
+                    <td>{this.state.total_cards}</td>
+                  </tr>
+                  <tr>
+                    <td>Total Cards</td>
+                    <td>{this.state.total_qty}</td>
+                  </tr>
+                  <tr>
+                    <td>Total Price</td>
+                    <td>${this.state.total_price}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <form action="." method="get" className="navbar-search">
+                <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
+                  <option value="">Export/Download</option>
+                  {export_options}
+                </select>
+              </form>
+            </div>
           </div>
         </div>
       </div>

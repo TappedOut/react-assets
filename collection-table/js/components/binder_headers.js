@@ -21,7 +21,7 @@ class BinderHeader extends Component {
           <th onClick={this.handleHeaderClick} style={{"text-align": "center", "width": "12%"}}>Has</th>
           <th onClick={this.handleHeaderClick} style={{"text-align": "center", "width": "12%"}}>Wants</th>
           <th onClick={this.handleHeaderClick} style={{"text-align": "center", "width": "15%"}}>Set</th>
-          <th onClick={this.handleHeaderClick} style={{"text-align": "center", "width": "15%", "font-size": "12px"}}>{this.props.price_header}</th>
+          <th onClick={this.handleHeaderClick} style={{"text-align": "center", "width": "15%", "font-size": "12px"}}>Price</th>
         </tr>
       </thead>
     )

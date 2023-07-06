@@ -199,24 +199,6 @@ class InventoryCard extends Component {
       <tr>
         <td>
           <span dangerouslySetInnerHTML={{__html: this.props.data.display}} />
-          {this.props.data.collection &&
-            <PopoverStickOnHover
-             id="coll-popover"
-             component={
-              <div className="popover-content popover-edit-content">
-                  <div className="well edit-content">
-                    <span dangerouslySetInnerHTML={{__html: this.props.data.collection}} />
-                  </div>
-              </div>}
-             placement="right"
-             onMouseEnter={() => { }}
-             delay={200}
-            >
-              <button className="btn btn-success btn-xs pull-right">
-                <span className="glyphicon glyphicon-refresh" />
-              </button>
-            </PopoverStickOnHover>
-          }
         </td>
         <td>
           <div className="row" align="center">
@@ -255,13 +237,36 @@ class InventoryCard extends Component {
         {this.props.rank && <td>{this.props.data.rank ? `#${this.props.data.rank}` : '-'}</td>}
         {this.props.init_data.can_edit &&
           <td>
-            <div align="center">
-              <OverlayTrigger trigger="click" rootClose placement="left" overlay={edit_popover}>
-                <button id="popover-btn" className="btn btn-xs btn-success" disabled={this.props.data.edit_disabled || !this.state.owned_pk}>
-                  <span className="glyphicon glyphicon-wrench" aria-hidden="true" />
-                </button>
-              </OverlayTrigger>
-            </div>
+            {this.props.data.collection ?
+              <div align="center">
+                <PopoverStickOnHover
+                  id="coll-popover"
+                  component={
+                    <div className="popover-content popover-edit-content">
+                      <div className="well edit-content">
+                        <span dangerouslySetInnerHTML={{__html: this.props.data.collection}}/>
+                      </div>
+                    </div>}
+                  placement="right"
+                  onMouseEnter={() => {
+                  }}
+                  delay={200}
+                >
+                  <button className="btn btn-primary btn-xs">
+                    <span className="glyphicon glyphicon-refresh"/>
+                  </button>
+                </PopoverStickOnHover>
+              </div>
+              :
+              <div align="center">
+                <OverlayTrigger trigger="click" rootClose placement="left" overlay={edit_popover}>
+                  <button id="popover-btn" className="btn btn-xs btn-success"
+                          disabled={this.props.data.edit_disabled || !this.state.owned_pk}>
+                    <span className="glyphicon glyphicon-wrench" aria-hidden="true"/>
+                  </button>
+                </OverlayTrigger>
+              </div>
+            }
           </td>
         }
       </tr>

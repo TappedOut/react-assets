@@ -67,6 +67,7 @@ class CollectionTableApp extends React.Component {
       name_filter: '',
       buy_price: 0,
       card_display: 'in_coll',
+      is_mobile: window.django.is_mobile,
       colors: {
         'u': 0,
         'b': 0,
@@ -106,7 +107,6 @@ class CollectionTableApp extends React.Component {
     this.handleFilter = this.handleFilter.bind(this);
     this.handleOrderChange = this.handleOrderChange.bind(this);
     this.handleAscDescChange = this.handleAscDescChange.bind(this);
-    this.handleRankChange = this.handleRankChange.bind(this);
     this.handleVendorChange = this.handleVendorChange.bind(this);
     this.handleQtyEditToggle = this.handleQtyToggleEdit.bind(this);
     this.handleWantsQtyEditToggle = this.handleWantsQtyToggleEdit.bind(this);
@@ -325,10 +325,16 @@ class CollectionTableApp extends React.Component {
 
   handleOrderChange(event) {
     let value = event.target.value
-    this.setState({ordering: value})
-    value = `${this.state.order_dir}${value}`
-    localStorage.setItem('invorder', value)
-    this.searchCards(this.state.filter_data, value, this.state.page, this.state.vendor, this.state.rank)
+    if (value.startsWith('rank-')) {
+      value = value.replace('rank-', '')
+      this.setState({rank: value});
+      this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor, value)
+    } else {
+      this.setState({ordering: value, rank: ''})
+      value = `${this.state.order_dir}${value}`
+      localStorage.setItem('invorder', value)
+      this.searchCards(this.state.filter_data, value, this.state.page, this.state.vendor, '')
+    }
   }
 
   handleAscDescChange() {
@@ -339,14 +345,7 @@ class CollectionTableApp extends React.Component {
     this.searchCards(this.state.filter_data, value, this.state.page, this.state.vendor, this.state.rank)
   }
 
-  handleRankChange(event) {
-    const value = event.target.value;
-    this.setState({rank: value});
-    this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor, value)
-  }
-
-  handleVendorChange(event) {
-    const value = event.target.value;
+  handleVendorChange(value) {
     this.setState({vendor: value});
     this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, value)
   }
@@ -444,6 +443,7 @@ class CollectionTableApp extends React.Component {
             row_number={i}
             show_qty_edit={i === this.state.row_qty_editing}
             rank={this.state.rank}
+            is_mobile={this.state.is_mobile}
           />
         )
       }
@@ -458,6 +458,7 @@ class CollectionTableApp extends React.Component {
             row_number={i}
             show_qty_edit={i === this.state.row_qty_editing}
             show_wants_qty_edit={i === this.state.wants_row_qty_editing}
+            is_mobile={this.state.is_mobile}
           />
         )
       }
@@ -467,6 +468,7 @@ class CollectionTableApp extends React.Component {
             data={card}
             init_data={this.state.init_data}
             onEdit={this.handleCardEdit}
+            is_mobile={this.state.is_mobile}
           />
         )
       }
@@ -474,8 +476,8 @@ class CollectionTableApp extends React.Component {
 
     // selects
     const export_options = this.state.init_data.selects.export.map(opts => <option value={opts.value}>{opts.label}</option>)
-    const order_options = this.state.init_data.selects.ordering.map(opts => <option value={opts.value}>{opts.label}</option>)
-    const price_display_options = this.state.init_data.selects.price_display.map(opts => <option value={opts.value}>{opts.label}</option>)
+    let order_options = this.state.init_data.selects.ordering.map(opts => <option value={opts.value}>{opts.label}</option>)
+    const order_val = this.state.rank ? `rank-${this.state.rank}` : this.state.ordering
 
     // colors
     let colorCheckboxes = _.keys(this.state.colors).map(color => {
@@ -501,55 +503,27 @@ class CollectionTableApp extends React.Component {
     })
 
     // price
-    const handlePriceShow = () => this.setState({show_price_modal: true});
-    const handlePriceHide = () => this.setState({show_price_modal: false});
+    const handlePriceShow = () => this.setState({show_price_modal: true})
+    const handlePriceHide = () => this.setState({show_price_modal: false})
 
     // Collection specific
     let row_amount = 0
     let headers = []
     let filters = <div />
-    let buttons = <div />
     let big_button = <div />
     let decks = <div />
     let card_display = <div />
 
     if (this.state.init_data.type === 'inventory') {
-      const rank_options = this.state.init_data.selects.rank.map(opts => <option value={opts.value}>{opts.label}</option>)
+      order_options.push(<option value="-" disabled="disabled">Ranks:</option>)
+      order_options = order_options.concat(this.state.init_data.selects.rank.map(opts => <option value={`rank-${opts.value}`}>{opts.label}</option>))
       let row_amount = 5
       if (this.state.init_data.can_edit) row_amount++;
       if (this.state.rank) row_amount++;
-      headers = <InventoryHeader init_data={this.state.init_data} price_header={this.state.price_header} rank={RANK_HEADER[this.state.rank]} />
+      headers = <InventoryHeader init_data={this.state.init_data} price_header={this.state.price_header}
+                                 rank={RANK_HEADER[this.state.rank]} active_vendor={this.state.vendor} handleVendorChange={this.handleVendorChange} />
       filters = <InventoryFilters init_data={this.state.init_data} filter_data={this.state.filter_data}
                                   handleInputChange={this.handleInputChange} handleSelectChange={this.handleSelectChange} />
-      buttons = (
-        <div className="row">
-          <div className="col-lg-6 col-xs-12">
-            <div style={{'margin-bottom': '10px'}} className="row">
-              <div style={{'text-align': 'center', 'margin-top': '10px'}} className="col-lg-4 col-xs-4">
-                Price:
-              </div>
-              <div className="col-lg-8 col-xs-8">
-                <select name="vendor" className="form-control" onChange={this.handleVendorChange} value={this.state.vendor}>
-                  {price_display_options}
-                </select>
-              </div>
-            </div>
-          </div>
-          <div className="col-lg-6 col-xs-12">
-            <div style={{'margin-bottom': '10px'}} className="row">
-              <div style={{'text-align': 'center', 'margin-top': '10px'}} className="col-lg-4 col-xs-4">
-                Rank by:
-              </div>
-              <div className="col-lg-8 col-xs-8">
-                <select name="rank" className="form-control" onChange={this.handleRankChange} value={this.state.rank}>
-                  <option value="">-----</option>
-                  {rank_options}
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
       if (this.state.init_data.can_edit) {
         big_button = (
           <a style={{'margin-bottom': '10px'}} className="btn btn-lg btn-warning btn-block"
@@ -559,27 +533,10 @@ class CollectionTableApp extends React.Component {
     }
     if (this.state.init_data.type === 'binder') {
       row_amount = 5
-      headers = <BinderHeader init_data={this.state.init_data} price_header={this.state.price_header} />
+      headers = <BinderHeader init_data={this.state.init_data} price_header={this.state.price_header}
+                              active_vendor={this.state.vendor} handleVendorChange={this.handleVendorChange} />
       filters = <BinderFilters init_data={this.state.init_data} filter_data={this.state.filter_data}
                                handleInputChange={this.handleInputChange} handleSelectChange={this.handleSelectChange} />
-      buttons = (
-        <div>
-          <div className="row">
-            <div className="col-lg-6 col-xs-12">
-              <div className="row">
-                <div className="col-lg-4 col-xs-4">
-                  Price
-                </div>
-                <div className="col-lg-8 col-xs-8">
-                  <select name="vendor" className="form-control" onChange={this.handleVendorChange} value={this.state.vendor}>
-                    {price_display_options}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
       if (this.state.init_data.can_edit) {
         big_button = (
           <div>
@@ -635,31 +592,11 @@ class CollectionTableApp extends React.Component {
     }
     if (this.state.init_data.type === 'wishlist') {
       row_amount = 5
-      headers = <WishlistHeader init_data={this.state.init_data} price_header={this.state.price_header} />
+      headers = <WishlistHeader init_data={this.state.init_data} price_header={this.state.price_header}
+                                active_vendor={this.state.vendor} handleVendorChange={this.handleVendorChange} />
       filters = <WishlistFilters init_data={this.state.init_data} filter_data={this.state.filter_data}
                                  handleInputChange={this.handleInputChange} handleSelectChange={this.handleSelectChange} />
       decks = <WishlistDecks api_url={this.state.init_data.urls.wishlist_decks} remove_deck_cb={this.removeDeckCB} />
-      buttons = (
-        <div>
-          <div className="row" style={{'margin-top': '15px'}}>
-            <div className="col-lg-6 col-xs-6">
-              <div className="row">
-                <div className="col-lg-4 col-xs-4">
-                  Price
-                </div>
-                <div className="col-lg-8 col-xs-8">
-                  <select name="vendor" className="form-control" onChange={this.handleVendorChange} value={this.state.vendor}>
-                    {price_display_options}
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div className="col-lg-6 col-xs-6">
-              {decks}
-            </div>
-          </div>
-        </div>
-      )
       big_button = (
         <div>
           <button className="btn btn-block btn-lg btn-warning" onClick={handlePriceShow}><span className="glyphicon glyphicon-shopping-cart"/> Checkout Wishlist</button>
@@ -700,16 +637,6 @@ class CollectionTableApp extends React.Component {
 
     return (
       <div>
-        <div className="row">
-          <div className="col-lg-8 col-xs-12">
-            <div className="well">
-              {buttons}
-            </div>
-          </div>
-          <div className="col-lg-4 col-xs-12">
-            {big_button}
-          </div>
-        </div>
         <Collapse in={this.state.filter_open}>
           <div id="filter-well" className="row">
             <div className="col-lg-12 col-xs-12">
@@ -726,7 +653,7 @@ class CollectionTableApp extends React.Component {
           <div className="col-lg-4 col-xs-12">
             <FormGroup>
               <InputGroup>
-                <FormControl componentClass="select" onChange={this.handleOrderChange} value={this.state.ordering}>
+                <FormControl componentClass="select" onChange={this.handleOrderChange} value={order_val}>
                   {order_options}
                 </FormControl>
                 <InputGroup.Button>
@@ -751,8 +678,14 @@ class CollectionTableApp extends React.Component {
               </InputGroup>
             </FormGroup>
           </div>
-          <div className="col-lg-6 col-xs-12">
+          <div className="col-lg-4 col-xs-12">
+            {big_button}
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-lg-4 col-xs-12">
             {card_display}
+            {decks}
           </div>
         </div>
         <div className="row">

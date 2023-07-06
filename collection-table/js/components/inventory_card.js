@@ -195,9 +195,10 @@ class InventoryCard extends Component {
         </Popover>
       )
     }
+    const name_font_size = this.props.is_mobile && this.props.data.name.length > 14 ? '12px' : '14px';
     return (
       <tr>
-        <td>
+        <td style={{'font-size': name_font_size}}>
           <span dangerouslySetInnerHTML={{__html: this.props.data.display}} />
         </td>
         <td>
@@ -232,8 +233,8 @@ class InventoryCard extends Component {
             }
           </div>
         </td>
-        <td>{this.props.data.set}</td>
-        <td dangerouslySetInnerHTML={{__html: this.props.data.price}} />
+        <td style={{'text-align': 'center'}}>{this.props.data.set}</td>
+        <td style={{'text-align': 'center'}} dangerouslySetInnerHTML={{__html: this.props.data.price}} />
         {this.props.rank && <td>{this.props.data.rank ? `#${this.props.data.rank}` : '-'}</td>}
         {this.props.init_data.can_edit &&
           <td>

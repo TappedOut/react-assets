@@ -38,6 +38,8 @@ const MAX_CONFIG_STORE_DAYS = 15 * 24 * 60 * 60 * 1000;
 const DEFAULT_NAMESPACE = '/';
 const DECK_SLUG = window.location.href.split('/')[4];
 const INIT_URL = `${DEFAULT_NAMESPACE}mtg-decks/${DECK_SLUG}/board-update/init/`;
+const MIN_IMG_WIDTH = 75;
+const MAX_IMG_WIDTH = 250;
 
 
 function rehashDeckByCategories(deck, selectedCategoryType) {
@@ -1303,9 +1305,9 @@ export default class BoardsEditorApp extends React.Component {
                                 <label>Images Scaling</label>
                                 <span className="slider-container">
                                   <Slider
-                                    min={100}
+                                    min={MIN_IMG_WIDTH}
                                     tooltip={false}
-                                    max={250}
+                                    max={MAX_IMG_WIDTH}
                                     step={1}
                                     value={this.state.imagesMaxWidth}
                                     onChange={this.handleImagesMaxWidth}
@@ -1528,9 +1530,9 @@ export default class BoardsEditorApp extends React.Component {
                       <span className="slider-container">
                         <label>Images Scaling</label>
                         <Slider
-                          min={100}
+                          min={MIN_IMG_WIDTH}
                           tooltip={false}
-                          max={250}
+                          max={MAX_IMG_WIDTH}
                           step={1}
                           value={this.state.imagesMaxWidth}
                           onChange={this.handleImagesMaxWidth}
@@ -1627,9 +1629,9 @@ export default class BoardsEditorApp extends React.Component {
           <span className="slider-container">
             <label>Images Scaling</label>
             <Slider
-              min={100}
+              min={MIN_IMG_WIDTH}
               tooltip={false}
-              max={250}
+              max={MAX_IMG_WIDTH}
               step={1}
               value={this.state.imagesMaxWidth}
               onChange={this.handleImagesMaxWidth}

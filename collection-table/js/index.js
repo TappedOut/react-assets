@@ -186,9 +186,9 @@ class CollectionTableApp extends React.Component {
         return true
       })
       const cards = append ? this.state.cards.concat(response.data.data) : response.data.data
-      document.getElementById('total-unique').innerHTML = response.data.recordsTotal
-      document.getElementById('total-cards').innerHTML = response.data.quantityTotal
-      document.getElementById('total-price').innerHTML = '$' + response.data.priceTotal
+      if (document.getElementById('total-unique')) document.getElementById('total-unique').innerHTML = response.data.recordsTotal
+      if (document.getElementById('total-cards')) document.getElementById('total-cards').innerHTML = response.data.quantityTotal
+      if (document.getElementById('total-price')) document.getElementById('total-price').innerHTML = '$' + response.data.priceTotal
 
       this.setState({
         cards: cards,
@@ -209,9 +209,9 @@ class CollectionTableApp extends React.Component {
       if (error.response && error.response.data && error.response.data.errors) {
         error_msg = error.response.data.errors
       }
-      document.getElementById('total-unique').innerHTML = '0'
-      document.getElementById('total-cards').innerHTML = '0'
-      document.getElementById('total-price').innerHTML = '0'
+      if (document.getElementById('total-unique')) document.getElementById('total-unique').innerHTML = '0'
+      if (document.getElementById('total-cards')) document.getElementById('total-cards').innerHTML = '0'
+      if (document.getElementById('total-price')) document.getElementById('total-price').innerHTML = '0'
       this.setState({
           cards: [],
           total_cards: 0,

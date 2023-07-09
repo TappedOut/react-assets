@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import 'react-select/dist/react-select.css';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import {Button, ButtonGroup, Collapse, Modal, ProgressBar, FormGroup, InputGroup, FormControl} from 'react-bootstrap'
 import InventoryFilters from "./components/inventory_filters";
 import BinderFilters from "./components/binder_filters";
@@ -41,12 +42,10 @@ class CollectionTableApp extends React.Component {
     }
     this.state = {
       cards: [],
+      total_cards: 0,
       init_data: {},
       price_header: 'CK Price',
       vendor: 'CK',
-      total_cards: 0,
-      total_qty: 0,
-      total_price: 0,
       filtered_cards: 0,
       row_qty_editing: -1,
       wants_row_qty_editing: -1,
@@ -54,7 +53,6 @@ class CollectionTableApp extends React.Component {
       loading: true,
       initializing: true,
       first_load: false,
-      export_value: '',
       filter_open: false,
       error: '',
       ordering: stored_order ? stored_order : 'name',
@@ -101,10 +99,10 @@ class CollectionTableApp extends React.Component {
       }
     }
 
-    this.handleExport = this.handleExport.bind(this);
     this.handleCardEdit = this.handleCardEdit.bind(this);
     this.toggleFilters = this.toggleFilters.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
+    this.handleScrollFetch = this.handleScrollFetch.bind(this);
     this.handleOrderChange = this.handleOrderChange.bind(this);
     this.handleAscDescChange = this.handleAscDescChange.bind(this);
     this.handleVendorChange = this.handleVendorChange.bind(this);
@@ -122,13 +120,13 @@ class CollectionTableApp extends React.Component {
 
   componentDidMount() {
     document.addEventListener('card-added', event => {
-        this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor, this.state.rank)
+        this.searchCards(this.state.filter_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
       })
   }
 
   componentWillUnmount() {
     document.removeEventListener('card-added', event => {
-        this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor, this.state.rank)
+        this.searchCards(this.state.filter_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
       })
   }
 
@@ -157,8 +155,8 @@ class CollectionTableApp extends React.Component {
     });
   }
 
-  searchCards(data, order, page, vendor, rank) {
-    this.setState({loading: true})
+  searchCards(data, order, page, vendor, rank, append) {
+    this.setState({loading: !append})
     let get_data = {
       'start': 50 * (page - 1),
       'end': 50 * page,
@@ -187,12 +185,15 @@ class CollectionTableApp extends React.Component {
         if (this.state.init_data.type === 'binder') return !c['owned']
         return true
       })
+      const cards = append ? this.state.cards.concat(response.data.data) : response.data.data
+      document.getElementById('total-unique').innerHTML = response.data.recordsTotal
+      document.getElementById('total-cards').innerHTML = response.data.quantityTotal
+      document.getElementById('total-price').innerHTML = '$' + response.data.priceTotal
+
       this.setState({
-        cards: response.data.data,
+        cards: cards,
         total_cards: response.data.recordsTotal,
         filtered_cards: response.data.recordsFiltered,
-        total_qty: response.data.quantityTotal,
-        total_price: response.data.priceTotal,
         price_header: response.data.priceHeader,
         loading: false,
         ck_price: price_cards.map((c) => c['qty'] * (c['ck_price'] ? c['ck_price'] : 0)).reduce((a, b) => a + b, 0),
@@ -200,19 +201,21 @@ class CollectionTableApp extends React.Component {
         card_string: price_cards.map((c) => `${c['qty']} ${c['name']}`).join('||'),
         error: '',
         first_load: true,
-        buy_price: response.data.buyPriceTotal
+        buy_price: response.data.buyPriceTotal,
+        page: page
       })
     }).catch(error => {
       let error_msg = 'Error getting the card data.';
       if (error.response && error.response.data && error.response.data.errors) {
         error_msg = error.response.data.errors
       }
+      document.getElementById('total-unique').innerHTML = '0'
+      document.getElementById('total-cards').innerHTML = '0'
+      document.getElementById('total-price').innerHTML = '0'
       this.setState({
           cards: [],
           total_cards: 0,
           filtered_cards: 0,
-          total_qty: 0,
-          total_price: 0,
           loading: false,
           error: error_msg
         })
@@ -314,13 +317,27 @@ class CollectionTableApp extends React.Component {
     this.debouncedFilter()
   }
 
-  handleCardEdit() {
-    this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor, this.state.rank)
+  handleCardEdit(oldSpec, newSpec) {
+    const old_index = this.state.cards.findIndex((elem) => elem.owned_pk === oldSpec.owned_pk);
+    let newCards = this.state.cards;
+    if (newSpec) {
+      const new_index = this.state.cards.findIndex((elem) => elem.owned_pk === newSpec.owned_pk);
+      if (new_index > -1) {
+        newCards[new_index] = newSpec
+        newCards.splice(old_index, 1)
+      } else {
+        newCards[old_index] = newSpec
+      }
+    } else {
+       newCards.splice(old_index, 1)
+    }
+    this.setState({cards: newCards})
   }
 
-  handlePageChange(page) {
-    this.setState({page: page});
-    this.searchCards(this.state.filter_data, this.state.ordering, page, this.state.vendor, this.state.rank)
+  handleScrollFetch() {
+    const new_page = this.state.page + 1
+    this.setState({page: new_page});
+    this.searchCards(this.state.filter_data, this.state.ordering, new_page, this.state.vendor, this.state.rank, true)
   }
 
   handleOrderChange(event) {
@@ -328,12 +345,12 @@ class CollectionTableApp extends React.Component {
     if (value.startsWith('rank-')) {
       value = value.replace('rank-', '')
       this.setState({rank: value});
-      this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor, value)
+      this.searchCards(this.state.filter_data, this.state.ordering, 1, this.state.vendor, value)
     } else {
       this.setState({ordering: value, rank: ''})
       value = `${this.state.order_dir}${value}`
       localStorage.setItem('invorder', value)
-      this.searchCards(this.state.filter_data, value, this.state.page, this.state.vendor, '')
+      this.searchCards(this.state.filter_data, value, 1, this.state.vendor, '')
     }
   }
 
@@ -342,25 +359,19 @@ class CollectionTableApp extends React.Component {
     this.setState({order_dir: new_dir})
     const value = `${new_dir}${this.state.ordering}`
     localStorage.setItem('invorder', value);
-    this.searchCards(this.state.filter_data, value, this.state.page, this.state.vendor, this.state.rank)
+    this.searchCards(this.state.filter_data, value, 1, this.state.vendor, this.state.rank)
   }
 
   handleVendorChange(value) {
     this.setState({vendor: value});
-    this.searchCards(this.state.filter_data, this.state.ordering, this.state.page, value)
+    this.searchCards(this.state.filter_data, this.state.ordering, 1, value)
   }
 
   handleNameFilter(event) {
     const val = event.target.value;
     const filter_data = {...this.state.filter_data, name: val};
-    this.setState({name_filter: val, filter_data: filter_data, page: 1});
+    this.setState({name_filter: val, filter_data: filter_data});
     this.debouncedSearch(filter_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
-  }
-
-  handleExport(event) {
-    const val = event.target.value;
-    this.setState({export_value: val})
-    window.location.href = `${window.location.href.split('?')[0]}?fmt=${val}`
   }
 
   handleInBinderBtnClick = () => {
@@ -411,26 +422,6 @@ class CollectionTableApp extends React.Component {
     if (this.state.error && !this.state.first_load) return <div style={{'font-size': '28px', 'margin-bottom': '15px'}}>{ this.state.error }</div>
     if (this.state.initializing || !this.state.first_load) return <ProgressBar active now={100} />
 
-    // pages stuff
-    const total_pages = Math.ceil(this.state.total_cards / 50);
-    let elipsis = false;
-    const pages = _.range(1, total_pages + 1).map(i => {
-      if (i !== 1 && i !== total_pages && i !== this.state.page &&
-          (this.state.page + 5 < i || i < this.state.page - 5)) {
-        if (!elipsis) {
-          elipsis = true;
-          return <Button disabled="true">...</Button>
-        }
-        return
-      }
-      const active = i === this.state.page;
-      elipsis = false;
-      const label = i === 1 ? "Page 1" : `${i}`;
-      return <Button
-        onClick={event => this.handlePageChange(i)}
-        active={active} disabled={active || this.state.loading}>{label}</Button>
-    })
-
     // cards stuff
     const cards = this.state.cards.map((card, i) => {
       if (this.state.init_data.type === 'inventory') {
@@ -467,7 +458,6 @@ class CollectionTableApp extends React.Component {
           <WishlistCard
             data={card}
             init_data={this.state.init_data}
-            onEdit={this.handleCardEdit}
             is_mobile={this.state.is_mobile}
           />
         )
@@ -475,7 +465,6 @@ class CollectionTableApp extends React.Component {
     })
 
     // selects
-    const export_options = this.state.init_data.selects.export.map(opts => <option value={opts.value}>{opts.label}</option>)
     let order_options = this.state.init_data.selects.ordering.map(opts => <option value={opts.value}>{opts.label}</option>)
     const order_val = this.state.rank ? `rank-${this.state.rank}` : this.state.ordering
 
@@ -691,56 +680,26 @@ class CollectionTableApp extends React.Component {
         <div className="row">
           <div className="col-lg-12 col-xs-12">
             <div className="table-responsive">
-              <table className="table table-bordered table-hover">
-                {headers}
-                {!this.state.loading && (
-                  <tbody>
-                  {cards.length ? cards :
-                    <td style={{'background-color': 'black', 'height': '50px'}} colSpan={row_amount}>
-                      <p style={{"text-align": "center"}}>{this.state.error ? this.state.error : 'Collection is empty.'}</p>
-                    </td>}
-                  </tbody>)}
-              </table>
+              <InfiniteScroll
+                dataLength={this.state.cards.length}
+                next={this.handleScrollFetch}
+                hasMore={this.state.cards.length < this.state.total_cards}
+                loader={<ProgressBar active now={100} />}
+              >
+                <table className="table table-bordered table-hover">
+                  {headers}
+                  {!this.state.loading && (
+                    <tbody>
+                    {cards.length ?
+                      cards
+                      :
+                      <td style={{'background-color': 'black', 'height': '50px'}} colSpan={row_amount}>
+                        <p style={{"text-align": "center"}}>{this.state.error ? this.state.error : 'Collection is empty.'}</p>
+                      </td>}
+                    </tbody>)}
+                </table>
+              </InfiniteScroll>
               {this.state.loading && <ProgressBar active now={100} />}
-            </div>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-lg-12 col-xs-12">
-            <ButtonGroup>
-              {pages}
-            </ButtonGroup>
-          </div>
-        </div>
-        <div style={{'margin-top': '15px'}} className="row">
-          <div className="col-lg-6 col-md-6 col-xs-12">
-            <div className="well">
-              <table className="table">
-                <tbody>
-                  <tr>
-                    <td>Last Update</td>
-                    <td><a href="#diffModal" data-target="#diffModal" data-toggle="modal">{this.state.init_data.last_update} ago</a></td>
-                  </tr>
-                  <tr>
-                    <td>Total Unique</td>
-                    <td>{this.state.total_cards}</td>
-                  </tr>
-                  <tr>
-                    <td>Total Cards</td>
-                    <td>{this.state.total_qty}</td>
-                  </tr>
-                  <tr>
-                    <td>Total Price</td>
-                    <td>${this.state.total_price}</td>
-                  </tr>
-                </tbody>
-              </table>
-              <form action="." method="get" className="navbar-search">
-                <select name="fmt" className="form-control input-sm" onChange={this.handleExport} value={this.state.export_value}>
-                  <option value="">Export/Download</option>
-                  {export_options}
-                </select>
-              </form>
             </div>
           </div>
         </div>

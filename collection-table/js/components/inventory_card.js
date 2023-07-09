@@ -9,7 +9,6 @@ class InventoryCard extends Component {
     super(props);
 
     this.state = {
-      owned_pk : this.props.data.owned_pk,
       qty: this.props.data.qty,
       edit: {
         tla: this.props.data.tla,
@@ -31,7 +30,7 @@ class InventoryCard extends Component {
   }
 
   editCard () {
-    let params = {...this.state.edit, owned_pk: this.state.owned_pk, name: this.props.data.name, qty: this.state.qty}
+    let params = {...this.state.edit, owned_pk: this.props.data.owned_pk, name: this.props.data.name, qty: this.props.data.qty}
     for (let [key, value] of Object.entries(params)) {
       if (!value) {
         delete params[key];
@@ -44,7 +43,8 @@ class InventoryCard extends Component {
       {headers: { 'X-CSRFToken': Cookies.get('csrftoken') }}
     ).then(
       response => {
-        this.props.onEdit()
+        document.body.click()
+        this.props.onEdit(this.props.data, response.data.rows[0])
       }
     )
   }
@@ -53,11 +53,12 @@ class InventoryCard extends Component {
     axios.delete(
       this.props.init_data.urls.rows_api, {
         headers: { 'X-CSRFToken': Cookies.get('csrftoken') },
-        data: {owned_pk: this.state.owned_pk}
+        data: {owned_pk: this.props.data.owned_pk}
       }
     ).then(
       response => {
-        this.props.onEdit()
+        document.body.click()
+        this.props.onEdit(this.props.data)
       }
     )
   }
@@ -68,8 +69,8 @@ class InventoryCard extends Component {
 
   handleQtyEdit (qty) {
     let params = {qty: qty}
-    if (this.state.owned_pk) {
-      params['owned_pk'] = this.state.owned_pk;
+    if (this.props.data.owned_pk) {
+      params['owned_pk'] = this.props.data.owned_pk;
     } else {
       params['name'] = this.props.data.name;
       params['tla'] = this.props.data.tla;
@@ -105,19 +106,21 @@ class InventoryCard extends Component {
       {headers: { 'X-CSRFToken': Cookies.get('csrftoken') }}
     ).then(
       response => {
-        this.setState({owned_pk: response.data.pk, qty: qty})
+        if (qty > 0) {
+          this.props.onEdit(this.props.data, response.data.rows[0])
+        } else {
+          this.props.onEdit(this.props.data)
+        }
       }
     )
   }
 
   handleQtyPlusClick () {
-    const new_qty = this.state.qty + 1;
-    this.handleQtyEdit(new_qty)
+    this.handleQtyEdit(this.props.data.qty + 1)
   }
 
   handleQtyMinusClick (){
-    const new_qty = this.state.qty - 1;
-    this.handleQtyEdit(new_qty)
+    this.handleQtyEdit(this.props.data.qty - 1)
   }
 
   handleInputChange(event) {
@@ -219,7 +222,7 @@ class InventoryCard extends Component {
               className="btn btn-default btn-xs btn-inv-qty"
               onClick={this.handleQtyChangeClick}
             >
-              {this.state.qty ? this.state.qty : 0}
+              {this.props.data.qty ? this.props.data.qty : 0}
             </button>
             {!this.props.data.edit_disabled &&
               <button
@@ -260,9 +263,9 @@ class InventoryCard extends Component {
               </div>
               :
               <div align="center">
-                <OverlayTrigger trigger="click" rootClose placement="left" overlay={edit_popover}>
+                <OverlayTrigger trigger="click" rootClose={true} placement="left" overlay={edit_popover}>
                   <button id="popover-btn" className="btn btn-xs btn-success"
-                          disabled={this.props.data.edit_disabled || !this.state.owned_pk}>
+                          disabled={this.props.data.edit_disabled || !this.props.data.owned_pk}>
                     <span className="glyphicon glyphicon-wrench" aria-hidden="true"/>
                   </button>
                 </OverlayTrigger>

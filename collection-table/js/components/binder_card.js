@@ -9,8 +9,6 @@ class BinderCard extends Component {
 
     this.state = {
       show_wants_qty_edit: false,
-      owned_pk : this.props.data.owned_pk,
-      qty: this.props.data.qty,
       owned: this.props.data.owned
     };
     this.handleQtyEdit = this.handleQtyEdit.bind(this);
@@ -30,8 +28,8 @@ class BinderCard extends Component {
 
   handleQtyEdit (qty, owned) {
     let params = {qty: qty, owned: owned}
-    if (this.state.owned_pk && this.props.data.owned === owned) {
-      params['owned_pk'] = this.state.owned_pk;
+    if (this.props.data.owned_pk && this.props.data.owned === owned) {
+      params['owned_pk'] = this.props.data.owned_pk;
     } else {
       params['name'] = this.props.data.name;
       params['tla'] = this.props.data.tla;
@@ -65,21 +63,17 @@ class BinderCard extends Component {
       response => {
         if (this.state.owned === owned) {
           this.setState({owned_pk: response.data.pk, qty: qty})
-        } else {
-          this.props.onEdit()
         }
       }
     )
   }
 
   handleQtyPlusClick (owned) {
-    const new_qty = this.state.qty + 1;
-    this.handleQtyEdit(new_qty, owned)
+    this.handleQtyEdit(this.props.data.qty + 1, owned)
   }
 
   handleQtyMinusClick (owned){
-    const new_qty = this.state.qty - 1;
-    this.handleQtyEdit(new_qty, owned)
+    this.handleQtyEdit(this.props.data.qty - 1, owned)
   }
 
   render() {
@@ -124,7 +118,7 @@ class BinderCard extends Component {
               className="btn btn-primary btn-xs btn-inv-qty"
               onClick={this.handleHasQtyChangeClick}
             >
-              {(this.state.qty && this.props.data.owned) ? this.state.qty : 0}
+              {(this.props.data.qty && this.props.data.owned) ? this.props.data.qty : 0}
             </button>
             {!this.props.data.edit_disabled &&
               <button
@@ -155,7 +149,7 @@ class BinderCard extends Component {
               className="btn btn-warning btn-xs btn-inv-qty"
               onClick={this.handleWantsQtyChangeClick}
             >
-              {(this.state.qty && !this.props.data.owned) ? this.state.qty : 0}
+              {(this.props.data.qty && !this.props.data.owned) ? this.props.data.qty : 0}
             </button>
             {!this.props.data.edit_disabled &&
               <button

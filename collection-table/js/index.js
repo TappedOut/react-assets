@@ -120,13 +120,13 @@ class CollectionTableApp extends React.Component {
 
   componentDidMount() {
     document.addEventListener('card-added', event => {
-        this.searchCards(this.state.filter_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
+        this.searchCards(this.state.filter_data, `${this.state.order_dir}${this.state.ordering}`, 1, this.state.vendor, this.state.rank)
       })
   }
 
   componentWillUnmount() {
     document.removeEventListener('card-added', event => {
-        this.searchCards(this.state.filter_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
+        this.searchCards(this.state.filter_data, `${this.state.order_dir}${this.state.ordering}`, 1, this.state.vendor, this.state.rank)
       })
   }
 
@@ -141,8 +141,7 @@ class CollectionTableApp extends React.Component {
           vendor: response.data.vendor,
           price_header: response.data.price_header
         })
-        const order = `${this.state.order_dir}${this.state.ordering}`
-        this.searchCards({owned: true}, order, 1, response.data.vendor, '');
+        this.searchCards({owned: true}, `${this.state.order_dir}${this.state.ordering}`, 1, response.data.vendor, '');
       }
     ).catch(error => {
       let error_msg = 'Error getting the card data.';
@@ -241,7 +240,7 @@ class CollectionTableApp extends React.Component {
   }
 
   handleFilter() {
-    this.searchCards(this.state.filter_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
+    this.searchCards(this.state.filter_data, `${this.state.order_dir}${this.state.ordering}`, 1, this.state.vendor, this.state.rank)
   }
 
   handleFilterReset() {
@@ -337,7 +336,7 @@ class CollectionTableApp extends React.Component {
   handleScrollFetch() {
     const new_page = this.state.page + 1
     this.setState({page: new_page});
-    this.searchCards(this.state.filter_data, this.state.ordering, new_page, this.state.vendor, this.state.rank, true)
+    this.searchCards(this.state.filter_data, `${this.state.order_dir}${this.state.ordering}`, new_page, this.state.vendor, this.state.rank, true)
   }
 
   handleOrderChange(event) {
@@ -345,7 +344,7 @@ class CollectionTableApp extends React.Component {
     if (value.startsWith('rank-')) {
       value = value.replace('rank-', '')
       this.setState({rank: value});
-      this.searchCards(this.state.filter_data, this.state.ordering, 1, this.state.vendor, value)
+      this.searchCards(this.state.filter_data, `${this.state.order_dir}${this.state.ordering}`, 1, this.state.vendor, value)
     } else {
       this.setState({ordering: value, rank: ''})
       value = `${this.state.order_dir}${value}`
@@ -364,14 +363,14 @@ class CollectionTableApp extends React.Component {
 
   handleVendorChange(value) {
     this.setState({vendor: value});
-    this.searchCards(this.state.filter_data, this.state.ordering, 1, value)
+    this.searchCards(this.state.filter_data, `${this.state.order_dir}${this.state.ordering}`, 1, value)
   }
 
   handleNameFilter(event) {
     const val = event.target.value;
     const filter_data = {...this.state.filter_data, name: val};
     this.setState({name_filter: val, filter_data: filter_data});
-    this.debouncedSearch(filter_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
+    this.debouncedSearch(filter_data, `${this.state.order_dir}${this.state.ordering}`, 1, this.state.vendor, this.state.rank)
   }
 
   handleInBinderBtnClick = () => {
@@ -381,7 +380,7 @@ class CollectionTableApp extends React.Component {
       filter_data: new_data,
       card_display: 'in_coll'
     });
-    this.searchCards(new_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
+    this.searchCards(new_data, `${this.state.order_dir}${this.state.ordering}`, 1, this.state.vendor, this.state.rank)
   }
 
   handleAllCardsBtnClick = () => {
@@ -391,7 +390,7 @@ class CollectionTableApp extends React.Component {
       filter_data: new_data,
       card_display: 'all'
     });
-    this.searchCards(new_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
+    this.searchCards(new_data, `${this.state.order_dir}${this.state.ordering}`, 1, this.state.vendor, this.state.rank)
   }
 
   handleHaveMatchesBtnClick = () => {
@@ -401,7 +400,7 @@ class CollectionTableApp extends React.Component {
       filter_data: new_data,
       card_display: 'matches_h'
     });
-    this.searchCards(new_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
+    this.searchCards(new_data, `${this.state.order_dir}${this.state.ordering}`, 1, this.state.vendor, this.state.rank)
   }
 
   handleWantMatchesBtnClick = () => {
@@ -411,11 +410,11 @@ class CollectionTableApp extends React.Component {
       filter_data: new_data,
       card_display: 'matches_w'
     });
-    this.searchCards(new_data, this.state.ordering, 1, this.state.vendor, this.state.rank)
+    this.searchCards(new_data, `${this.state.order_dir}${this.state.ordering}`, 1, this.state.vendor, this.state.rank)
   }
 
   removeDeckCB = () => {
-    this.debouncedSearch(this.state.filter_data, this.state.ordering, this.state.page, this.state.vendor, this.state.rank)
+    this.debouncedSearch(this.state.filter_data, `${this.state.order_dir}${this.state.ordering}`, 1, this.state.vendor, this.state.rank)
   }
 
   render() {

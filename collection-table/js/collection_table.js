@@ -123,7 +123,6 @@ export default class CollectionTableApp extends React.Component {
   }
 
   initialize = (url) => {
-    console.log(this.getHeaders().Authorization)
     axios.get(
       url,
       {headers: this.getHeaders()}

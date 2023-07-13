@@ -19,7 +19,7 @@ class BinderHeader extends Component {
       vendor => <MenuItem onClick={() => this.props.handleVendorChange(vendor.value)} active={this.props.active_vendor === vendor.value}>{vendor.label}</MenuItem>
     )
     const vendor_selector = (
-      <Dropdown>
+      <Dropdown pullRight={true}>
         <Dropdown.Toggle noCaret bsSize='xsmall'>
           <Glyphicon glyph="cog" />
         </Dropdown.Toggle>

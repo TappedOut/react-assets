@@ -29,6 +29,12 @@ class InventoryCard extends Component {
     this.handleQtyMinusClick = this.handleQtyMinusClick.bind(this);
   }
 
+  getHeaders = () => {
+    const headers = this.props.getHeaders()
+    headers['X-CSRFToken'] = Cookies.get('csrftoken')
+    return headers
+  }
+
   editCard () {
     let params = {...this.state.edit, owned_pk: this.props.data.owned_pk, name: this.props.data.name, qty: this.props.data.qty}
     for (let [key, value] of Object.entries(params)) {
@@ -36,11 +42,12 @@ class InventoryCard extends Component {
         delete params[key];
       }
     }
+
     params = {'changes': JSON.stringify([params])}
     axios.put(
       this.props.init_data.urls.rows_api,
       params,
-      {headers: { 'X-CSRFToken': Cookies.get('csrftoken') }}
+      {headers: this.getHeaders()}
     ).then(
       response => {
         document.body.click()
@@ -52,7 +59,7 @@ class InventoryCard extends Component {
   deleteCard() {
     axios.delete(
       this.props.init_data.urls.rows_api, {
-        headers: { 'X-CSRFToken': Cookies.get('csrftoken') },
+        headers: this.getHeaders(),
         data: {owned_pk: this.props.data.owned_pk}
       }
     ).then(
@@ -103,7 +110,7 @@ class InventoryCard extends Component {
     axios.put(
       this.props.init_data.urls.rows_api,
       params,
-      {headers: { 'X-CSRFToken': Cookies.get('csrftoken') }}
+      {headers: this.getHeaders()}
     ).then(
       response => {
         if (qty > 0) {
@@ -251,7 +258,7 @@ class InventoryCard extends Component {
                         <span dangerouslySetInnerHTML={{__html: this.props.data.collection}}/>
                       </div>
                     </div>}
-                  placement="right"
+                  placement="left"
                   onMouseEnter={() => {
                   }}
                   delay={200}

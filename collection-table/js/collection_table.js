@@ -17,6 +17,7 @@ const _ = require('lodash');
 
 
 const INIT_URL = window.django.init_url;
+const ACCESS_TOKEN = window.django.access_token;
 
 
 const RANK_HEADER = {
@@ -33,8 +34,9 @@ const RANK_HEADER = {
 export default class CollectionTableApp extends React.Component {
   constructor(props) {
     super(props);
-    let stored_order = localStorage.getItem('invorder')
+    let stored_order = ''
     let stored_order_dir = ''
+    if (localStorage) stored_order = localStorage.getItem('invorder')
     if (stored_order && stored_order[0] === '-') {
       stored_order = stored_order.slice(1)
       stored_order_dir = '-'
@@ -116,10 +118,12 @@ export default class CollectionTableApp extends React.Component {
   }
 
   getHeaders = () => {
+    if (ACCESS_TOKEN) return {'Authorization': 'Bearer ' + ACCESS_TOKEN}
     return {}
   }
 
   initialize = (url) => {
+    console.log(this.getHeaders().Authorization)
     axios.get(
       url,
       {headers: this.getHeaders()}

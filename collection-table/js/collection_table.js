@@ -342,7 +342,7 @@ export default class CollectionTableApp extends React.Component {
     } else {
       this.setState({ordering: value, rank: ''})
       value = `${this.state.order_dir}${value}`
-      localStorage.setItem('invorder', value)
+      if (localStorage) localStorage.setItem('invorder', value)
       this.searchCards(this.state.filter_data, value, 1, this.state.vendor, '')
     }
   }
@@ -351,7 +351,7 @@ export default class CollectionTableApp extends React.Component {
     const new_dir = this.state.order_dir === '' ? '-' : ''
     this.setState({order_dir: new_dir})
     const value = `${new_dir}${this.state.ordering}`
-    localStorage.setItem('invorder', value);
+    if (localStorage) localStorage.setItem('invorder', value);
     this.searchCards(this.state.filter_data, value, 1, this.state.vendor, this.state.rank)
   }
 
@@ -668,11 +668,11 @@ export default class CollectionTableApp extends React.Component {
       )
     }
 
-    return (
-      <div>
-        {filters}
-        <div style={{'margin-bottom': "10px"}} className="row">
-          <div className="col-lg-4 col-xs-12">
+    let order;
+    if (this.state.init_data.type === 'mobile') {
+      order = (
+        <div>
+          <div className="col-lg-4 col-xs-8">
             <FormGroup>
               <InputGroup>
                 <FormControl componentClass="select" onChange={this.handleOrderChange} value={order_val}>
@@ -689,6 +689,40 @@ export default class CollectionTableApp extends React.Component {
               </InputGroup>
             </FormGroup>
           </div>
+          <div className="col-xs-4">
+            <button type="button" className="btn btn-success btn-block" data-toggle="modal" data-target="#addModal"><span
+              className="glyphicon glyphicon-plus"></span>
+            </button>
+          </div>
+        </div>
+      )
+    } else {
+      order = (
+        <div className="col-lg-4 col-xs-12">
+          <FormGroup>
+            <InputGroup>
+              <FormControl componentClass="select" onChange={this.handleOrderChange} value={order_val}>
+                {order_options}
+              </FormControl>
+              <InputGroup.Button>
+                <Button onClick={this.handleAscDescChange}>
+                  {this.state.order_dir === '' ?
+                    <span className="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                    :
+                    <span className="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>}
+                </Button>
+              </InputGroup.Button>
+            </InputGroup>
+          </FormGroup>
+        </div>
+      )
+    }
+
+    return (
+      <div>
+        {filters}
+        <div style={{'margin-bottom': "10px"}} className="row">
+          {order}
           <div className="col-lg-4 col-xs-12">
             <FormGroup>
               <InputGroup>

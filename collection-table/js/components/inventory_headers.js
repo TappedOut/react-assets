@@ -32,10 +32,10 @@ class InventoryHeader extends Component {
     return (
       <thead>
         <tr>
-          <th onClick={this.handleHeaderClick} style={{"text-align": "center", "vertical-align": "middle", "width": "25%"}}>Card</th>
-          <th onClick={this.handleHeaderClick} style={{"text-align": "center", "vertical-align": "middle", "width": "15%"}}>Qty</th>
+          <th onClick={this.handleHeaderClick} style={{"text-align": "center", "vertical-align": "middle", "width": "30%"}}>Card</th>
+          <th onClick={this.handleHeaderClick} style={{"text-align": "center", "vertical-align": "middle", "width": "10%"}}>Qty</th>
           <th onClick={this.handleHeaderClick} style={{"text-align": "center", "vertical-align": "middle", "width": "10%"}}>Set</th>
-          <th onClick={this.handleHeaderClick} style={{"text-align": "center", "vertical-align": "middle", "width": "10%", "font-size": "12px"}}>Price {vendor_selector}</th>
+          <th onClick={this.handleHeaderClick} style={{"text-align": "center", "vertical-align": "middle", "width": "15%", "font-size": "12px"}}>Price {vendor_selector}</th>
           {this.props.rank && <th style={{"text-align": "center", "vertical-align": "middle", "width": "10%"}}>{this.props.rank} rank</th>}
           {this.props.init_data.is_owner && <th style={{"text-align": "center", "vertical-align": "middle", "width": "5%"}}>Edit</th>}
         </tr>

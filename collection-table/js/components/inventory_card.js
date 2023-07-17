@@ -17,7 +17,8 @@ class InventoryCard extends Component {
         condition: this.props.data.condition,
         alteration: this.props.data.foil,
         alter_pk: this.props.data.alter_pk,
-        signed: this.props.data.signed
+        signed: this.props.data.signed,
+        qty: this.props.data.qty
       }
     };
     this.editCard = this.editCard.bind(this);
@@ -36,9 +37,11 @@ class InventoryCard extends Component {
   }
 
   editCard () {
-    let params = {...this.state.edit, owned_pk: this.props.data.owned_pk, name: this.props.data.name, qty: this.props.data.qty}
+    let params = {...this.state.edit, owned_pk: this.props.data.owned_pk, name: this.props.data.name}
+    params.qty = parseInt(params.qty)
+    if (typeof params.qty !== 'number' || Number.isNaN(params.qty) || params.qty < 0) params.qty = 1
     for (let [key, value] of Object.entries(params)) {
-      if (!value) {
+      if (key !== 'qty' && !value) {
         delete params[key];
       }
     }
@@ -115,6 +118,8 @@ class InventoryCard extends Component {
       response => {
         if (qty > 0) {
           this.props.onEdit(this.props.data, response.data.rows[0])
+          const edit = {...this.state.edit, qty: this.props.data.qty}
+          this.setState({edit: edit})
         } else {
           this.props.onEdit(this.props.data)
         }
@@ -155,6 +160,13 @@ class InventoryCard extends Component {
         <Popover id="edit-popover" title="Edit Card">
           <div className="popover-content popover-edit-content">
             <div className="well edit-content">
+              <div className="form-group">
+                <div className="input-group">
+                  <span className="input-group-addon" id={`qty-addon-${this.props.data.owned_pk}`}>Qty</span>
+                  <input id="qty-edit" type="number" name="qty" onChange={this.handleInputChange} value={this.state.edit.qty}
+                         min="0" max="500" className="form-control qty-edit" aria-describedby={`qty-addon${this.props.data.owned_pk}`} />
+                </div>
+              </div>
               <div className="form-group">
                 <select onChange={this.handleInputChange} value={this.state.edit.tla} name="tla" className="form-control printing-edit">
                   {printing_options}
@@ -206,42 +218,52 @@ class InventoryCard extends Component {
       )
     }
     const name_font_size = this.props.is_mobile && this.props.data.name.length > 14 ? '12px' : '14px';
-    return (
-      <tr>
-        <td style={{'font-size': name_font_size}}>
-          <span dangerouslySetInnerHTML={{__html: this.props.data.display}} />
-        </td>
-        <td>
-          <div className="row" align="center">
-            {!this.props.data.edit_disabled &&
-              <button
-                type="button"
-                className="btn btn-danger btn-xs btn-rm-inv-card"
-                style={{"display": this.props.show_qty_edit ? 'inline-block' : 'none', 'margin-right': '5px'}}
-                onClick={this.handleQtyMinusClick}
-              >
-                <span className="glyphicon glyphicon-minus"/>
-              </button>
-            }
+    let qty_btn;
+    if (this.props.is_mobile) {
+      qty_btn = this.props.data.qty ? this.props.data.qty : 0
+    } else {
+      qty_btn = (
+        <div className="row" align="center">
+          {!this.props.data.edit_disabled &&
             <button
               type="button"
-              id={id}
-              className="btn btn-default btn-xs btn-inv-qty"
-              onClick={this.handleQtyChangeClick}
+              className="btn btn-danger btn-xs btn-rm-inv-card"
+              style={{"display": this.props.show_qty_edit ? 'inline-block' : 'none', 'margin-right': '5px'}}
+              onClick={this.handleQtyMinusClick}
             >
-              {this.props.data.qty ? this.props.data.qty : 0}
+              <span className="glyphicon glyphicon-minus"/>
             </button>
-            {!this.props.data.edit_disabled &&
-              <button
-                type="button"
-                className="btn btn-success btn-xs btn-add-inv-card"
-                style={{"display": this.props.show_qty_edit ? 'inline-block' : 'none', 'margin-left': '5px'}}
-                onClick={this.handleQtyPlusClick}
-              >
-                <span className="glyphicon glyphicon-plus"/>
-              </button>
-            }
-          </div>
+          }
+          <button
+            type="button"
+            id={id}
+            className="btn btn-default btn-xs btn-inv-qty"
+            onClick={this.handleQtyChangeClick}
+          >
+            {this.props.data.qty ? this.props.data.qty : 0}
+          </button>
+          {!this.props.data.edit_disabled &&
+            <button
+              type="button"
+              className="btn btn-success btn-xs btn-add-inv-card"
+              style={{"display": this.props.show_qty_edit ? 'inline-block' : 'none', 'margin-left': '5px'}}
+              onClick={this.handleQtyPlusClick}
+            >
+              <span className="glyphicon glyphicon-plus"/>
+            </button>
+          }
+        </div>
+      )
+    }
+
+    return (
+      <tr>
+        <td>
+          <span style={{'font-size': name_font_size}} dangerouslySetInnerHTML={{__html: this.props.data.display}} />
+          <span style={{'font-size': '12px'}} className="pull-right hidden-xs hidden-sm" dangerouslySetInnerHTML={{__html: this.props.data.html_mana}} />
+        </td>
+        <td style={{'text-align': 'center'}}>
+          {qty_btn}
         </td>
         <td style={{'text-align': 'center'}}>{this.props.data.set}</td>
         <td style={{'text-align': 'center'}} dangerouslySetInnerHTML={{__html: this.props.data.price}} />

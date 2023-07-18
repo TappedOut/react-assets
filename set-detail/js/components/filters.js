@@ -97,13 +97,14 @@ export default class Filters extends React.Component {
               </div>
               <div className="col-lg-6 col-md-6 col-xs-12">
                 <div className="btn-group" role="group" style={{'display': 'flex'}}>
-                  <button className="btn btn-default" style={{'flex': 1}} onClick={this.handleModalShow}>
+                  <button className="btn btn-sm btn-default" style={{'flex': 1}} onClick={this.handleModalShow}>
                     Filters
                   </button>
-                  <button className="btn btn-default" style={{'flex': 1}} onClick={this.props.resetFilters}>
+                  <button className="btn btn-sm btn-default" style={{'flex': 1}} onClick={this.props.resetFilters}>
                     Reset
                   </button>
                 </div>
+                <input style={{'margin-top': '10px'}} placeholder="Search" name="name" value={this.props.filters.name} className="form-control" onChange={this.handleInputChange}/>
                 <Modal bsSize="lg" show={this.state.showModal} onHide={this.handleModalClose}>
                   <Modal.Body>
                     <div className="row">

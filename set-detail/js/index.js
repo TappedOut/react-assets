@@ -4,6 +4,7 @@ import axios from 'axios';
 import Slider from 'react-rangeslider';
 import '../css/set-detail.scss';
 import 'react-rangeslider/lib/index.css';
+import {ProgressBar} from 'react-bootstrap'
 import CardImages from './components/cardImages.js';
 import CardTable from './components/cardTable.js';
 import CardList from './components/cardList.js';
@@ -12,8 +13,8 @@ import 'react-select/dist/react-select.css';
 const _ = require('lodash');
 
 
-const SET_DETAIL_API = window.django.set_specs_api;
-const SET_TLA = window.django.tla;
+const SET_DETAIL_API = window.django.set_specs_api
+const SET_TLA = window.django.tla
 
 
 const COLOR_ORDER = {
@@ -28,12 +29,13 @@ const COLOR_ORDER = {
 class SetDetailApp extends React.Component {
   constructor(props) {
     super(props);
-    let img_width = parseInt(localStorage.getItem('toImgWidth'))
+    let img_width = localStorage ? parseInt(localStorage.getItem('toImgWidth')) : 300
     if (!img_width || img_width < 100 || img_width > 500) {
       img_width = 300
     }
     this.state = {
       specs: [],
+      loading: true,
       display: 'images',
       vendors: ['tcg'],
       api_error: '',
@@ -80,11 +82,11 @@ class SetDetailApp extends React.Component {
       SET_DETAIL_API,
     ).then(
       response => {
-        let found = [];
-        let backsides = {};
+        let found = []
+        let backsides = {}
         const specs = _.sortBy(response.data.specs.filter((spec) => {
           const duplicate = found.indexOf(spec.name) > -1
-          found.push(spec.name);
+          found.push(spec.name)
           if (spec.flip && !spec.is_front) {
             backsides[spec.name] = spec
             return false
@@ -99,21 +101,29 @@ class SetDetailApp extends React.Component {
           })
           return spec
         })
+
         let card_display = response.data.reduce_images ? 'table' : 'images'
-        const saved_display = localStorage.getItem('toCardDisplay')
-        if (_.includes(['images', 'table', 'list'], saved_display) && !(saved_display === 'list' && window.django.is_mobile)) {
-          card_display = saved_display;
+        if (localStorage) {
+          const saved_display = localStorage.getItem('toCardDisplay')
+          if (_.includes(['images', 'table', 'list'], saved_display) && !(saved_display === 'list' && window.django.is_mobile)) {
+            card_display = saved_display;
+          }
         }
+
         this.setState({
           display: card_display,
           specs: specs,
           vendors: response.data.vendors,
           choices: response.data.choices,
-          backsides: backsides
+          backsides: backsides,
+          loading: false
         })
       },
       error => {
-        this.setState({error: 'Error getting card info. Please refresh the page.'})
+        this.setState({
+          loading: false,
+          error: 'Error getting card info. Please refresh the page.'
+        })
       }
     )
   }
@@ -126,12 +136,12 @@ class SetDetailApp extends React.Component {
     this.setState({
       images_width: value
     })
-    localStorage.setItem('toImgWidth', value);
+    if (localStorage) localStorage.setItem('toImgWidth', value)
   };
 
   handleDisplayChange = (val) => {
     this.setState({display: val})
-    localStorage.setItem('toCardDisplay', val);
+    if (localStorage) localStorage.setItem('toCardDisplay', val)
   }
 
   filterCards = (cards) => {
@@ -140,7 +150,7 @@ class SetDetailApp extends React.Component {
 
       // formats
       const card_formats = card.formats && card.formats.length ? card.formats : []
-      const all_checked = _.keys(this.state.filters.formats).length === this.selectedFormats.length;
+      const all_checked = _.keys(this.state.filters.formats).length === this.selectedFormats.length
       if (!all_checked) {
         let anyfmt = false
         _.each(card_formats, f => {
@@ -325,7 +335,7 @@ class SetDetailApp extends React.Component {
           return spec['type']
         }
         if (order.startsWith('rank_')) {
-          if (order === 'rank_cmdr' && spec['rank_cmdr'] && spec['cmdr_rank']['edh']) {
+          if (order === 'rank_cmdr' && spec['cmdr_rank'] && spec['cmdr_rank']['edh']) {
             return spec['cmdr_rank']['edh']
           }
           const order_key = order.replace('rank_', '')
@@ -351,7 +361,7 @@ class SetDetailApp extends React.Component {
             <button className="btn btn-default btn-sm" style={{'flex': 1}} onClick={() => this.handleDisplayChange('list')} disabled={this.state.display === 'list'}>List</button>}
           </div>
         </div>
-        <div className="col-lg-1 col-md-2 col-xs-5">
+        <div className="col-lg-2 col-md-2 col-xs-5">
           <select onChange={this.handleOrderChange} className="form-control input-sm">
             {order_opts}
           </select>
@@ -395,7 +405,9 @@ class SetDetailApp extends React.Component {
     this.selectedExcludeColors = _.keys(this.state.filters.colors).filter(c => this.state.filters.colors[c] === -1)
     let filtered_specs = this.orderCards(this.filterCards(this.state.specs))
 
-    if (!filtered_specs.length) {
+    if (this.state.loading) {
+      main_content = <ProgressBar active now={100} />
+    } else if (!filtered_specs.length) {
       main_content = <p style={{'height': '500px'}}>No cards found</p>
     } else {
       let rank_label = 'Commander rank';

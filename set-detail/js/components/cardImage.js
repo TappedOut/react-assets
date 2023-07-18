@@ -30,7 +30,7 @@ export default class CardImage extends React.Component {
     }
     return (
       <div style={{'width': this.props.width, 'max-width': this.props.width, 'display': 'inline-block', 'margin-right': '15px'}}>
-        <a href={spec.url}><img className="img-responsive" src={image} style={{'width': this.props.width}} /></a>
+        <a href={spec.url}><img className="img-responsive" src={image} style={{'width': this.props.width}} loading="lazy" /></a>
         {!!this.props.spec.flip && <div className="btn-group btn-group-xs" style={{"width": "100%", "margin": "3px 0"}}>
           <button onClick={this.handleImgToggle} type="button" className="btn btn-default" disabled={this.state.front} style={{"width": "50%", "background-color": front_color, "color": "white"}}>Frontside</button>
           <button onClick={this.handleImgToggle} type="button" className="btn btn-default" disabled={!this.state.front} style={{"width": "50%", "background-color": back_color, "color": "white"}}>Backside</button>

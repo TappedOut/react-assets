@@ -31,6 +31,7 @@
     "react-html-parser": "^2.0.2",
     "react-infinite-scroller": "^1.1.4",
     "react-infinite-scroll-component": "^6.1.0",
+    "react-lazy-load-image-component": "^1.6.0",
     "react-rangeslider": "^2.2.0",
     "react-redux": "^6.0.0",
     "react-select": "^1.2.1",

@@ -182,7 +182,7 @@ export default class CollectionTableApp extends React.Component {
       if (document.getElementById('total-unique')) document.getElementById('total-unique').innerHTML = response.data.recordsTotal
       if (document.getElementById('total-cards')) document.getElementById('total-cards').innerHTML = response.data.quantityTotal
       if (document.getElementById('total-price')) document.getElementById('total-price').innerHTML = '$' + response.data.priceTotal
-
+      debugger;
       this.setState({
         cards: cards,
         total_cards: response.data.recordsTotal,
@@ -560,7 +560,7 @@ export default class CollectionTableApp extends React.Component {
                   <input type="hidden" name="c" value={this.state.card_string} />
                   <input type="hidden" name="partner" value="tappedout" />
                   <button style={{'margin-top': '10px'}} type="submit" className="btn btn-block btn-warning">
-                    <span className="glyphicon glyphicon-shopping-cart" /> <span>{`Card Kingdom $${this.state.tcg_price}`}</span>
+                    <span className="glyphicon glyphicon-shopping-cart" /> <span>{`Card Kingdom $${this.state.ck_price}`}</span>
                   </button>
                 </form>
               </Modal.Body>

@@ -237,7 +237,9 @@ export default class BoardsEditorApp extends React.Component {
             block: '',
             color: response.data.deck_colors,
             rules: '',
-            order: 'name_sort'
+            order: 'name_sort',
+            mana_value_min: '',
+            mana_value_max: ''
           },
         });
         this.categoryChoices = choicesFromAPI(response.data.category_choices);
@@ -694,7 +696,7 @@ export default class BoardsEditorApp extends React.Component {
     let simpleSearchInput = { name: '', invOnly: false };
     let searchInput = { name: '', type: '', subtype: '', rarity: '',
       keywords: '', formats: '', sets: '', block: '', color: '', rules: '',
-      invOnly: false, order: 'name_sort' };
+      mana_value_min: '', mana_value_max: '', invOnly: false, order: 'name_sort' };
     this.setState({foundCards: {}, noCardsFound: '', simpleSearchInput, searchInput});
   };
 

@@ -441,7 +441,7 @@ class SetDetailApp extends React.Component {
     const widthOrder = this.renderWidthOrder(order_opts, filtered_specs.length)
     return (
       <div>
-        <Filter filters={this.state.filters} choices={this.state.choices} filterChange={this.handleFilterChange} resetFilters={this.resetFilters} />
+        <Filter filters={this.state.filters} choices={this.state.choices} filterChange={this.handleFilterChange} resetFilters={this.resetFilters} modalCloseCB={() => {}} disableInputs={this.state.loading} />
         {widthOrder}
         <div className="row">
           <div className="col-lg-12">

@@ -391,7 +391,7 @@ class SetDetailApp extends React.Component {
       {'label': 'Name', 'value': 'name'},
       {'label': 'Color', 'value': 'color'},
       {'label': 'Price', 'value': 'price'},
-      {'label': 'CMC', 'value': 'cmc'},
+      {'label': 'Mana value', 'value': 'cmc'},
       {'label': 'Number', 'value': 'number'},
       {'label': 'Type', 'value': 'type'},
       {'label': 'Commander format rank', 'value': 'rank_edh'},

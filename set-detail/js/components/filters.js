@@ -14,6 +14,7 @@ export default class Filters extends React.Component {
 
   handleModalClose = () => {
     this.setState({showModal: false});
+    this.props.modalCloseCB();
   }
 
   handleModalShow = () => {
@@ -79,7 +80,7 @@ export default class Filters extends React.Component {
       return (
         <div className="col-lg-4 col-xs-4">
           <div className="form-group">
-            <button onClick={() => this.handleColorToggle(color)} className="btn btn-sm btn-default btn-block">
+            <button onClick={() => this.handleColorToggle(color)} className="btn btn-sm btn-default btn-block" disabled={this.props.disableInputs}>
               <i className={`ms ms-${color} ms-cost ms-shadow ms-1point2x`}></i>&nbsp;&nbsp;
               <span style={{'color': icon_color}} className={`glyphicon glyphicon-${icon}`} aria-hidden="true"></span>
             </button>
@@ -104,7 +105,7 @@ export default class Filters extends React.Component {
                     Reset
                   </button>
                 </div>
-                <input style={{'margin-top': '10px'}} placeholder="Search" name="name" value={this.props.filters.name} className="form-control" onChange={this.handleInputChange}/>
+                <input style={{'margin-top': '10px'}} placeholder="Search" name="name" value={this.props.filters.name} className="form-control" onChange={this.handleInputChange} disabled={this.props.disableInputs}/>
                 <Modal bsSize="lg" show={this.state.showModal} onHide={this.handleModalClose}>
                   <Modal.Body>
                     <div className="row">
@@ -125,7 +126,7 @@ export default class Filters extends React.Component {
                     <div className="row">
                       <div className="col-lg-12 col-xs-12">
                         <div className="form-group">
-                          <label>CMC</label>
+                          <label>Mana Value</label>
                           <div className="row">
                             <div className="col-lg-5 col-xs-5"><input name="cmc_from" type="text" className="form-control" onChange={this.handleInputChange} value={this.props.filters.cmc_from} /></div>
                             <div className="col-lg-2 col-xs-2">to</div>
@@ -192,7 +193,7 @@ export default class Filters extends React.Component {
                   </Modal.Body>
                   <Modal.Footer>
                     <Button variant="secondary" onClick={this.handleModalClose}>
-                      Close
+                      Confirm
                     </Button>
                   </Modal.Footer>
                 </Modal>

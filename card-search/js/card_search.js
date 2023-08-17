@@ -3,7 +3,7 @@ import axios from 'axios';
 import Slider from 'react-rangeslider';
 import 'react-rangeslider/lib/index.css';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import {ProgressBar} from 'react-bootstrap'
+import {ProgressBar, FormGroup, InputGroup, FormControl, Button} from 'react-bootstrap'
 import CardImages from '../../set-detail/js/components/cardImages.js';
 import CardTable from '../../set-detail/js/components/cardTable.js';
 import CardList from '../../set-detail/js/components/cardList.js';
@@ -14,6 +14,12 @@ const _ = require('lodash');
 
 
 const CARD_SEARCH_API = window.django.card_filter_api
+const ALLOWED_PARAMS = [
+  'name', 'formats', 'color', 'price_to', 'price_from', 'mana_value_min', 'mana_value_max', 'rarity', 'mana_cost',
+  'type', 'subtype', 'rules', 'companion'
+]
+const FORMATS_MAP_BACK = {}
+_.forOwn(window.django.formats_map, (val, key) => {FORMATS_MAP_BACK[val] = key})
 
 
 export default class CardSearchApp extends React.Component {
@@ -34,6 +40,7 @@ export default class CardSearchApp extends React.Component {
       vendors: ['tcg'],
       api_error: '',
       order_by: 'name',
+      order_dir: '',
       choices: {},
       images_width: img_width,
       backsides: {},
@@ -82,13 +89,17 @@ export default class CardSearchApp extends React.Component {
       companion: ''
     }
     const queryParameters = new URLSearchParams(window.location.search)
+    if (queryParameters.get('formats')) _.forOwn(filters.formats, (fval, fkey) => {filters.formats[fkey] = false})
     for (const [key, value] of queryParameters.entries()) {
       switch(key) {
         case 'formats':
-          // handle later
+          if (value && filters.formats.hasOwnProperty(window.django.formats_map[value])) filters.formats[window.django.formats_map[value]] = true
           break
-        case 'colors':
-          // handle later
+        case 'color':
+          if (value && filters.colors.hasOwnProperty(value.toLowerCase())) filters.colors[value.toLowerCase()] = 1
+          break
+        case 'color_exclude':
+          if (value && filters.colors.hasOwnProperty(value.toLowerCase())) filters.colors[value.toLowerCase()] = -1
           break
         case 'type':
           if (value) filters.type = _.startCase(value)
@@ -100,7 +111,7 @@ export default class CardSearchApp extends React.Component {
           if (!isNaN(parseInt(value))) filters.cmc_to = value
           break
         default:
-          if (value) filters[key] = value
+          if (value && _.includes(ALLOWED_PARAMS, key)) filters[key] = value
       }
     }
     return filters
@@ -182,12 +193,14 @@ export default class CardSearchApp extends React.Component {
 
   buildOrderGET = (order) => {
     if (order === 'name') return '&o=name_sort'
-    if (_.includes(['color', 'type', 'mana_value'], order)) return `&o=${order}`
+    if (order === '-name') return '&o=-name_sort'
+    const allowed = ['color', 'type', 'mana_value', '-color', '-type', '-mana_value']
+    if (_.includes(allowed, order)) return `&o=${order}`
     return ''
   }
 
   formatGET = (format) => {
-    return this.state.choices.format_map[format]
+    return FORMATS_MAP_BACK[format]
   }
 
   get_price = (spec) => {
@@ -242,7 +255,7 @@ export default class CardSearchApp extends React.Component {
       companion: ''
     }
     this.setState({filters: empty, disable_main_inputs: true})
-    this.get_cards({}, this.state.order_by, 1, true)
+    this.get_cards({}, `${this.state.order_dir}${this.state.order_by}`, 1, true)
   }
 
   handleFilterChange = (name, value) => {
@@ -251,18 +264,24 @@ export default class CardSearchApp extends React.Component {
     this.setState({
       filters: new_filters,
     });
-    if (main_input) this.debounced_get_cards(new_filters, this.state.order_by, 1, true)
+    if (main_input) this.debounced_get_cards(new_filters, `${this.state.order_dir}${this.state.order_by}`, 1, true)
   }
 
   handleOrderChange = (event) => {
     this.setState({
       order_by: event.target.value,
     })
-    this.get_cards(this.state.filters, event.target.value, 1, false)
+    this.get_cards(this.state.filters, `${this.state.order_dir}${event.target.value}`, 1, false)
+  }
+
+  handleAscDescChange = () => {
+    const new_dir = this.state.order_dir === '' ? '-' : ''
+    this.setState({order_dir: new_dir})
+    this.get_cards(this.state.filters, `${new_dir}${this.state.order_by}`, 1, false)
   }
 
   handleFilterModalClose = () => {
-    this.get_cards(this.state.filters, this.state.order_by, 1, true)
+    this.get_cards(this.state.filters, `${this.state.order_dir}${this.state.order_by}`, 1, true)
   }
 
   renderWidthOrder = (order_opts) => {
@@ -278,9 +297,21 @@ export default class CardSearchApp extends React.Component {
           </div>
         </div>
         <div className="col-lg-2 col-md-2 col-xs-5">
-          <select onChange={this.handleOrderChange} className="form-control input-sm">
-            {order_opts}
-          </select>
+          <FormGroup>
+            <InputGroup>
+              <FormControl bsSize="small" componentClass="select" onChange={this.handleOrderChange} value={this.state.order_by}>
+                {order_opts}
+              </FormControl>
+              <InputGroup.Button>
+                <Button bsSize="small" onClick={this.handleAscDescChange} style={{'font-size': '16px'}}>
+                  {this.state.order_dir === '' ?
+                    <span className="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                    :
+                    <span className="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>}
+                </Button>
+              </InputGroup.Button>
+            </InputGroup>
+          </FormGroup>
         </div>
         <div className="col-lg-2 col-md-2 col-xs-8">
           {this.state.display === 'images' &&

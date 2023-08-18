@@ -194,7 +194,11 @@ export default class CardSearchApp extends React.Component {
   buildOrderGET = (order) => {
     if (order === 'name') return '&o=name_sort'
     if (order === '-name') return '&o=-name_sort'
-    const allowed = ['color', 'type', 'mana_value', '-color', '-type', '-mana_value']
+    if (order === 'mana_value') return '&o=mana_cost_converted'
+    if (order === '-mana_value') return '&o=-mana_cost_converted'
+    if (order === 'color') return '&o=cannonical_color'
+    if (order === '-color') return '&o=-cannonical_color'
+    const allowed = ['type', '-type']
     if (_.includes(allowed, order)) return `&o=${order}`
     return ''
   }

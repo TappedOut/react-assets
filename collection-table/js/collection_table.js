@@ -182,7 +182,6 @@ export default class CollectionTableApp extends React.Component {
       if (document.getElementById('total-unique')) document.getElementById('total-unique').innerHTML = response.data.recordsTotal
       if (document.getElementById('total-cards')) document.getElementById('total-cards').innerHTML = response.data.quantityTotal
       if (document.getElementById('total-price')) document.getElementById('total-price').innerHTML = '$' + response.data.priceTotal
-      debugger;
       this.setState({
         cards: cards,
         total_cards: response.data.recordsTotal,

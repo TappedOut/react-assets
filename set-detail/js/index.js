@@ -391,7 +391,7 @@ class SetDetailApp extends React.Component {
       {'label': 'Name', 'value': 'name'},
       {'label': 'Color', 'value': 'color'},
       {'label': 'Price', 'value': 'price'},
-      {'label': 'CMC', 'value': 'cmc'},
+      {'label': 'Mana value', 'value': 'cmc'},
       {'label': 'Number', 'value': 'number'},
       {'label': 'Type', 'value': 'type'},
       {'label': 'Commander format rank', 'value': 'rank_edh'},
@@ -441,7 +441,7 @@ class SetDetailApp extends React.Component {
     const widthOrder = this.renderWidthOrder(order_opts, filtered_specs.length)
     return (
       <div>
-        <Filter filters={this.state.filters} choices={this.state.choices} filterChange={this.handleFilterChange} resetFilters={this.resetFilters} />
+        <Filter filters={this.state.filters} choices={this.state.choices} filterChange={this.handleFilterChange} resetFilters={this.resetFilters} modalCloseCB={() => {}} disableInputs={this.state.loading} />
         {widthOrder}
         <div className="row">
           <div className="col-lg-12">

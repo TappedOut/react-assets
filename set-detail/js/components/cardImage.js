@@ -54,7 +54,7 @@ export default class CardImage extends React.Component {
             <td onClick={() => this.handlePriceClick('CK', spec)} style={{"text-align": "center", "width":"60%", "cursor": "pointer", "padding": "4px"}}>Card Kingdom</td>
             <td onClick={() => this.handlePriceClick('CK', spec)} style={{"text-align": "center", "width":"40%", "cursor": "pointer", "padding": "4px"}}>${spec.ck_price}</td>
           </tr>}
-          {spec.rank_display !== '--' &&
+          {(spec.rank_display && (spec.rank_display !== '--')) &&
           <tr style={{'border': '1px solid #ddd'}}>
             <td style={{"text-align": "center", "width":"60%", "cursor": "pointer", "padding": "4px"}}>{this.props.rank_label}</td>
             <td style={{"text-align": "center", "width":"40%", "cursor": "pointer", "padding": "4px"}}>#{spec.rank_display}</td>

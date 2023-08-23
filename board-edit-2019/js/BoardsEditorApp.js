@@ -693,10 +693,10 @@ export default class BoardsEditorApp extends React.Component {
 
   handleSearchClear = (event) => {
     event.preventDefault();
-    let simpleSearchInput = { name: '', invOnly: false };
+    let simpleSearchInput = { name: '', invOnly: this.state.invOnly };
     let searchInput = { name: '', type: '', subtype: '', rarity: '',
       keywords: '', formats: '', sets: '', block: '', color: '', rules: '',
-      mana_value_min: '', mana_value_max: '', invOnly: false, order: 'name_sort' };
+      mana_value_min: '', mana_value_max: '', order: 'name_sort' };
     this.setState({foundCards: {}, noCardsFound: '', simpleSearchInput, searchInput});
   };
 
@@ -906,24 +906,19 @@ export default class BoardsEditorApp extends React.Component {
         });
       return value ? acc.concat(values) : acc;
     }, []).join('&');
-
-    if (invOnly !== null) {
-      if (invOnly) searchTerms += '&inv_only=True'
-    } else if (!simpleSearch && this.state.simpleSearchInput.invOnly) {
-      searchTerms += '&inv_only=True'
-    }
-
+    debugger;
     if (searchTerms.trim() !== '' && !this.state.searchingCards) {
-      let nextSearchPage = newSearch ? 1 : this.state.nextSearchPage;
-
-      let searchUrl = `${this.state.initData.cards_search_url}` +
-        `?page=${nextSearchPage}&${searchTerms}`;
+      const fromInv = (invOnly !== null) || (!simpleSearch && this.state.simpleSearchInput.invOnly)
+      const nextSearchPage = newSearch ? 1 : this.state.nextSearchPage;
+      const baseSearchUrl = fromInv ? this.state.initData.inv_cards_search_url : this.state.initData.cards_search_url
+      const searchUrl = `${baseSearchUrl}?page=${nextSearchPage}&${searchTerms}`;
 
       axios.get(
         searchUrl
       ).then(
         response => {
-          let foundCards = response.data.results.reduce(
+          const results = fromInv ? response.data.data : response.data.results
+          let foundCards = results.reduce(
             (foundCards, card) => {
               let foundCard = cardSetup(card);
               foundCards[foundCard.cardId] = foundCard;

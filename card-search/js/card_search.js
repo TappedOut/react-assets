@@ -175,7 +175,7 @@ export default class CardSearchApp extends React.Component {
           break
         case 'colors':
           _.forOwn(filters.colors, (cvalue, ckey) => {
-            if (cvalue === 1) get_params += `&color=${ckey.toUpperCase()}`
+            if (cvalue === 1) get_params += `&con_color=${ckey.toUpperCase()}`
             if (cvalue === -1) get_params += `&exclude_color=${ckey.toUpperCase()}`
           })
           break

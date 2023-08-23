@@ -190,6 +190,20 @@ export default class Filters extends React.Component {
                         </div>
                       </div>
                     </div>
+                    <div className="row">
+                      <div className="col-lg-6 col-xs-12">
+                        <div className="form-group">
+                          <label className="control-label">Keyword</label>
+                          <Select
+                            name="keywords"
+                            onChange={(v) => this.handleSelectChange('keywords', v)}
+                            value={this.props.filters.keywords}
+                            options={this.props.choices.kw_opts}
+                            multi={true}
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </Modal.Body>
                   <Modal.Footer>
                     <Button variant="secondary" onClick={this.handleModalClose}>

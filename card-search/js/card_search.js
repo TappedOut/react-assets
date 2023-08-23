@@ -86,7 +86,8 @@ export default class CardSearchApp extends React.Component {
       cmc_to: '',
       rules: '',
       subtype: '',
-      companion: ''
+      companion: '',
+      keywords: []
     }
     const queryParameters = new URLSearchParams(window.location.search)
     if (queryParameters.get('formats')) _.forOwn(filters.formats, (fval, fkey) => {filters.formats[fkey] = false})
@@ -109,6 +110,9 @@ export default class CardSearchApp extends React.Component {
           break
         case 'cmc_to':
           if (!isNaN(parseInt(value))) filters.cmc_to = value
+          break
+        case 'keywords':
+          if (value) filters.keywords.push(value)
           break
         default:
           if (value && _.includes(ALLOWED_PARAMS, key)) filters[key] = value
@@ -184,6 +188,11 @@ export default class CardSearchApp extends React.Component {
         case 'cmc_to':
           if (!isNaN(parseInt(value))) get_params += `&mana_value_max=${value}`
           break
+        case 'keywords':
+          _.forEach(value, (kw) => {
+            if (kw) get_params += `&keywords=${kw}`
+          })
+          break
         default:
           if (value) get_params += `&${key}=${value}`
       }
@@ -256,7 +265,8 @@ export default class CardSearchApp extends React.Component {
       cmc_to: '',
       rules: '',
       subtype: '',
-      companion: ''
+      companion: '',
+      keywords: []
     }
     this.setState({filters: empty, disable_main_inputs: true})
     this.get_cards({}, `${this.state.order_dir}${this.state.order_by}`, 1, true)

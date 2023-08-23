@@ -75,7 +75,8 @@ class SetDetailApp extends React.Component {
         cmc_to: '',
         rules: '',
         subtype: '',
-        companion: ''
+        companion: '',
+        keywords: []
       },
     }
     axios.get(
@@ -212,7 +213,7 @@ class SetDetailApp extends React.Component {
 
       // type
       if (this.state.filters.type) {
-        keep = keep && this.state.filters.type === card.type
+        keep = keep && _.startCase(this.state.filters.type) === card.type
       }
 
       // subtype
@@ -249,6 +250,14 @@ class SetDetailApp extends React.Component {
       if (this.state.filters.rules) {
         const rules = card['rules'] ? card['rules'] : ''
         keep = keep && rules.toLowerCase().includes(this.state.filters.rules.toLowerCase())
+      }
+
+      // Keywords
+      if (this.state.filters.keywords.length) {
+        const slugified_kws = card.keywords.map((kw) => _.kebabCase(kw))
+        _.forEach(this.state.filters.keywords, (kw) =>{
+          keep = keep && _.includes(slugified_kws, kw)
+        })
       }
 
       return keep
@@ -288,7 +297,8 @@ class SetDetailApp extends React.Component {
       cmc_to: '',
       rules: '',
       subtype: '',
-      companion: ''
+      companion: '',
+      keywords: []
     }
     this.setState({filters: empty})
     this.filterCards(empty)

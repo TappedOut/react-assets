@@ -906,7 +906,6 @@ export default class BoardsEditorApp extends React.Component {
         });
       return value ? acc.concat(values) : acc;
     }, []).join('&');
-    debugger;
     if (searchTerms.trim() !== '' && !this.state.searchingCards) {
       const fromInv = (invOnly !== null) || (!simpleSearch && this.state.simpleSearchInput.invOnly)
       const nextSearchPage = newSearch ? 1 : this.state.nextSearchPage;

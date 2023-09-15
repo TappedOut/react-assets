@@ -1,5 +1,5 @@
 import React from 'react';
-import {Modal, Button, Checkbox} from 'react-bootstrap';
+import {Modal, Button, Checkbox, FormGroup, InputGroup, FormControl} from 'react-bootstrap';
 import _ from "lodash";
 import Select from 'react-select';
 
@@ -97,15 +97,15 @@ export default class Filters extends React.Component {
                 {colorCheckboxes}
               </div>
               <div className="col-lg-6 col-md-6 col-xs-12">
-                <div className="btn-group" role="group" style={{'display': 'flex'}}>
-                  <button className="btn btn-sm btn-default" style={{'flex': 1}} onClick={this.handleModalShow}>
-                    Filters
-                  </button>
-                  <button className="btn btn-sm btn-default" style={{'flex': 1}} onClick={this.props.resetFilters}>
-                    Reset
-                  </button>
-                </div>
-                <input style={{'margin-top': '10px'}} placeholder="Search" name="name" value={this.props.filters.name} className="form-control" onChange={this.handleInputChange} disabled={this.props.disableInputs}/>
+                <FormGroup>
+                  <InputGroup>
+                    <FormControl placeholder="Search" name="name" type="text" className="form-control" onChange={this.handleInputChange} value={this.props.filters.name} disabled={this.props.disableInputs}/>
+                    <InputGroup.Button>
+                      <Button bsStyle="info" onClick={this.handleModalShow}><span className="glyphicon glyphicon-filter" aria-hidden="true"></span></Button>
+                      <Button bsStyle="danger" onClick={this.props.resetFilters}><span className="glyphicon glyphicon-remove" aria-hidden="true"></span></Button>
+                    </InputGroup.Button>
+                  </InputGroup>
+                </FormGroup>
                 <Modal bsSize="lg" show={this.state.showModal} onHide={this.handleModalClose}>
                   <Modal.Body>
                     <div className="row">
@@ -114,11 +114,10 @@ export default class Filters extends React.Component {
                     <div className="row">
                       <div className="col-lg-12 col-md-12 col-xs-12">
                         <div className="form-group">
-                          <label>Price</label>
                           <div className="row">
-                            <div className="col-lg-5 col-xs-5"><input name="price_from" type="number" className="form-control" onChange={this.handleInputChange} value={this.props.filters.price_from} /></div>
-                            <div className="col-lg-2 col-xs-2">to</div>
-                            <div className="col-lg-5 col-xs-5"><input name="price_to" type="number" className="form-control" onChange={this.handleInputChange} value={this.props.filters.price_to} /></div>
+                            <div className="col-lg-5 col-xs-5"><input placeholder="Price from" name="price_from" type="number" className="form-control" onChange={this.handleInputChange} value={this.props.filters.price_from} /></div>
+                            <div className="col-lg-2 col-xs-2">-</div>
+                            <div className="col-lg-5 col-xs-5"><input placeholder="Price to" name="price_to" type="number" className="form-control" onChange={this.handleInputChange} value={this.props.filters.price_to} /></div>
                           </div>
                         </div>
                       </div>
@@ -126,11 +125,10 @@ export default class Filters extends React.Component {
                     <div className="row">
                       <div className="col-lg-12 col-xs-12">
                         <div className="form-group">
-                          <label>Mana Value</label>
                           <div className="row">
-                            <div className="col-lg-5 col-xs-5"><input name="cmc_from" type="text" className="form-control" onChange={this.handleInputChange} value={this.props.filters.cmc_from} /></div>
-                            <div className="col-lg-2 col-xs-2">to</div>
-                            <div className="col-lg-5 col-xs-5"><input name="cmc_to" type="text" className="form-control" onChange={this.handleInputChange} value={this.props.filters.cmc_to} /></div>
+                            <div className="col-lg-5 col-xs-5"><input placeholder="Mana value from" name="cmc_from" type="text" className="form-control" onChange={this.handleInputChange} value={this.props.filters.cmc_from} /></div>
+                            <div className="col-lg-2 col-xs-2">-</div>
+                            <div className="col-lg-5 col-xs-5"><input placeholder="Mana value to" name="cmc_to" type="text" className="form-control" onChange={this.handleInputChange} value={this.props.filters.cmc_to} /></div>
                             </div>
                           </div>
                       </div>
@@ -138,9 +136,9 @@ export default class Filters extends React.Component {
                     <div className="row">
                       <div className="col-lg-6 col-xs-12">
                         <div className="form-group">
-                            <label className="control-label">Rarity</label>
                             <Select
                               name="rarity"
+                              placeholder="Rarity"
                               onChange={(v) => this.handleSelectChange('rarity', v)}
                               value={this.props.filters.rarity}
                               options={this.props.choices.rarity_opts}
@@ -149,17 +147,16 @@ export default class Filters extends React.Component {
                       </div>
                       <div className="col-lg-6 col-xs-12">
                         <div className="form-group">
-                          <label className="control-label">Mana Cost</label>
-                            <input name="mana_cost" value={this.props.filters.mana_cost} className="form-control" onChange={this.handleInputChange}/>
+                          <input placeholder="Mana cost" name="mana_cost" value={this.props.filters.mana_cost} className="form-control" onChange={this.handleInputChange}/>
                         </div>
                       </div>
                     </div>
                     <div className="row">
                       <div className="col-lg-6 col-xs-12">
                         <div className="form-group">
-                          <label className="control-label">Type</label>
                           <Select
                             name="type"
+                            placeholder="Type"
                             onChange={(v) => this.handleSelectChange('type', v)}
                             value={this.props.filters.type}
                             options={this.props.choices.type_opts}
@@ -168,21 +165,19 @@ export default class Filters extends React.Component {
                       </div>
                       <div className="col-lg-6 col-xs-12">
                         <div className="form-group">
-                          <label className="control-label">Subtype</label>
-                          <input name="subtype" value={this.props.filters.subtype} className="form-control" onChange={this.handleInputChange}/>
+                          <input placeholder="Subtype" name="subtype" value={this.props.filters.subtype} className="form-control" onChange={this.handleInputChange}/>
                         </div>
                       </div>
                     </div>
                     <div className="row">
                       <div className="col-lg-6 col-xs-12">
-                        <label className="control-label">Rules</label>
-                        <input name="rules" value={this.props.filters.rules} className="form-control" onChange={this.handleInputChange}/>
+                        <input placeholder="Rules" name="rules" value={this.props.filters.rules} className="form-control" onChange={this.handleInputChange}/>
                       </div>
                       <div className="col-lg-6 col-xs-12">
                         <div className="form-group">
-                          <label className="control-label">Companion</label>
                           <Select
                             name="companion"
+                            placeholder="Companion"
                             onChange={(v) => this.handleSelectChange('companion', v)}
                             value={this.props.filters.companion}
                             options={this.props.choices.companion_opts}
@@ -193,9 +188,9 @@ export default class Filters extends React.Component {
                     <div className="row">
                       <div className="col-lg-6 col-xs-12">
                         <div className="form-group">
-                          <label className="control-label">Keyword</label>
                           <Select
                             name="keywords"
+                            placeholder="Keywords"
                             onChange={(v) => this.handleSelectChange('keywords', v)}
                             value={this.props.filters.keywords}
                             options={this.props.choices.kw_opts}

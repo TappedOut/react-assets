@@ -277,7 +277,6 @@ export default class CollectionTableApp extends React.Component {
     let value = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
     const new_data = {...this.state.filter_data, [name]: value}
-    if (name === 'owned') value ? new_data['display'] = 'owned' : new_data['display'] = 'collapse'
     this.setState({filter_data: new_data});
     this.debouncedFilter()
   }
@@ -293,6 +292,16 @@ export default class CollectionTableApp extends React.Component {
     this.setState({
       filter_data: new_data
     });
+    this.debouncedFilter()
+  }
+
+  handleColorNumChange = (event) => {
+    const target = event.target;
+    let value = target.value;
+    const name = target.name;
+    const new_data = {...this.state.filter_data, [name]: value}
+    if (name === 'owned') value ? new_data['display'] = 'owned' : new_data['display'] = 'collapse'
+    this.setState({filter_data: new_data});
     this.debouncedFilter()
   }
 
@@ -642,6 +651,20 @@ export default class CollectionTableApp extends React.Component {
           </Modal.Header>
           <Modal.Body>
             {filters}
+            <div className="row">
+              <div className="col-lg-8 col-sm-8">
+                <div className="row">
+                  {colorCheckboxes}
+                </div>
+              </div>
+              <div className="col-lg-4 col-sm-4">
+                <div className="row">
+                  <div className="col-lg-5 col-xs-5"><input placeholder="min # of colors" type="number" name="color_num_from" className="form-control" onChange={this.handleColorNumChange} value={this.state.filter_data.color_num_from} /></div>
+                  <div className="col-lg-2 col-xs-2">-</div>
+                  <div className="col-lg-5 col-xs-5"><input placeholder="max # of colors" type="number" name="color_num_to" className="form-control" onChange={this.handleColorNumChange} value={this.state.filter_data.color_num_to} /></div>
+                </div>
+              </div>
+            </div>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={this.toggleFilters}>
@@ -658,7 +681,18 @@ export default class CollectionTableApp extends React.Component {
               <div className="well">
                 {filters}
                 <div className="row">
-                  {colorCheckboxes}
+                  <div className="col-lg-8 col-sm-8">
+                    <div className="row">
+                      {colorCheckboxes}
+                    </div>
+                  </div>
+                  <div className="col-lg-4 col-sm-4">
+                    <div className="row">
+                      <div className="col-lg-5 col-xs-5"><input placeholder="min # of colors" type="number" name="color_num_from" className="form-control" onChange={this.handleColorNumChange} value={this.state.filter_data.color_num_from} /></div>
+                      <div className="col-lg-2 col-xs-2">-</div>
+                      <div className="col-lg-5 col-xs-5"><input placeholder="max # of colors" type="number" name="color_num_to" className="form-control" onChange={this.handleColorNumChange} value={this.state.filter_data.color_num_to} /></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

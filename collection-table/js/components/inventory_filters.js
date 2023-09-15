@@ -101,9 +101,9 @@ class InventoryFilters extends Component {
           <div className="col-lg-6 col-xs-12">
             <div className="form-group">
               <div className="row">
-                <div className="col-lg-5"><input placeholder={this.props.init_data.price_header} name="price_from" type="text" className="form-control" onChange={this.props.handleInputChange} value={this.props.filter_data.price_from} /></div>
-                <div className="col-lg-1">to</div>
-                <div className="col-lg-5"><input name="price_to" type="text" className="form-control" onChange={this.props.handleInputChange} value={this.props.filter_data.price_to} /></div>
+                <div className="col-lg-5 col-xs-5"><input placeholder={`${this.props.init_data.price_header} from`} name="price_from" type="text" className="form-control" onChange={this.props.handleInputChange} value={this.props.filter_data.price_from} /></div>
+                <div className="col-lg-2 col-xs-2">-</div>
+                <div className="col-lg-5 col-xs-5"><input placeholder={`${this.props.init_data.price_header} to`} name="price_to" type="text" className="form-control" onChange={this.props.handleInputChange} value={this.props.filter_data.price_to} /></div>
               </div>
             </div>
           </div>
@@ -148,9 +148,9 @@ class InventoryFilters extends Component {
           </div>
           <div className="col-lg-6 col-xs-12">
             <div className="row">
-              <div className="col-lg-5 col-xs-5"><input placeholder="Mana value" type="number" name="cmc_from" className="form-control" onChange={this.props.handleInputChange} checked={this.props.filter_data.cost_from} /></div>
-              <div className="col-lg-1 col-xs-1">to</div>
-              <div className="col-lg-5 col-xs-5"><input type="number" name="cmc_to" className="form-control" onChange={this.props.handleInputChange} checked={this.props.filter_data.cost_to} /></div>
+              <div className="col-lg-5 col-xs-5"><input placeholder="Mana value from" type="number" name="cmc_from" className="form-control" onChange={this.props.handleInputChange} checked={this.props.filter_data.cost_from} /></div>
+              <div className="col-lg-2 col-xs-2">-</div>
+              <div className="col-lg-5 col-xs-5"><input placeholder="Mana value to" type="number" name="cmc_to" className="form-control" onChange={this.props.handleInputChange} checked={this.props.filter_data.cost_to} /></div>
             </div>
           </div>
         </div>

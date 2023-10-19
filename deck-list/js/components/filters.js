@@ -64,6 +64,11 @@ export default class Filters extends React.Component {
     this.setState({action: event.target.value})
   }
 
+  handleActionPerform = () => {
+    this.props.actionCB(this.state.action)
+    this.setState({action: ''})
+  }
+
   render() {
     let checkboxes = _.keys(this.props.filters.checkboxes).map(attr => {
       let icon = 'minus'
@@ -102,6 +107,23 @@ export default class Filters extends React.Component {
       <option value={'public'}>Mark as public</option>,
       <option value={'delete'}>Delete</option>
     ]
+    let left_content = <div></div>
+    if (this.props.canEdit) {
+      left_content = (
+        <InputGroup>
+          <FormControl placeholder={action_placeholder} componentClass="select" onChange={this.handleActionChange} value={this.state.action} disabled={!this.props.decksSelected}>
+            {action_opts}
+          </FormControl>
+          <InputGroup.Button>
+            <Button onClick={this.handleActionPerform} disabled={!this.props.decksSelected}>
+              Go
+            </Button>
+          </InputGroup.Button>
+        </InputGroup>
+      )
+    } else{
+      left_content = <p style={{'font-size': '20px'}}><span dangerouslySetInnerHTML={{__html: this.props.owner}}></span>'s decks</p>
+    }
 
     return (
       <Row>
@@ -109,16 +131,7 @@ export default class Filters extends React.Component {
           <Well>
             <Row>
               <Col lg={6} md={6} xs={12}>
-                <InputGroup>
-                  <FormControl placeholder={action_placeholder} componentClass="select" onChange={this.handleActionChange} value={this.state.action} disabled={!this.props.decksSelected}>
-                    {action_opts}
-                  </FormControl>
-                  <InputGroup.Button>
-                    <Button onClick={() => {}}>
-                      Go
-                    </Button>
-                  </InputGroup.Button>
-                </InputGroup>
+                {left_content}
               </Col>
               <Col lg={6} md={6} xs={12}>
                 <FormGroup>

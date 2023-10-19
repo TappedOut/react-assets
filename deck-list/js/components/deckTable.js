@@ -1,14 +1,24 @@
 import React from 'react';
-import {Row, Table} from 'react-bootstrap'
+import {Table} from 'react-bootstrap'
 
 
 export default class DeckTable extends React.Component {
   render() {
     const rows = this.props.decks.map(deck =>
       <tr>
-        {this.props.is_owner && <td></td>}
         <td><img style={{'width': '50px'}} alt="Pie chart" src={deck.chart} /></td>
-        <td><a href={deck.url}>{deck.name}</a></td>
+        <td>
+          <a href={deck.url}>{deck.name}</a>
+          {this.props.canEdit &&
+            <span className="pull-right">
+              <input
+                type="checkbox"
+                onChange={() => this.props.deckCheckboxToggle(deck.id)}
+                checked={_.includes(this.props.selectedDecks, deck.id)}
+                style={{'position': 'absolute', 'top': '5px', 'left': '5px', 'z-index': '1', 'margin': '0'}}
+              />
+            </span>}
+        </td>
         <td>{deck.format}</td>
         <td>{deck.score}</td>
         <td>{deck.comments}</td>
@@ -21,7 +31,6 @@ export default class DeckTable extends React.Component {
       <Table striped bordered hover responsive>
         <thead>
           <tr>
-            {this.props.is_owner && <th></th>}
             <th>Pie</th>
             <th>Name</th>
             <th>Format</th>

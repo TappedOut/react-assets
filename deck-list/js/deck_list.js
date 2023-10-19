@@ -2,12 +2,13 @@ import React from 'react';
 import axios from 'axios';
 import 'react-rangeslider/lib/index.css';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import {ProgressBar, FormGroup, InputGroup, FormControl, Button, Col, Row} from 'react-bootstrap'
+import {ProgressBar, FormGroup, InputGroup, FormControl, Button, Col, Row, Alert} from 'react-bootstrap'
 import DeckCards from './components/deckCards.js';
 import DeckTable from './components/deckTable.js';
 import Filter from "./components/filters.js";
 import 'react-select/dist/react-select.css';
 import '../../set-detail/css/set-detail.scss';
+import Cookies from "js-cookie";
 const _ = require('lodash');
 
 
@@ -27,9 +28,14 @@ export default class DeckListApp extends React.Component {
       disable_main_inputs: true,
       display: 'cards',
       api_error: '',
+      action_success: false,
+      action_amount: 0,
+      action_performed: '',
       order_by: 'date_updated',
       order_dir: '-',
       filters: filters,
+      can_edit: false,
+      owner: ''
     }
     this.get_decks(this.state.filters, `${this.state.order_dir}${this.state.order_by}`, 1)
     this.debounced_get_decks = _.debounce(
@@ -74,6 +80,8 @@ export default class DeckListApp extends React.Component {
           display: card_display,
           decks: decks,
           total_decks: response.data.total_decks,
+          can_edit: response.data.can_edit,
+          owner: response.data.owner,
           loading: false,
           disable_main_inputs: false,
           page: page + 1
@@ -82,10 +90,49 @@ export default class DeckListApp extends React.Component {
       error => {
         this.setState({
           loading: false,
-          error: 'Error getting card info. Please refresh the page.'
+          api_error: 'Error getting deck info. Please refresh the page.'
         })
       }
     )
+  }
+
+  performAction = (action) => {
+    if (!action) return
+    if (!this.state.can_edit) return
+    if (action === 'delete') {
+      const confirmation = confirm('Are you sure you want to permanently DELETE all selected decks?')
+      if (!confirmation) return
+    }
+    this.setState({loading: true})
+    axios.post(DECK_LIST_API, {
+      action: action,
+      decks: this.state.selected_decks
+    },
+    {headers: { 'X-CSRFToken': Cookies.get('csrftoken') }})
+    .then(
+      response => {
+        this.setState({selected_decks: [], action_success: true, action_amount: this.state.selected_decks.length, action_performed: action})
+        this.get_decks(this.state.filters, `${this.state.order_dir}${this.state.order_by}`, 1)
+      },
+      error => {
+        this.setState({
+        loading: false,
+        selected_decks: [],
+        api_error: 'Error performing action. Please refresh the page and try again.'
+      })
+      }
+    )
+    .catch(error => {
+      this.setState({
+        loading: false,
+        selected_decks: [],
+        api_error: 'Error performing action. Please refresh the page and try again.'
+      })
+    })
+  }
+
+  handleAlertDismiss = () => {
+    this.setState({action_success: false})
   }
 
   buildFilterGET = (filters) => {
@@ -210,16 +257,15 @@ export default class DeckListApp extends React.Component {
     } else {
       if (this.state.display === 'cards') {
         main_content = (
-          <Row>
-            <InfiniteScroll
-              dataLength={this.state.decks.length}
-              next={() => this.get_decks(this.state.filters, this.state.order_by, this.state.page)}
-              hasMore={this.state.decks.length < this.state.total_decks && !this.state.loading}
-              loader={<ProgressBar active now={100} />}
-            >
-             <DeckCards decks={decks} selectedDecks={this.state.selected_decks} deckCheckboxToggle={this.handleDeckCheckboxToggle}/>
-            </InfiniteScroll>
-          </Row>
+          <InfiniteScroll
+            dataLength={this.state.decks.length}
+            next={() => this.get_decks(this.state.filters, this.state.order_by, this.state.page)}
+            hasMore={this.state.decks.length < this.state.total_decks && !this.state.loading}
+            loader={<ProgressBar active now={100} />}
+          >
+           <DeckCards decks={decks} selectedDecks={this.state.selected_decks} deckCheckboxToggle={this.handleDeckCheckboxToggle}
+                      canEdit={this.state.can_edit}/>
+          </InfiniteScroll>
         )
       }
       if (this.state.display === 'table') {
@@ -230,17 +276,37 @@ export default class DeckListApp extends React.Component {
             hasMore={this.state.decks.length < this.state.total_decks && !this.state.loading}
             loader={<ProgressBar active now={100} />}
           >
-           <DeckTable decks={decks} selectedDecks={this.state.selected_decks} deckCheckboxToggle={this.handleDeckCheckboxToggle}/>
+           <DeckTable decks={decks} selectedDecks={this.state.selected_decks} deckCheckboxToggle={this.handleDeckCheckboxToggle}
+                      canEdit={this.state.can_edit}/>
           </InfiniteScroll>
         )
       }
     }
     const widthOrder = this.renderWidthOrder(order_opts)
+    let action_alert_message = 'Action performed'
+    if (this.state.action_success) {
+      if (this.state.action_performed === 'archive') action_alert_message = `Archived ${this.state.action_amount} deck(s)`
+      if (this.state.action_performed === 'private') action_alert_message = `Marked ${this.state.action_amount} deck(s) as private`
+      if (this.state.action_performed === 'public') action_alert_message = `Marked ${this.state.action_amount} deck(s) as public`
+      if (this.state.action_performed === 'delete') action_alert_message = `Deleted ${this.state.action_amount} deck(s)`
+    }
     return (
       <div>
         <Filter filters={this.state.filters} filterChange={this.handleFilterChange} decksSelected={!!this.state.selected_decks.length}
-                resetFilters={this.resetFilters} modalCloseCB={this.handleFilterModalClose} disableInputs={this.state.disable_main_inputs}/>
+                resetFilters={this.resetFilters} modalCloseCB={this.handleFilterModalClose} disableInputs={this.state.disable_main_inputs}
+                actionCB={this.performAction} canEdit={this.state.can_edit} owner={this.state.owner}
+        />
         {widthOrder}
+        {this.state.action_success &&
+          <Alert bsStyle="success" onDismiss={this.handleAlertDismiss}>
+            <p>{action_alert_message}</p>
+          </Alert>
+        }
+        {this.state.api_error &&
+          <Alert bsStyle="danger">
+            <p>{this.state.api_error}</p>
+          </Alert>
+        }
         <Row>
           <Col xs={12} sm={12} md={12} lg={12}>
             {main_content}

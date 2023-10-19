@@ -15,7 +15,6 @@ export default class DeckTable extends React.Component {
                 type="checkbox"
                 onChange={() => this.props.deckCheckboxToggle(deck.id)}
                 checked={_.includes(this.props.selectedDecks, deck.id)}
-                style={{'position': 'absolute', 'top': '5px', 'left': '5px', 'z-index': '1', 'margin': '0'}}
               />
             </span>}
         </td>

@@ -1,0 +1,24 @@
+.deck-card-img-container {
+  overflow: hidden;
+  width: 150px;
+  height: 108px;
+  margin-left: -8px;
+  margin-top: -8px;
+  img {
+    width: 121%;
+    height: auto;
+    position: relative;
+    top: -29px;
+    left: -15px;
+  }
+}
+
+.small-text {
+  font-size: 12px;
+}
+
+.row-well {
+  margin-left: -9px;
+  margin-right: -9px;
+  margin-top: -9px;
+}

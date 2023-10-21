@@ -124,7 +124,7 @@ export default class Filters extends React.Component {
     } else{
       left_content = <p style={{'font-size': '20px'}}><span dangerouslySetInnerHTML={{__html: this.props.owner}}></span>'s decks</p>
     }
-
+    const mobile_margin = window.django.is_mobile ? {'margin-top': '10px'} : {}
     return (
       <Row>
         <Col lg={6} xs={12}>
@@ -133,7 +133,7 @@ export default class Filters extends React.Component {
               <Col lg={6} md={6} xs={12}>
                 {left_content}
               </Col>
-              <Col lg={6} md={6} xs={12}>
+              <Col lg={6} md={6} xs={12} style={mobile_margin}>
                 <FormGroup>
                   <InputGroup>
                     <FormControl placeholder="Search" name="name" type="text" className="form-control" onChange={this.handleInputChange} value={this.props.filters.name} disabled={this.props.disableInputs}/>

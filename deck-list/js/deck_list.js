@@ -35,7 +35,8 @@ export default class DeckListApp extends React.Component {
       order_dir: '-',
       filters: filters,
       can_edit: false,
-      owner: ''
+      owner: '',
+      is_mobile: window.django.is_mobile
     }
     this.get_decks(this.state.filters, `${this.state.order_dir}${this.state.order_by}`, 1)
     this.debounced_get_decks = _.debounce(
@@ -259,12 +260,12 @@ export default class DeckListApp extends React.Component {
         main_content = (
           <InfiniteScroll
             dataLength={this.state.decks.length}
-            next={() => this.get_decks(this.state.filters, this.state.order_by, this.state.page)}
+            next={() => this.get_decks(this.state.filters, `${this.state.order_dir}${this.state.order_by}`, this.state.page)}
             hasMore={this.state.decks.length < this.state.total_decks && !this.state.loading}
             loader={<ProgressBar active now={100} />}
           >
            <DeckCards decks={decks} selectedDecks={this.state.selected_decks} deckCheckboxToggle={this.handleDeckCheckboxToggle}
-                      canEdit={this.state.can_edit}/>
+                      canEdit={this.state.can_edit} isMobile={this.state.is_mobile}/>
           </InfiniteScroll>
         )
       }
@@ -272,7 +273,7 @@ export default class DeckListApp extends React.Component {
         main_content = (
           <InfiniteScroll
             dataLength={this.state.decks.length}
-            next={() => this.get_decks(this.state.filters, this.state.order_by, this.state.page)}
+            next={() => this.get_decks(this.state.filters, `${this.state.order_dir}${this.state.order_by}`, this.state.page)}
             hasMore={this.state.decks.length < this.state.total_decks && !this.state.loading}
             loader={<ProgressBar active now={100} />}
           >

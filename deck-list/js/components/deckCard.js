@@ -5,8 +5,11 @@ import { Glyphicon, Well } from 'react-bootstrap';
 export default class DeckCard extends React.Component {
   render() {
     const deck = this.props.deck
+    const hub_count = this.props.isMobile ? 1 : 2
+    const format_hub_size = this.props.isMobile ? '12px' : '14px'
+    const pie_size = this.props.isMobile ? '50px' : '75px'
     return (
-      <Well className='deck-card-well' style={{'display': 'flex', 'flex-direction': 'column', 'flex': '1 1 0%', 'min-width': '400px'}} bsSize='small'>
+      <Well className='deck-card-well' style={{'display': 'flex', 'flex-direction': 'column', 'flex': '1 1 0%', 'min-width': '250px'}} bsSize='small'>
         <div style={{'display': 'flex', 'flex-direction': 'row', 'gap': '10px'}}>
           <div className="deck-card-img-container" style={{'position': 'relative'}}>
             {this.props.canEdit && <input
@@ -23,10 +26,10 @@ export default class DeckCard extends React.Component {
           <div style={{'white-space': 'nowrap', 'overflow': 'hidden', 'text-overflow': 'ellipsis', 'max-width': '60%'}}>
             <a href={deck.url} style={{'font-size': '18px'}}>{deck.name}</a>
             <div style={{'display': 'flex', 'flex-direction': 'row', 'align-items': 'center'}}>
-              <img style={{'height': '75px'}} alt="deck mana pie" src={deck.chart} />
-              <div>
-                <p>{deck.format}</p>
-                <p>{deck.hubs.slice(0, 2).join(' | ')}</p>
+              <img style={{'height': pie_size}} alt="pie" src={deck.chart} />
+              <div style={{'margin-top': '10px'}}>
+                <p style={{'font-size': format_hub_size}}>{deck.format}</p>
+                <p style={{'font-size': format_hub_size}}>{deck.hubs.slice(0, hub_count).join(' | ')}</p>
               </div>
             </div>
           </div>

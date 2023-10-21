@@ -8,8 +8,9 @@ export default class DeckCard extends React.Component {
     const hub_count = this.props.isMobile ? 1 : 2
     const format_hub_size = this.props.isMobile ? '12px' : '14px'
     const pie_size = this.props.isMobile ? '50px' : '75px'
+    const card_size = this.props.isMobile ? '250px' : '400px'
     return (
-      <Well className='deck-card-well' style={{'display': 'flex', 'flex-direction': 'column', 'flex': '1 1 0%', 'min-width': '250px'}} bsSize='small'>
+      <Well className='deck-card-well' style={{'display': 'flex', 'flex-direction': 'column', 'flex': '1 1 0%', 'min-width': card_size}} bsSize='small'>
         <div style={{'display': 'flex', 'flex-direction': 'row', 'gap': '10px'}}>
           <div className="deck-card-img-container" style={{'position': 'relative'}}>
             {this.props.canEdit && <input

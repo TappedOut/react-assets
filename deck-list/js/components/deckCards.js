@@ -8,8 +8,9 @@ export default class DeckCards extends React.Component {
       <DeckCard deck={deck} selectedDecks={this.props.selectedDecks} deckCheckboxToggle={this.props.deckCheckboxToggle} canEdit={this.props.canEdit}
                 isMobile={this.props.isMobile} />
     )
+    const card_size = this.props.isMobile ? '250px' : '400px'
     return (
-      <div style={{'display': 'grid', 'grid-template-columns': 'repeat(auto-fill,minmax(250px, 1fr))', 'gap': '0 20px'}}>
+      <div style={{'display': 'grid', 'grid-template-columns': `repeat(auto-fill,minmax(${card_size}, 1fr))`, 'gap': '0 20px'}}>
         {cards}
       </div>
     )

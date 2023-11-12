@@ -147,6 +147,7 @@ class SetDetailApp extends React.Component {
 
   filterCards = (cards) => {
     return cards.filter(card => {
+      const backside = card.flip && this.state.backsides[card.flip] ? this.state.backsides[card.flip] : null
       let keep = true
 
       // formats
@@ -163,7 +164,8 @@ class SetDetailApp extends React.Component {
       }
 
       // color
-      const colors = card['effective_cost'] ? card['effective_cost'] : []
+      let colors = card['effective_cost'] ? card['effective_cost'] : []
+      if (backside && backside['effective_cost']) colors = colors.concat(backside['effective_cost'])
       if (this.selectedColors.length) {
         let anycolor = false
         _.each(this.selectedColors, c => {
@@ -208,18 +210,24 @@ class SetDetailApp extends React.Component {
 
       // name
       if (this.state.filters.name) {
-        keep = keep && card['name'].toLowerCase().includes(this.state.filters.name.toLowerCase())
+        let namekeep = card['name'].toLowerCase().includes(this.state.filters.name.toLowerCase())
+        if (backside) namekeep = namekeep || backside['name'].toLowerCase().includes(this.state.filters.name.toLowerCase())
+        keep = keep && namekeep
       }
 
       // type
       if (this.state.filters.type) {
-        keep = keep && _.startCase(this.state.filters.type) === card.type
+        let typekeep = _.startCase(this.state.filters.type) === card.type
+        if (backside) typekeep = typekeep || _.startCase(this.state.filters.type) === backside.type
+        keep = keep && typekeep
       }
 
       // subtype
       if (this.state.filters.subtype) {
         const subtype = card['subtype'] ? card['subtype'] : ''
-        keep = keep && subtype.toLowerCase().includes(this.state.filters.subtype.toLowerCase())
+        let subkeep = subtype.toLowerCase().includes(this.state.filters.subtype.toLowerCase())
+        if (backside && backside['subtype']) subkeep = subkeep || backside['subtype'].toLowerCase().includes(this.state.filters.subtype.toLowerCase())
+        keep = keep && subkeep
       }
 
       // cmc
@@ -249,12 +257,17 @@ class SetDetailApp extends React.Component {
       // Rules
       if (this.state.filters.rules) {
         const rules = card['rules'] ? card['rules'] : ''
-        keep = keep && rules.toLowerCase().includes(this.state.filters.rules.toLowerCase())
+        let ruleskeep = rules.toLowerCase().includes(this.state.filters.rules.toLowerCase())
+        if (backside && backside['rules']) ruleskeep = ruleskeep || backside['rules'].toLowerCase().includes(this.state.filters.rules.toLowerCase())
+        keep = keep && ruleskeep
       }
 
       // Keywords
       if (this.state.filters.keywords.length) {
-        const slugified_kws = card.keywords.map((kw) => _.kebabCase(kw))
+        let slugified_kws = card.keywords.map((kw) => _.kebabCase(kw))
+        if (backside && backside.keywords && backside.keywords.length) {
+          slugified_kws = slugified_kws.concat(card.keywords.map((kw) => _.kebabCase(kw)))
+        }
         _.forEach(this.state.filters.keywords, (kw) =>{
           keep = keep && _.includes(slugified_kws, kw)
         })

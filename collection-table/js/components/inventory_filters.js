@@ -125,7 +125,8 @@ class InventoryFilters extends Component {
                 onChange={(v) => this.props.handleSelectChange('foil', v)}
                 value={this.props.filter_data.foil}
                 options={this.props.init_data.selects.filter_foil}
-                placeholder="Foil"
+                placeholder="Treatment"
+                clearable={true}
               />
             </div>
           </div>

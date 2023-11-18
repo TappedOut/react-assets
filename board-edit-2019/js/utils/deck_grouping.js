@@ -63,17 +63,22 @@ function group_by_price(deck, reg_key, foil_key) {
 
 
 function group_by_tcg_avg(deck) {
-  return group_by_price(deck, 'tcg_avg_price', 'tcg_foil_price')
+  return group_by_price(deck, 'tcg_avg_price', 'tcg_foil_avg_price')
 }
 
 
 function group_by_tcg_high(deck) {
-  return group_by_price(deck, 'tcg_high_price', 'tcg_foil_price')
+  return group_by_price(deck, 'tcg_high_price', 'tcg_foil_high_price')
 }
 
 
 function group_by_tcg_low(deck) {
-  return group_by_price(deck, 'tcg_low_price', 'tcg_foil_price')
+  return group_by_price(deck, 'tcg_low_price', 'tcg_foil_low_price')
+}
+
+
+function group_by_tcg_market(deck) {
+  return group_by_price(deck, 'tcg_market_price', 'tcg_foil_market_price')
 }
 
 
@@ -169,6 +174,7 @@ let deck_group = {
   'tcg_avg_price': (deck) => { return clean_groups(group_by_tcg_avg(deck)) },
   'tcg_high_price': (deck) => { return clean_groups(group_by_tcg_high(deck)) },
   'tcg_low_price': (deck) => { return clean_groups(group_by_tcg_low(deck)) },
+  'tcg_market_price': (deck) => { return clean_groups(group_by_tcg_market(deck)) },
   'chaos_price': (deck) => { return clean_groups(group_by_chaos(deck)) },
   'ck_price': (deck) => { return clean_groups(group_by_ck(deck)) },
   'ch_price': (deck) => { return clean_groups(group_by_ch(deck)) },

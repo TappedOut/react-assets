@@ -53,6 +53,7 @@ function cardSetup(originalCard, board='none', created=true) {
   card.created = created;
   card.hasErrors = [];
   card.need_qty = card.need_qty || 0;
+  card.latest_tla = card.tla;
   card.tla = !created && card.fixed_tla ? card.tla : '';
   card.original_tla = card.tla;
   card.updated = false;

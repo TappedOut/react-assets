@@ -1,5 +1,6 @@
 import React from 'react';
 import { Collapse } from 'react-bootstrap';
+import PopoverHoverStick from "./PopoverHoverStick";
 import Cookies from 'js-cookie';
 
 
@@ -53,6 +54,23 @@ export default class CardPin extends React.Component {
       this.setState({showHandlers: !this.state.showHandlers});
     }
   };
+
+  handleTCGClick = (card) => {
+    const tla = card.tla ? card.tla : card.latest_tla
+    const url = _.find(card.printings, obj => obj.tla === tla).tcg_url
+    if (url) {
+      window.open(url, "_blank")
+    }
+  }
+
+  handleCKClick = (card) => {
+    const tla = card.tla ? card.tla : card.latest_tla
+    const url = _.find(card.printings, obj => obj.tla === tla).ck_url
+    if (url) {
+      const link = `${url}?partner=tappedout&utm_source=tappedout&utm_medium=affiliate&utm_campaign=tappedoutsearch`
+      window.open(link, "_blank")
+    }
+  }
 
   onCardMouseOver = () => {
     this.topIntervalId = setInterval(() => this.setState({showOnTop: true}), 2000)
@@ -148,7 +166,7 @@ export default class CardPin extends React.Component {
       cardOpts['onMouseOut'] = this.onCardMouseOut;
     }
 
-    return (
+    let result = (
       <div {...cardOpts}>
         { toggleImages &&
           <div className={'panel-heading card-thumbnail ' +
@@ -249,5 +267,34 @@ export default class CardPin extends React.Component {
         </Collapse>
       </div>
     );
+
+    if (toggleImages) {
+      const pricePopover = (
+        <table style={{'background-color': 'black', 'margin-bottom': 0}} className="table table-bordered">
+          {card.tcg_market_price &&
+          <tr style={{'border': '1px solid #ddd'}}>
+            <td onClick={() => this.handleTCGClick(card)} style={{"text-align": "center", "width":"60%", "cursor": "pointer", "padding": "4px"}}>TCG Market Price</td>
+            <td onClick={() => this.handleTCGClick(card)} style={{"text-align": "center", "width":"40%", "cursor": "pointer", "padding": "4px"}}>${card.tcg_market_price}</td>
+          </tr>}
+          {card.ck_price &&
+          <tr style={{'border': '1px solid #ddd'}}>
+            <td onClick={() => this.handleCKClick(card)} style={{"text-align": "center", "width":"60%", "cursor": "pointer", "padding": "4px"}}>Card Kingdom</td>
+            <td onClick={() => this.handleCKClick(card)} style={{"text-align": "center", "width":"40%", "cursor": "pointer", "padding": "4px"}}>${card.ck_price}</td>
+          </tr>}
+        </table>
+      );
+      result = (
+        <PopoverHoverStick
+          trigger={['hover', 'focus']}
+          component={pricePopover}
+          placement='bottom'
+          delay={1000}
+        >
+          {result}
+        </PopoverHoverStick>
+      )
+    }
+
+    return result;
   }
 }

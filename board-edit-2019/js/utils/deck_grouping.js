@@ -23,7 +23,7 @@ function group_by_price(deck, reg_key, foil_key) {
   return _.groupBy(
     _.mapValues(deck,
       card => {
-        let price = (card.foil ? card[reg_key] : card[foil_key]) || 0.0;
+        let price = (card.foil ? card[foil_key] : card[reg_key]) || 0.0;
 
         if (price === 0) {
           return {

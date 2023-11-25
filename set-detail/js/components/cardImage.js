@@ -14,6 +14,14 @@ export default class CardImage extends React.Component {
     this.setState({front: !this.state.front})
   }
 
+  handlePriceClick = (vendor, spec) => {
+    const url = spec[this.props.choices.vendor_url[vendor]];
+    if (url) {
+      const link = `${url}${this.props.choices.vendor_param[vendor]}`
+      window.open(link, "_blank")
+    }
+  }
+
   render() {
     let spec = this.props.spec
     let image = spec.image

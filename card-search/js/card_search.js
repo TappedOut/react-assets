@@ -87,7 +87,8 @@ export default class CardSearchApp extends React.Component {
       rules: '',
       subtype: '',
       companion: '',
-      keywords: []
+      keywords: [],
+      sets: []
     }
     const queryParameters = new URLSearchParams(window.location.search)
     if (queryParameters.get('formats')) _.forOwn(filters.formats, (fval, fkey) => {filters.formats[fkey] = false})
@@ -113,6 +114,9 @@ export default class CardSearchApp extends React.Component {
           break
         case 'keywords':
           if (value) filters.keywords.push(value)
+          break
+        case 'sets':
+          if (value) filters.sets.push(value)
           break
         default:
           if (value && _.includes(ALLOWED_PARAMS, key)) filters[key] = value
@@ -193,6 +197,11 @@ export default class CardSearchApp extends React.Component {
             if (kw) get_params += `&keywords=${kw}`
           })
           break
+        case 'sets':
+          _.forEach(value, (kw) => {
+            if (kw) get_params += `&sets=${kw}`
+          })
+          break
         default:
           if (value) get_params += `&${key}=${value}`
       }
@@ -266,7 +275,8 @@ export default class CardSearchApp extends React.Component {
       rules: '',
       subtype: '',
       companion: '',
-      keywords: []
+      keywords: [],
+      sets: []
     }
     this.setState({filters: empty, disable_main_inputs: true})
     this.get_cards({}, `${this.state.order_dir}${this.state.order_by}`, 1, true)

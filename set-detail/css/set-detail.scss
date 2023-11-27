@@ -29,3 +29,9 @@
     line-height: 1.5;
     border-radius: 3px;
 }
+
+.table-border-bottom {
+  tr:not(:last-child) {
+    border-bottom: 1px solid #ddd
+  }
+}

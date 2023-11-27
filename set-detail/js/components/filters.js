@@ -198,6 +198,20 @@ export default class Filters extends React.Component {
                           />
                         </div>
                       </div>
+                      {this.props.choices.set_opts &&
+                        <div className="col-lg-6 col-xs-12">
+                          <div className="form-group">
+                            <Select
+                              name="sets"
+                              placeholder="Sets"
+                              onChange={(v) => this.handleSelectChange('sets', v)}
+                              value={this.props.filters.sets}
+                              options={this.props.choices.set_opts}
+                              multi={true}
+                            />
+                          </div>
+                        </div>
+                      }
                     </div>
                   </Modal.Body>
                   <Modal.Footer>

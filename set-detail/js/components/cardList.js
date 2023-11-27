@@ -87,11 +87,13 @@ export default class CardList extends React.Component {
               </div>
               {this.cardBlock(this.props.backsides[spec.flip])}
             </div>}
-            <div className="row">
-              <div className="col-xs-12">
-                <p>{this.props.rank_label}: #{spec.rank_display}</p>
+            {this.props.rank_label &&
+              <div className="row">
+                <div className="col-xs-12">
+                  <p>{this.props.rank_label}: #{spec.rank_display}</p>
+                </div>
               </div>
-            </div>
+            }
             <div className="row">
               {!!spec.tcg_market_price &&
                 <div className="col-xs-6">

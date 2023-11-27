@@ -8,7 +8,7 @@ export default class CardImage extends React.Component {
     super(props);
     this.state = {
       front: true,
-      tla: this.props.spec.tla,
+      tla: this.props.default_tla ? this.props.default_tla : this.props.spec.tla,
       dropdownOpen: false
     }
   }

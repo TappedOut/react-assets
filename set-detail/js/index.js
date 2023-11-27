@@ -93,15 +93,7 @@ class SetDetailApp extends React.Component {
             return false
           }
           return !duplicate
-        }), (spec) => spec['name']).map((spec) => {
-          if (!spec.printings) return spec
-          const printing_info = spec.printings.find((p) => {return p.tla === SET_TLA})
-          if (!printing_info) return spec
-          _.forEach(['image', 'number', 'tcg_market_price', 'ck_price'], (e) => {
-            if (printing_info[e]) spec[e] = printing_info[e]
-          })
-          return spec
-        })
+        }), (spec) => spec['name'])
 
         let card_display = response.data.reduce_images ? 'table' : 'images'
         if (localStorage) {
@@ -451,7 +443,7 @@ class SetDetailApp extends React.Component {
         return spec
       })
       if (this.state.display === 'images') {
-        main_content = <CardImages specs={filtered_specs} choices={this.state.choices}
+        main_content = <CardImages specs={filtered_specs} choices={this.state.choices} default_tla={SET_TLA}
                                    width={this.state.images_width} backsides={this.state.backsides} rank_label={rank_label} />;
       }
       if (this.state.display === 'table') {

@@ -1,0 +1,42 @@
+.rdl-list-box {
+  height: 300px;
+}
+
+.rdl-icon {
+  font-size: 14px;
+}
+@media (min-width: 576px) {
+  .rdl-icon-move-all-to-selected::before {
+    content: '>>' !important;
+  }
+
+  .rdl-icon-move-to-selected::before {
+    content: '>' !important;
+  }
+
+  .rdl-icon-move-all-to-available::before {
+    content: '<<' !important;
+  }
+
+  .rdl-icon-move-to-available::before {
+    content: '<' !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .rdl-icon-move-all-to-selected::before {
+    content: 'vv' !important;
+  }
+
+  .rdl-icon-move-to-selected::before {
+    content: 'v' !important;
+  }
+
+  .rdl-icon-move-all-to-available::before {
+    content: '^^' !important;
+  }
+
+  .rdl-icon-move-to-available::before {
+    content: '^' !important;
+  }
+}

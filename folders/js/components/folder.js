@@ -123,7 +123,7 @@ class Folder extends Component {
         return <div className="row">{rowContent}</div>;
     });
     let deckString = 'Deck';
-    if (this.props.folder.deckCount > 1) {
+    if (this.props.folder.deckCount !== 1) {
       deckString = `${deckString}s`
     }
     let header = this.props.folder.name;
@@ -173,7 +173,7 @@ class Folder extends Component {
           </div>
           <Collapse in={this.state.open}>
             <div>
-              {deckItems}
+              {deckItems.length ? deckItems : <p>No decks in folder</p>}
               <div className="row">
                 <div className="col-md-12 col-xs-12">
                   {getMoreDecksBtn} {showAllBtn}

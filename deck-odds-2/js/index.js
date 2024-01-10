@@ -28,9 +28,9 @@ function MainSideDual(props) {
 function expandSpecs(spec) {
   const result = []
   let i = 1
+  spec.orig_slug = spec.slug
   _.times(spec.qty, () => {
-    spec.orig_slug = spec.slug
-    spec.slug = spec.slug + `---${spec.b}-${i}`
+    spec.slug = spec.orig_slug + `---${spec.b}-${i}`
     result.push({...spec})
     i++
   })
@@ -92,12 +92,14 @@ function CardOdds() {
   const calculateOdds = useCallback(async () => {
     if (isSending) return
     setIsSending(true)
-
-    axios({
-      method: "GET",
-      url: CARD_ODDS_API,
-      data: {}
-    }).then((result) => {
+    axios.get(CARD_ODDS_API,
+      {params: {
+        'draw': draws,
+        'odds_type': oddsType,
+        'cards': deck.map((s) => s.orig_slug).join(','),
+        'want_card': odds.map((s) => s.split('---')[0]).join(',')
+      }}
+    ).then((result) => {
       setIsSending(false)
       setOddsProbs(result.data.odds)
     }).catch((err) => console.log(err)
@@ -105,7 +107,7 @@ function CardOdds() {
       if (isMounted.current) setIsSending(false)
     })
 
-  }, [isSending])
+  }, [isSending, deck, odds])
 
   if (loading) return <ProgressBar active now={100} />
 
@@ -192,7 +194,7 @@ function CardOdds() {
                 </DropdownButton>
               </InputGroup.Button>
               <InputGroup.Button>
-                <Button bsStyle="success" disabled={isSending} onClick={calculateOdds}>
+                <Button bsStyle="success" disabled={isSending || odds.length === 0} onClick={calculateOdds}>
                   Calculate
                 </Button>
               </InputGroup.Button>

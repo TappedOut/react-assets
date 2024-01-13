@@ -102,7 +102,7 @@ function CardOdds() {
     ).then((result) => {
       setIsSending(false)
       setOddsProbs(result.data.odds)
-    }).catch((err) => console.log(err)
+    }).catch((err) => setOddsProbs([{'label': 'Error', 'prob': 'Failed to get odds. Please refresh the page and try again'}])
     ).finally(() => {
       if (isMounted.current) setIsSending(false)
     })

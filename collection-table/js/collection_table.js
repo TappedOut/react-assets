@@ -522,7 +522,7 @@ export default class CollectionTableApp extends React.Component {
       if (this.state.init_data.can_edit) {
         big_button = (
           <a style={{'margin-bottom': '10px'}} className="btn btn-lg btn-warning btn-block"
-             href={this.state.init_data.urls.find_decks}>Build deck from inventory</a>
+             href={this.state.init_data.urls.find_decks}>Find decks matching inventory</a>
         )
       }
     }

@@ -22,6 +22,7 @@ class App extends Component {
       folderId: window.django.folderId,
       folderName: null,
       folderDesc: null,
+      managed: false,
       decks: [],
       foldersOpt: [],
       selectedDeck: null,
@@ -55,6 +56,7 @@ class App extends Component {
         this.setState({
           folderName: response.data.folder.name,
           folderDesc: response.data.folder.description,
+          managed: response.data.folder.managed,
           nextDecksIndex: response.data.folder.nextDecksIndex,
           decks: response.data.folder.decks,
           foldersOpt: response.data.allFolders,
@@ -220,7 +222,7 @@ class App extends Component {
         deck={deck}
         onFolderDeckBtnClick={this._onDeckBtnClick}
         onFolderDeckDeleteBtnClick={this._onDeckDeleteBtnClick}
-        canEdit={this.state.canEdit}
+        canEdit={this.state.canEdit && !this.state.managed}
         authenticated={this.state.authenticated}
       />
       )

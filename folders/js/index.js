@@ -295,7 +295,7 @@ class App extends Component {
           onDeckDeleteBtnClick={this._onDeckDeleteBtnClick}
           onFolderDecksGet={this._onFolderDecksGet}
           onFolderEdit={this._onFolderEdit}
-          canEdit={this.state.canEdit}
+          canEdit={this.state.canEdit && !folder.managed}
           authenticated={this.state.authenticated}
         />
       )

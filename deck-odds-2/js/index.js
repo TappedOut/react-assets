@@ -49,6 +49,7 @@ function CardOdds() {
   const [showSideModal, setShowSideModal] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [oddsProbs, setOddsProbs] = useState([])
+  const [runTour, setRunTour] = useState(!localStorage.getItem('hasCompletedTour'))
   const [steps, setSteps] = useState([
     {
       target: '.rdl-list-box',
@@ -140,7 +141,7 @@ function CardOdds() {
       if (isMounted.current) setIsSending(false)
     })
 
-  }, [isSending, deck, odds])
+  }, [isSending, deck, odds, draws])
 
   if (loading) return <ProgressBar active now={100} />
 
@@ -189,6 +190,11 @@ function CardOdds() {
     }
   };
 
+  function handleHelpClick(){
+    setRunTour(true)
+    localStorage.removeItem('hasCompletedTour')
+  }
+
   const oddsRender = oddsProbs.map((o) => <p>{o.label}: {o.prob}</p>)
 
   return (
@@ -197,7 +203,7 @@ function CardOdds() {
         steps={steps} 
         continuous={true}
         showSkipButton={true}
-        run={!localStorage.getItem('hasCompletedTour')}
+        run={runTour}
         showProgress={true}
         callback={handleJoyrideCallback}
       />
@@ -216,22 +222,27 @@ function CardOdds() {
           />
 
           <div style={{'display': 'flex', 'justify-content': 'space-between'}}>
-            <Button id="perform-sideboard" style={{'margin-top': '20px'}} bsStyle="warning" bsSize="medium" onClick={() => setShowSideModal(!showSideModal)}>
-              Sideboard
-            </Button>
+            <div>
+              <Button id="perform-sideboard" style={{'margin-top': '20px'}} bsStyle="warning" bsSize="medium" onClick={() => setShowSideModal(!showSideModal)}>
+                Sideboard
+              </Button>
+              <Button id="perform-sideboard" style={{'margin-top': '20px'}} bsStyle="info" bsSize="medium" onClick={handleHelpClick}>
+                Help
+              </Button>
 
-            <Modal show={showSideModal} onHide={() => setShowSideModal(false)}>
-              <Modal.Body>
-                <div style={{'display': 'flex', 'justify-content': 'space-between'}}>
-                  <h4>Mainboard</h4>
-                  <h4>Sideboard</h4>
-                </div>
-                <MainSideDual allboards={dual_opts} selected={selected} setSideboard={setSideboard} />
-              </Modal.Body>
-              <Modal.Footer>
-                <Button onClick={() => setShowSideModal(false)}>Close</Button>
-              </Modal.Footer>
-            </Modal>
+              <Modal show={showSideModal} onHide={() => setShowSideModal(false)}>
+                <Modal.Body>
+                  <div style={{'display': 'flex', 'justify-content': 'space-between'}}>
+                    <h4>Mainboard</h4>
+                    <h4>Sideboard</h4>
+                  </div>
+                  <MainSideDual allboards={dual_opts} selected={selected} setSideboard={setSideboard} />
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button onClick={() => setShowSideModal(false)}>Close</Button>
+                </Modal.Footer>
+              </Modal>
+            </div>
 
             <InputGroup style={{'margin-top': '20px'}}>
               <FormControl id="cards-to-draw" type="number" min={0} max={deck.length} value={draws} onChange={e => setDraws(e.target.value)} />

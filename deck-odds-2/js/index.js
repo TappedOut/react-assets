@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import {ProgressBar, Modal, Button, Row, Col, InputGroup,
-  DropdownButton, MenuItem, FormControl} from 'react-bootstrap'
+  DropdownButton, MenuItem, FormControl} from 'react-bootstrap';
 import DualListBox from 'react-dual-listbox';
+import Joyride from 'react-joyride';
 import 'react-dual-listbox/lib/react-dual-listbox.css';
 const _ = require('lodash');
 import '../css/deck_odds.scss';
@@ -48,6 +49,38 @@ function CardOdds() {
   const [showSideModal, setShowSideModal] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [oddsProbs, setOddsProbs] = useState([])
+  const [steps, setSteps] = useState([
+    {
+      target: '.rdl-list-box',
+      content: 'Select cards from your main board and add them to “Wanted Cards".',
+      disableBeacon: true
+    },
+    {
+      target: '#cards-to-draw',
+      content: 'Select the amount of cards to draw.',
+      disableBeacon: true
+    },
+    {
+      target: '#odds-type',
+      content: 'Select "Any Card" for odds of drawing any amount of the wanted cards without distinction.',
+      disableBeacon: true
+    },
+    {
+      target: '#odds-type',
+      content: 'Select "Exact Cards" for odds of drawing the wanted set of cards together.',
+      disableBeacon: true
+    },
+    {
+      target: '#calculate-odds',
+      content: 'Calculate the odds to draw the cards in "Wanted Cards" with the selected parameters.',
+      disableBeacon: true
+    },
+    {
+      target: '#perform-sideboard',
+      content: 'Modify your deck with your sideboard if needed.', 
+      disableBeacon: true
+    }
+  ])
   const isMounted = useRef(true)
   const cmdr = []
 
@@ -148,16 +181,32 @@ function CardOdds() {
     setSide(_.sortBy(new_side, 'name'))
   }
 
+  function handleJoyrideCallback(data){
+    const { status } = data;
+
+    if (status === 'finished' || status === 'skipped') {
+      localStorage.setItem('hasCompletedTour', 'true')
+    }
+  };
+
   const oddsRender = oddsProbs.map((o) => <p>{o.label}: {o.prob}</p>)
 
   return (
     <div>
+      <Joyride 
+        steps={steps} 
+        continuous={true}
+        showSkipButton={true}
+        run={!localStorage.getItem('hasCompletedTour')}
+        showProgress={true}
+        callback={handleJoyrideCallback}
+      />
       <Row>
         <Col lg={8} md={8} sm={8} xs={12}>
 
           <div style={{'display': 'flex', 'justify-content': 'space-between'}}>
             <h4>Mainboard</h4>
-            <h4>Cards to draw</h4>
+            <h4>Wanted Cards</h4>
           </div>
           <DualListBox
             canFilter
@@ -167,7 +216,7 @@ function CardOdds() {
           />
 
           <div style={{'display': 'flex', 'justify-content': 'space-between'}}>
-            <Button style={{'margin-top': '20px'}} bsStyle="warning" bsSize="medium" onClick={() => setShowSideModal(!showSideModal)}>
+            <Button id="perform-sideboard" style={{'margin-top': '20px'}} bsStyle="warning" bsSize="medium" onClick={() => setShowSideModal(!showSideModal)}>
               Sideboard
             </Button>
 
@@ -185,16 +234,16 @@ function CardOdds() {
             </Modal>
 
             <InputGroup style={{'margin-top': '20px'}}>
-              <FormControl type="number" min={0} max={deck.length} value={draws} onChange={e => setDraws(e.target.value)} />
+              <FormControl id="cards-to-draw" type="number" min={0} max={deck.length} value={draws} onChange={e => setDraws(e.target.value)} />
               <InputGroup.Addon>Draws</InputGroup.Addon>
               <InputGroup.Button>
-                <DropdownButton title={oddsType === 'any' ? 'Any Card' : 'Exact Cards'}>
+                <DropdownButton id="odds-type" title={oddsType === 'any' ? 'Any Card' : 'Exact Cards'}>
                   <MenuItem active={oddsType === 'any'} onClick={() => {if (oddsType !== 'any') setOddsType('any')}}>Any Card</MenuItem>
                   <MenuItem active={oddsType === 'exact'} onClick={() => {if (oddsType !== 'exact') setOddsType('exact')}}>Exact Cards</MenuItem>
                 </DropdownButton>
               </InputGroup.Button>
               <InputGroup.Button>
-                <Button bsStyle="success" disabled={isSending || odds.length === 0} onClick={calculateOdds}>
+                <Button id="calculate-odds" bsStyle="success" disabled={isSending || odds.length === 0} onClick={calculateOdds}>
                   Calculate
                 </Button>
               </InputGroup.Button>

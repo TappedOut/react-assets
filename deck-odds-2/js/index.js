@@ -26,15 +26,16 @@ function MainSideDual(props) {
 }
 
 
-function expandSpecs(spec) {
+function expandSpecs(spec, duplicates) {
   const result = []
-  let i = 1
+  let i = duplicates[spec.slug] ? duplicates[spec.slug] + 1 : 1
   spec.orig_slug = spec.slug
   _.times(spec.qty, () => {
     spec.slug = spec.orig_slug + `---${spec.b}-${i}`
     result.push({...spec})
     i++
   })
+  duplicates[spec.orig_slug] = i
   return result
 }
 
@@ -100,15 +101,17 @@ function CardOdds() {
         if (result.data.results) {
           const mainb = []
           const sideb = []
+          const duplicates = {}
           result.data.results.map((spec) => {
             if (spec.cmdr === true) {
               cmdr.push(cmdr)
+              return
             }
             if (spec.b === 'main') {
-              expandSpecs(spec).map((s) => mainb.push(s))
+              expandSpecs(spec, duplicates).map((s) => mainb.push(s))
             }
             if (spec.b === 'side') {
-              expandSpecs(spec).map((s) => sideb.push(s))
+              expandSpecs(spec, duplicates).map((s) => sideb.push(s))
             }
           })
           setDeck(mainb)
@@ -148,6 +151,7 @@ function CardOdds() {
   const dual_opts = []
   const deck_opts = []
   const selected = []
+  const quantities = {}
   deck.map((c) => {
     dual_opts.push({'value': c.slug, 'label': c.name})
     if (oddsType === 'exact') {
@@ -157,8 +161,10 @@ function CardOdds() {
       if (elem) {
         const [amount, name] = elem.label.split('x ')
         elem.label = `${parseInt(amount) + 1}x ${name}`
+        quantities[elem.value] += 1
       } else {
         deck_opts.push({'value': c.slug, 'label': `${1}x ${c.name}`, 'orig_name': c.name})
+        quantities[c.slug] = 1
       }
     }
   })
@@ -197,6 +203,12 @@ function CardOdds() {
 
   const oddsRender = oddsProbs.map((o) => <p>{o.label}: {o.prob}</p>)
 
+  const odds_length = oddsType == 'exact' ? odds.length : _.sum(_.values(_.pick(quantities, odds)));
+  const main_length = oddsType == 'exact' ? deck.length - odds_length : _.sum(_.values(_.pick(quantities, deck.map((obj) => obj.slug)))) - odds_length
+
+  const sideb_length = selected.length
+  const mainb_length = dual_opts.length - sideb_length
+
   return (
     <div>
       <Joyride 
@@ -211,8 +223,8 @@ function CardOdds() {
         <Col lg={8} md={8} sm={8} xs={12}>
 
           <div style={{'display': 'flex', 'justify-content': 'space-between'}}>
-            <h4>Mainboard</h4>
-            <h4>Wanted Cards</h4>
+            <h4>Mainboard ({main_length})</h4>
+            <h4>Wanted Cards ({odds_length})</h4>
           </div>
           <DualListBox
             canFilter
@@ -233,8 +245,8 @@ function CardOdds() {
               <Modal show={showSideModal} onHide={() => setShowSideModal(false)}>
                 <Modal.Body>
                   <div style={{'display': 'flex', 'justify-content': 'space-between'}}>
-                    <h4>Mainboard</h4>
-                    <h4>Sideboard</h4>
+                    <h4>Mainboard ({mainb_length})</h4>
+                    <h4>Sideboard ({sideb_length})</h4>
                   </div>
                   <MainSideDual allboards={dual_opts} selected={selected} setSideboard={setSideboard} />
                 </Modal.Body>

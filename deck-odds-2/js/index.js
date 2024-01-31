@@ -4,7 +4,7 @@ import axios from 'axios';
 import {ProgressBar, Modal, Button, Row, Col, InputGroup,
   DropdownButton, MenuItem, FormControl} from 'react-bootstrap';
 import DualListBox from 'react-dual-listbox';
-import Joyride from 'react-joyride';
+import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride';
 import 'react-dual-listbox/lib/react-dual-listbox.css';
 const _ = require('lodash');
 import '../css/deck_odds.scss';
@@ -189,16 +189,16 @@ function CardOdds() {
   }
 
   function handleJoyrideCallback(data){
-    const { status } = data;
+    const { action, status } = data;
 
-    if (status === 'finished' || status === 'skipped') {
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status) || action === ACTIONS.CLOSE) {
       localStorage.setItem('hasCompletedTour', 'true')
+      setRunTour(false);
     }
   };
 
   function handleHelpClick(){
     setRunTour(true)
-    localStorage.removeItem('hasCompletedTour')
   }
 
   const oddsRender = oddsProbs.map((o) => <p>{o.label}: {o.prob}</p>)

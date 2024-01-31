@@ -51,6 +51,7 @@ function CardOdds() {
   const [isSending, setIsSending] = useState(false)
   const [oddsProbs, setOddsProbs] = useState([])
   const [runTour, setRunTour] = useState(!localStorage.getItem('hasCompletedTour'))
+  const [tourKey, setTourKey] = useState(Date.now());
   const [steps, setSteps] = useState([
     {
       target: '.rdl-list-box',
@@ -199,6 +200,7 @@ function CardOdds() {
 
   function handleHelpClick(){
     setRunTour(true)
+    setTourKey(Date.now());
   }
 
   const oddsRender = oddsProbs.map((o) => <p>{o.label}: {o.prob}</p>)
@@ -216,6 +218,7 @@ function CardOdds() {
         continuous={true}
         showSkipButton={true}
         run={runTour}
+        key={tourKey}
         showProgress={true}
         callback={handleJoyrideCallback}
       />

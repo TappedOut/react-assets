@@ -12,6 +12,8 @@ class Folder extends Component {
     this._handleNameInputChange = this.handleNameInputChange.bind(this);
     this._handleDescInputChange = this.handleDescInputChange.bind(this);
     this._handleEditBtnClick = this.handleEditBtnClick.bind(this);
+    this._handleDeleteBtnClick = this.handleDeleteBtnClick.bind(this);
+    this._handleConfirmDeletion = this.handleConfirmDeletion.bind(this);
     this._onFolderDeckBtnClick = this.onFolderDeckBtnClick.bind(this);
     this._onFolderDeckDeleteBtnClick = this.onFolderDeckDeleteBtnClick.bind(this);
     this._getFolderDecks = this.getFolderDecks.bind(this);
@@ -25,6 +27,7 @@ class Folder extends Component {
       descInputValue: props.folder.description ? props.folder.description : '',
       getMoreDecksText: 'Load more decks',
       errorEditingFolder: '',
+      confirmDeletion: false
     }
   }
 
@@ -38,6 +41,10 @@ class Folder extends Component {
 
   handleDescInputChange(value) {
     this.setState({descInputValue: value})
+  }
+
+  handleConfirmDeletion() {
+    this.setState({confirmDeletion: true})
   }
 
   handleEditBtnClick() {
@@ -55,6 +62,20 @@ class Folder extends Component {
       },
       error => {
         this.setState({errorEditingFolder: 'There was an error while editing.'})
+      }
+    );
+  }
+
+  handleDeleteBtnClick() {
+    axios.delete(
+      `/api/folder/${this.props.folder.id}/edit/`,
+    ).then(
+      response => {
+        this.props.onFolderDelete(this.props.folder.id);
+        this.handleModalClose()
+      },
+      error => {
+        this.setState({errorEditingFolder: 'There was an error while deleting.'})
       }
     );
   }
@@ -200,8 +221,15 @@ class Folder extends Component {
               <br />
               <button
                 className="btn btn-success"
-                onClick={event => this._handleEditBtnClick()}>
+                onClick={this._handleEditBtnClick}>
                 Save</button>
+              {!this.state.confirmDeletion && <button
+                className="btn btn-danger pull-right delete"
+                onClick={this._handleConfirmDeletion}>
+                Delete</button>
+              }
+              {this.state.confirmDeletion && <p className="pull-right">Are you sure you want to delete the folder?
+                <button style={{'margin-left': '10px'}} onClick={this._handleDeleteBtnClick} className="btn btn-danger">Confirm Deletion</button></p>}
             </Modal.Body>
           </Modal>
         </div>

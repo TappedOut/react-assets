@@ -43,6 +43,7 @@ class App extends Component {
     this._onFolderSelect = this.onFolderSelect.bind(this);
     this._onFolderCreate = this.onFolderCreate.bind(this);
     this._onFolderEdit = this.onFolderEdit.bind(this);
+    this._onFolderDelete = this.onFolderDelete.bind(this);
     this._onFolderDecksGet = this.onFolderDecksGet.bind(this);
     this._onPageBtnClick = this.onPageBtnClick.bind(this);
     this._onErrorMsgDismiss = this.onErrorMsgDismiss.bind(this);
@@ -147,7 +148,7 @@ class App extends Component {
               deckCount: 1,
               decks: [deck]
             });
-            newFolders.sort((a, b) => a.name < b.name ? -1 : 1);
+            newFolders.sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1);
           }
         }
         if (response.data.created) {
@@ -240,6 +241,13 @@ class App extends Component {
     })
   }
 
+  onFolderDelete(folder_id) {
+    const newFolders = this.state.folders.filter(folder => folder.id !== folder_id);
+    this.setState({
+      folders: newFolders,
+    })
+  }
+
   onPageBtnClick(pageNum){
     this.setState({foldersPage: pageNum});
     this.getFolders(pageNum)
@@ -295,6 +303,7 @@ class App extends Component {
           onDeckDeleteBtnClick={this._onDeckDeleteBtnClick}
           onFolderDecksGet={this._onFolderDecksGet}
           onFolderEdit={this._onFolderEdit}
+          onFolderDelete={this._onFolderDelete}
           canEdit={this.state.canEdit && !folder.managed}
           authenticated={this.state.authenticated}
         />

@@ -135,7 +135,7 @@ class Deck extends Component {
                 <div className="deck-square-card">
                     <img className="deck-square-card-img img-responsive"
                          src={deck.featuredImage}
-                         onError="this.onerror=null;$(this).hide();"
+                         alt={deck.name}
                     />
                 </div>
             </a>

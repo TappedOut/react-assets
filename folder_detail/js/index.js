@@ -41,7 +41,6 @@ class App extends Component {
     this._onSelectModalClose = this.onSelectModalClose.bind(this);
     this._onFolderSelect = this.onFolderSelect.bind(this);
     this._onFolderCreate = this.onFolderCreate.bind(this);
-    this._onFolderEdit = this.onFolderEdit.bind(this);
     this._onFolderDecksGet = this.onFolderDecksGet.bind(this);
     this._getDecks = this.getDecks.bind(this);
 
@@ -175,13 +174,6 @@ class App extends Component {
       new_target_folder,
       this.state.originFolder,
       this.state.folderAction)
-  }
-
-  onFolderEdit(new_folder) {
-    this.setState({
-      folderName: new_folder.name,
-      folderDesc: new_folder.description
-    })
   }
 
   onFolderDecksGet(new_decks, folder_id){

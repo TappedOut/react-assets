@@ -1787,7 +1787,7 @@ export default class BoardsEditorApp extends React.Component {
           }
           { !this.props.spoilerView && this.state.advancedSearch &&
           this.renderCardSearchModal() }
-          { this.renderSaveButtons() }
+          { !this.props.spoilerView && this.renderSaveButtons() }
         </div>
       )
     } else {
@@ -1819,7 +1819,7 @@ export default class BoardsEditorApp extends React.Component {
           }
           { !this.props.spoilerView && this.state.advancedSearch &&
           this.renderCardSearchModal() }
-          { this.renderSaveButtons() }
+          { !this.props.spoilerView && this.renderSaveButtons() }
         </div>
       )
     }

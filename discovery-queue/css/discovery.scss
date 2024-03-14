@@ -1,0 +1,16 @@
+.flex-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center; 
+    justify-content: center;
+  }
+  
+  @media (max-width: 768px) {
+    .flex-container {
+      flex-direction: column;
+    }
+
+    .next-btns-container {
+        text-align: center
+    }
+  }

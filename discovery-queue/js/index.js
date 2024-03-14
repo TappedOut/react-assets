@@ -1,4 +1,5 @@
 import 'react-select/dist/react-select.css'
+import '../css/discovery.scss';
 import Select from 'react-select'
 import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
@@ -126,17 +127,17 @@ function DiscoveryQueue() {
                 </Col>
             </Row>
             {current &&
-                <div style={{'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}}>
+                <div className="flex-container">
                     <div>
                         <CardImage 
                             default_tla={current.tla} 
                             spec={current}
-                            width={400}
+                            width={window.django.is_mobile ? 300 : 400}
                             backsides={{}}
                             choices={choices}
                         />
                     </div>
-                    <div>
+                    <div className='next-btns-container'>
                         <p>{next}</p>
                         <p>
                             <a href={current.url} style={{ 'margin-top': '10px' }} className='btn btn-sm btn-info' target="_blank">

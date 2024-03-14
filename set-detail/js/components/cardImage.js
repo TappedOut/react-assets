@@ -13,6 +13,15 @@ export default class CardImage extends React.Component {
     }
   }
 
+  componentDidUpdate(prevProps) {
+    const tla = this.props.default_tla ? this.props.default_tla : this.props.spec.tla
+    if (tla !== prevProps.default_tla) {
+      this.setState({
+        tla: tla
+      });
+    }
+  }
+
   handleDropdownToggle = () => {
     this.setState({dropdownOpen: !this.state.dropdownOpen})
   }
@@ -80,8 +89,8 @@ export default class CardImage extends React.Component {
     let spec = this.props.spec
     let image = spec.image
     if (spec.tla !== this.state.tla) {
-      const new_img = spec.printings.find((p) => p.tla === this.state.tla).image
-      if (new_img) image = new_img
+      const found_print = spec.printings.find((p) => p.tla === this.state.tla)
+      if (found_print) image = found_print.image
     }
     if (!this.state.front && this.props.backsides[this.props.spec['flip']] && this.props.backsides[this.props.spec['flip']]['image']) {
       image = ''

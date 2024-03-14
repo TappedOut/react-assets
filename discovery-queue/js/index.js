@@ -85,7 +85,7 @@ function DiscoveryQueue() {
         setCurrent(queue[position + 1])
     }
 
-    let next = (<Button bsStyle="success" bsSize="large" onClick={startQueue}>Start new Queue</Button>)
+    let next = (<Button bsStyle="success" bsSize="large" onClick={startQueue}>New Queue</Button>)
     if (queue && queue.length > position + 1) {
         next = (
             <Button bsStyle="success" bsSize="large" onClick={nextItem}>

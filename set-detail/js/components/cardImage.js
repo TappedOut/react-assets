@@ -15,7 +15,7 @@ export default class CardImage extends React.Component {
 
   componentDidUpdate(prevProps) {
     const tla = this.props.default_tla ? this.props.default_tla : this.props.spec.tla
-    if (tla !== prevProps.default_tla) {
+    if (tla && prevProps.default_tla && (tla !== prevProps.default_tla)) {
       this.setState({
         tla: tla
       });

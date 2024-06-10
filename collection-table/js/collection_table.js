@@ -553,7 +553,7 @@ export default class CollectionTableApp extends React.Component {
               </Modal.Header>
               <Modal.Body>
                 <form target="_newtcg" name="tcg_checkout" method="post"
-                    action="https://store.tcgplayer.com/massentry/?utm_campaign=affiliate&amp;utm_medium=binder&amp;utm_source=TPPDOUT">
+                    action="https://tcgplayer.pxf.io/c/4912838/1830156/21018?u=https://store.tcgplayer.com/massentry/?utm_campaign=affiliate&amp;utm_medium=binder&amp;utm_source=TPPDOUT">
                 <input type="hidden" name="c"  value={this.state.card_string}/>
                 <input type="hidden" name="partner" value="TPPDOUT" />
                 <input type="hidden" name="utm_campaign" value="affiliate"  />
@@ -612,7 +612,7 @@ export default class CollectionTableApp extends React.Component {
             </Modal.Header>
             <Modal.Body>
               <form target="_newtcg" name="tcg_checkout" method="post"
-                  action="https://store.tcgplayer.com/massentry/?utm_campaign=affiliate&amp;utm_medium=wishlist&amp;utm_source=TPPDOUT">
+                  action="https://tcgplayer.pxf.io/c/4912838/1830156/21018?u=https://store.tcgplayer.com/massentry/?utm_campaign=affiliate&amp;utm_medium=wishlist&amp;utm_source=TPPDOUT">
               <input id="tcg-cards-input" type="hidden" name="c"  value={this.state.card_string}/>
               <input type="hidden" name="partner" value="TPPDOUT" />
               <input type="hidden" name="utm_campaign" value="affiliate"  />

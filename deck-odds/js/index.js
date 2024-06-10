@@ -159,7 +159,7 @@ class DeckOddsApp extends React.Component {
           <button className="btn btn-primary btn-xs" onClick={this.handleOddsShow}>Odds</button>
           <Modal bsSize='lg' show={this.state.show_odds_modal} onHide={this.handleOddsHide}>
             <Modal.Header>
-              <Modal.Title>Checkout Binder</Modal.Title>
+              <Modal.Title>Card Odds</Modal.Title>
             </Modal.Header>
             <Modal.Body>
               {wellBlock}

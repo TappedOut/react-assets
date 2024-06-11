@@ -552,16 +552,11 @@ export default class CollectionTableApp extends React.Component {
                 <Modal.Title>Checkout Binder</Modal.Title>
               </Modal.Header>
               <Modal.Body>
-                <form target="_newtcg" name="tcg_checkout" method="post"
-                    action="https://tcgplayer.pxf.io/c/4912838/1830156/21018?u=https://store.tcgplayer.com/massentry/?utm_campaign=affiliate&amp;utm_medium=binder&amp;utm_source=TPPDOUT">
-                <input type="hidden" name="c"  value={this.state.card_string}/>
-                <input type="hidden" name="partner" value="TPPDOUT" />
-                <input type="hidden" name="utm_campaign" value="affiliate"  />
-                <input type="hidden" name="utm_medium" value={this.state.init_data.type} />
-                <input type="hidden" name="utm_source" value="TPPDOUT" />
-                <button type="submit" className="btn btn-block btn-warning">
-                  <span className="glyphicon glyphicon-shopping-cart"/> <span>{`TCG Player $${this.state.tcg_price}`}</span>
-                </button>
+                <form target="_newtcg" name="tcg_checkout" method="get" action="https://tcgplayer.pxf.io/c/4912838/1830156/21018">
+                    <input type="hidden" name="u" value={`https://store.tcgplayer.com/massentry/?c=${this.state.card_string}`} />
+                    <button type="submit" className="btn btn-block btn-warning">
+                    <span className="glyphicon glyphicon-shopping-cart"/> <span>{`TCG Player $${this.state.tcg_price}`}</span>
+                    </button>
                 </form>
 
                 <form target="_newck" name="ck_checkout" method="post" action="https://www.cardkingdom.com/builder/?utm_source=tappedout&amp;utm_medium=affiliate&amp;utm_campaign=tappedoutbinder&amp;partner=tappedout">
@@ -611,13 +606,9 @@ export default class CollectionTableApp extends React.Component {
               <Modal.Title>Checkout Wishlist</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <form target="_newtcg" name="tcg_checkout" method="post"
-                  action="https://tcgplayer.pxf.io/c/4912838/1830156/21018?u=https://store.tcgplayer.com/massentry/?utm_campaign=affiliate&amp;utm_medium=wishlist&amp;utm_source=TPPDOUT">
-              <input id="tcg-cards-input" type="hidden" name="c"  value={this.state.card_string}/>
-              <input type="hidden" name="partner" value="TPPDOUT" />
-              <input type="hidden" name="utm_campaign" value="affiliate"  />
-              <input type="hidden" name="utm_medium" value={this.state.init_data.type} />
-              <input type="hidden" name="utm_source" value="TPPDOUT" />
+              <form target="_newtcg" name="tcg_checkout" method="get"
+                  action="https://tcgplayer.pxf.io/c/4912838/1830156/21018">
+              <input type="hidden" name="u" value={`https://store.tcgplayer.com/massentry/?c=${tcg_cards_string}`} />
               <button type="submit" className="btn btn-block btn-warning">
                 <span className="glyphicon glyphicon-shopping-cart"/> <span>{` TCG Player $${this.state.tcg_price}`}</span>
               </button>

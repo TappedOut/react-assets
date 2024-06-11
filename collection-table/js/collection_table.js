@@ -608,7 +608,7 @@ export default class CollectionTableApp extends React.Component {
             <Modal.Body>
               <form target="_newtcg" name="tcg_checkout" method="get"
                   action="https://tcgplayer.pxf.io/c/4912838/1830156/21018">
-              <input type="hidden" name="u" value={`https://store.tcgplayer.com/massentry/?c=${tcg_cards_string}`} />
+              <input type="hidden" name="u" value={`https://store.tcgplayer.com/massentry/?c=${this.state.card_string}`} />
               <button type="submit" className="btn btn-block btn-warning">
                 <span className="glyphicon glyphicon-shopping-cart"/> <span>{` TCG Player $${this.state.tcg_price}`}</span>
               </button>

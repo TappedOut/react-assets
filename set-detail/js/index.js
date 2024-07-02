@@ -447,7 +447,7 @@ class SetDetailApp extends React.Component {
                                    width={this.state.images_width} backsides={this.state.backsides} rank_label={rank_label} />;
       }
       if (this.state.display === 'table') {
-        main_content = <CardTable specs={filtered_specs} choices={this.state.choices} backsides={this.state.backsides} rank_label={rank_label} />
+        main_content = <CardTable specs={filtered_specs} choices={this.state.choices} backsides={this.state.backsides} rank_label={rank_label} default_tla={SET_TLA} />
       }
       if (this.state.display === 'list') {
         main_content = <CardList specs={filtered_specs} choices={this.state.choices} backsides={this.state.backsides} rank_label={rank_label} />;

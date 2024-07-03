@@ -15,13 +15,11 @@ export default class CardSpan extends React.Component {
         image = found_print.image
       }
     }
-    const isFoil = spec.alteration === 'f'
+    const isFoil = alteration === 'f'
+    if (isFoil) alteration = ''
     let linkClass = 'card-link'
     if (isFoil) linkClass += ' foil-card'
     if (image) linkClass += ' card-hover'
-    if (!isFoil && spec.alteration) {
-      alteration = spec.alteration
-    }
     return (
       <>
         <span className="card">
@@ -60,7 +58,7 @@ export default class CardSpan extends React.Component {
             >{ spec.name }
             </a>
         {isFoil && <img alt="foil" className="card-icon" src={`${window.django.STATIC_URL}img/foil-icon.jpg`} />}
-        {alteration &&<strong>&nbsp;*{spec.alteration}*</strong>}
+        {alteration &&<strong>&nbsp;*{alteration}*</strong>}
         </span>
         {spec.flip &&
           <span className="card">

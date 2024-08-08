@@ -247,6 +247,9 @@ export default class BoardsEditorApp extends React.Component {
         this.rarityChoices = choicesFromAPI(response.data.rarity_choices);
         this.colorChoices = choicesFromAPI(response.data.alt_color_choices);
         this.loadDeckData()
+        if (response.data.deck_format == 'limited') {
+          this.searchCards(true, false, null, null, true)
+        }
       },
       error => {
         this.setState({errorInit: true});
@@ -891,7 +894,7 @@ export default class BoardsEditorApp extends React.Component {
 
   };
 
-  searchCards = (newSearch=true, simpleSearch=false, nameOverride=null, invOnly=null) => {
+  searchCards = (newSearch=true, simpleSearch=false, nameOverride=null, invOnly=null, basicLands=false) => {
     let searchInput = simpleSearch ? {...this.state.simpleSearchInput} :
       {...this.state.searchInput};
     let searchTerms = _.reduce(searchInput, (acc, value, key) => {
@@ -907,6 +910,7 @@ export default class BoardsEditorApp extends React.Component {
         });
       return value ? acc.concat(values) : acc;
     }, []).join('&');
+    if (basicLands) searchTerms = 'type=basic-land'
     if (searchTerms.trim() !== '' && !this.state.searchingCards) {
       const fromInv = (invOnly !== null) || (!simpleSearch && this.state.simpleSearchInput.invOnly)
       const nextSearchPage = newSearch ? 1 : this.state.nextSearchPage;

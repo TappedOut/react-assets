@@ -60,14 +60,14 @@ export default class CardSpan extends React.Component {
         {isFoil && <img alt="foil" className="card-icon" src={`${window.django.STATIC_URL}img/foil-icon.jpg`} />}
         {alteration &&<strong>&nbsp;*{alteration}*</strong>}
         </span>
-        {spec.flip &&
+        {this.props.backside &&
           <span className="card">
               &nbsp;
               <a 
                 className="card-hover" 
-                href={spec.flip.url} 
-                data-image={spec.flip.image} 
-                data-name={spec.flip.name}
+                href={this.props.backside.url} 
+                data-image={this.props.backside.image} 
+                data-name={this.props.backside.name}
                 data-foil={isFoil}
               >
                 <sup>Flip</sup>

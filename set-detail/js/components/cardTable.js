@@ -12,7 +12,7 @@ export default class CardTable extends React.Component {
       const rank = spec.rank_display !== '--' ? `#${spec.rank_display}` : spec.rank_display;
       return (<tr>
         <td>
-          <CardSpan spec={spec} tla={this.props.default_tla} />
+          <CardSpan spec={spec} backside={this.props.backsides[spec['flip']]} tla={this.props.default_tla} />
         </td>
         <td>{spec.type}</td>
         <td dangerouslySetInnerHTML={{__html: spec.html_mana}}></td>

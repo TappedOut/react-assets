@@ -10,7 +10,7 @@ export default class CardTable extends React.Component {
       let price_url = spec[choices.vendor_url['CK']];
       price_url = price_url ? `${price_url}${choices.vendor_param['CK']}` : ''
       const rank = spec.rank_display !== '--' ? `#${spec.rank_display}` : spec.rank_display;
-      return (<tr>
+      return (<tr key={spec.pk}>
         <td>
           <CardSpan spec={spec} backside={this.props.backsides[spec['flip']]} tla={this.props.default_tla} />
         </td>

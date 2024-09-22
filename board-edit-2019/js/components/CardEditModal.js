@@ -248,7 +248,7 @@ export default class CardEditModal extends React.Component {
                       <select id="card-tla" name="tla" value={this.state.card.tla}
                               className="form-control"
                               onChange={this.handleInputChange}>
-                        <option value=''>Latest</option>
+                        <option value=''>Default</option>
                         {this.state.card.printings.map((printing, idx) =>
                           <option key={idx} value={printing.tla}>
                             {printing.name}</option>)

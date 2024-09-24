@@ -51,6 +51,7 @@ export default class DeckListApp extends React.Component {
       description: '',
       mtg_format: '',
       colors: [],
+      card_name: '',
       checkboxes: {
         is_prototype: 0,
         is_archived: 0

@@ -1,7 +1,11 @@
 import React from 'react';
 import {Row, Col, Well, Modal, Button, FormGroup, InputGroup, FormControl} from 'react-bootstrap';
 import _ from "lodash";
-import Select from 'react-select';
+import Select, { Async } from 'react-select';
+import axios from 'axios';
+
+
+const AUTOCOMPLETE_API = window.django.autocomplete_api
 
 
 export default class Filters extends React.Component {
@@ -67,6 +71,30 @@ export default class Filters extends React.Component {
   handleActionPerform = () => {
     this.props.actionCB(this.state.action)
     this.setState({action: ''})
+  }
+
+  handleAsyncChange = (value) => {
+    this.props.filterChange('card_name', value)
+  }
+
+  throttledAutocomplete = _.throttle((searchUrl, callback) => {
+    axios.get(searchUrl)
+      .then((response) => callback(null, { options: response.data }))
+      .catch((error) => callback(error, null))
+  }, 1000);
+
+  handleAutocomplete = (input, callback) => {
+    if (input && input.length >= 3) {
+      let searchUrl = `${AUTOCOMPLETE_API}?name=${input}`
+      this.throttledAutocomplete(searchUrl, callback);
+    }
+  };
+
+  handleCurrentChange = (card) => {
+    if (card) {
+      this.props.filterChange('card_name', card.name)
+      this.setState({changes: true})
+    }
   }
 
   render() {
@@ -172,6 +200,27 @@ export default class Filters extends React.Component {
                             multi={true}
                           />
                         </div>
+                      </Col>
+                    </Row>
+                    <Row style={{'margin-top': '20px'}}>
+                      <Col lg={6} xs={12}>
+                        <Async 
+                          arrowRenderer={null}
+                          autoload={false}
+                          cache={false}
+                          clearable={false}
+                          labelKey="name"
+                          loadOptions={_.debounce(this.handleAutocomplete, 2000)}
+                          loadingPlaceholder="Searching..."
+                          placeholder='Has Card'
+                          onInputChange={this.handleAsyncChange}
+                          onChange={this.handleCurrentChange}
+                          onCloseResetsInput={false}
+                          onSelectResetsInput={false}
+                          onBlurResetsInput={false}
+                          openOnFocus={true}
+                          value={this.props.filters.card_name}
+                          valueKey="name"/>
                       </Col>
                     </Row>
                   </Modal.Body>

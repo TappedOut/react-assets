@@ -48,7 +48,7 @@ export default class CardImage extends React.Component {
   getIconClass = (tla) => {
     const new_tla = this.props.choices.set_icon_map[tla]
     if (new_tla) return new_tla
-    return tla.toLowerCase()
+    if (tla) return tla.toLowerCase()
   }
 
   renderExtras = (spec, is_foil) => {
@@ -96,7 +96,7 @@ export default class CardImage extends React.Component {
     let alteration = ''
     const frameShrinkPercentage = 0.9
     const found_print = spec.printings.find((p) => p.tla === this.state.tla)
-    if (found_print.alterations && found_print.alterations.length) {
+    if (found_print && found_print.alterations && found_print.alterations.length) {
         alteration = found_print.alterations[0][0]
     }
     if (spec.tla !== this.state.tla) {

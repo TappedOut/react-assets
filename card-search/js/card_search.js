@@ -3,17 +3,20 @@ import axios from 'axios';
 import Slider from 'react-rangeslider';
 import 'react-rangeslider/lib/index.css';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import {ProgressBar, FormGroup, InputGroup, FormControl, Button} from 'react-bootstrap'
+import {ProgressBar, FormGroup, InputGroup, FormControl, Button, Tabs, Tab} from 'react-bootstrap'
 import CardImages from '../../set-detail/js/components/cardImages.js';
 import CardTable from '../../set-detail/js/components/cardTable.js';
 import CardList from '../../set-detail/js/components/cardList.js';
 import Filter from "../../set-detail/js/components/filters.js";
+import FiltersLLM from "./components/filtersLLM.js"
+import Feedback from './components/feedback.js';
 import 'react-select/dist/react-select.css';
 import '../../set-detail/css/set-detail.scss';
 const _ = require('lodash');
 
 
 const CARD_SEARCH_API = window.django.card_filter_api
+const LLM_CARD_SEARCH_API = window.django.llm_browser_api
 const ALLOWED_PARAMS = [
   'name', 'formats', 'color', 'price_to', 'price_from', 'mana_value_min', 'mana_value_max', 'rarity', 'mana_cost',
   'type', 'subtype', 'rules', 'companion'
@@ -30,21 +33,26 @@ export default class CardSearchApp extends React.Component {
       img_width = 300
     }
     const filters = this.buildFilterDefaults()
+    const llm_filters = this.buildLLMFilterDefaults()
     this.state = {
       specs: [],
+      llm_specs: [],
       total_specs: 0,
+      tab_type: 1,
       page: 1,
       loading: true,
       disable_main_inputs: true,
       display: 'images',
       vendors: ['tcg'],
       api_error: '',
+      llm_api_error: '',
       order_by: 'name',
       order_dir: '',
       choices: {},
       images_width: img_width,
       backsides: {},
       filters: filters,
+      llm_filters : llm_filters
     }
     this.get_cards(this.state.filters, 'name', 1, true)
     this.debounced_get_cards = _.debounce(
@@ -53,22 +61,14 @@ export default class CardSearchApp extends React.Component {
     )
   }
 
+  handleTabTypeChange = (key) => {
+    this.setState({ tab_type: key });
+  }
+
   buildFilterDefaults = () => {
     const filters = {
       name: '',
-      formats: {
-        'Commander / EDH': true,
-        'Modern': true,
-        'Standard': true,
-        'Legacy': true,
-        'Vintage': true,
-        'Pauper': true,
-        'Pauper EDH': true,
-        'Duel Commander': true,
-        'Pauper Duel Commander': true,
-        'Commander: Rule 0': true,
-        'Canadian Highlander': true
-      },
+      formats: [],
       colors: {
         'u': 0,
         'b': 0,
@@ -91,12 +91,11 @@ export default class CardSearchApp extends React.Component {
       sets: []
     }
     const queryParameters = new URLSearchParams(window.location.search)
-    if (queryParameters.get('formats')) _.forOwn(filters.formats, (fval, fkey) => {filters.formats[fkey] = false})
     for (const [key, value] of queryParameters.entries()) {
       switch(key) {
         case 'formats':
-          if (value && filters.formats.hasOwnProperty(window.django.formats_map[value])) filters.formats[window.django.formats_map[value]] = true
-          break
+          if (value) filters.formats.push(value)
+            break
         case 'color':
           if (value && filters.colors.hasOwnProperty(value.toLowerCase())) filters.colors[value.toLowerCase()] = 1
           break
@@ -121,6 +120,22 @@ export default class CardSearchApp extends React.Component {
         default:
           if (value && _.includes(ALLOWED_PARAMS, key)) filters[key] = value
       }
+    }
+    return filters
+  }
+
+  buildLLMFilterDefaults = () => {
+    const filters = {
+      query: '',
+      mtg_format: '',
+      colors: {
+        'u': 0,
+        'b': 0,
+        'g': 0,
+        'r': 0,
+        'w': 0,
+        'c': 0,
+      },
     }
     return filters
   }
@@ -155,13 +170,50 @@ export default class CardSearchApp extends React.Component {
           choices: choices,
           loading: false,
           disable_main_inputs: false,
-          page: page + 1
+          page: page + 1,
+          api_error: ''
         })
       },
       error => {
         this.setState({
           loading: false,
-          error: 'Error getting card info. Please refresh the page.'
+          api_error: 'Error getting card info. Please refresh the page.'
+        })
+      }
+    )
+  }
+
+  getLLMCards = () => {
+    if (!this.state.llm_filters.query) {
+      this.setState({
+        loading: false,
+        disable_main_inputs: false,
+        llm_api_error: 'Query is required.'
+      })
+      return
+    }
+    this.setState({
+      disable_main_inputs: true,
+      loading: true
+    })
+    const get_params = this.buildFilterGET(this.state.llm_filters)
+    axios.get(
+      `${LLM_CARD_SEARCH_API}?${get_params}`,
+    ).then(
+      response => {
+        const specs = response.data.results
+        this.setState({
+          llm_specs: specs,
+          loading: false,
+          disable_main_inputs: false,
+          llm_api_error: ''
+        })
+      },
+      error => {
+        this.setState({
+          loading: false,
+          disable_main_inputs: false,
+          llm_api_error: error.response.data.error ? error.response.data.error : 'Error getting card info. Please refresh the page.'
         })
       }
     )
@@ -172,9 +224,8 @@ export default class CardSearchApp extends React.Component {
     _.forOwn(filters, (value, key) => {
       switch(key) {
         case 'formats':
-          if (!_.values(filters.formats).includes(false)) break
-          _.forOwn(filters.formats, (fvalue, fkey) => {
-            if (fvalue) get_params += `&formats=${this.formatGET(fkey)}`
+          _.forEach(value, (kw) => {
+            if (kw) get_params += `&formats=${kw}`
           })
           break
         case 'colors':
@@ -244,19 +295,7 @@ export default class CardSearchApp extends React.Component {
   resetFilters = () => {
     const empty = {
       name: '',
-        formats: {
-        'Commander / EDH': true,
-        'Modern': true,
-        'Standard': true,
-        'Legacy': true,
-        'Vintage': true,
-        'Pauper': true,
-        'Pauper EDH': true,
-        'Duel Commander': true,
-        'Pauper Duel Commander': true,
-        'Commander: Rule 0': true,
-        'Canadian Highlander': true
-      },
+        formats: [],
       colors: {
         'u': 0,
         'b': 0,
@@ -291,6 +330,13 @@ export default class CardSearchApp extends React.Component {
     if (main_input) this.debounced_get_cards(new_filters, `${this.state.order_dir}${this.state.order_by}`, 1, true)
   }
 
+  handleLLMFilterChange = (name, value) => {
+    const new_filters = {...this.state.llm_filters, [name]: value}
+    this.setState({
+      llm_filters: new_filters,
+    });
+  }
+
   handleOrderChange = (event) => {
     this.setState({
       order_by: event.target.value,
@@ -320,38 +366,45 @@ export default class CardSearchApp extends React.Component {
             <button className="btn btn-default btn-sm" style={{'flex': 1}} onClick={() => this.handleDisplayChange('list')} disabled={this.state.display === 'list'}>List</button>}
           </div>
         </div>
-        <div className="col-lg-2 col-md-2 col-xs-5">
-          <FormGroup>
-            <InputGroup>
-              <FormControl bsSize="small" componentClass="select" onChange={this.handleOrderChange} value={this.state.order_by}>
-                {order_opts}
-              </FormControl>
-              <InputGroup.Button>
-                <Button bsSize="small" onClick={this.handleAscDescChange} style={{'font-size': '16px'}}>
-                  {this.state.order_dir === '' ?
-                    <span className="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-                    :
-                    <span className="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>}
-                </Button>
-              </InputGroup.Button>
-            </InputGroup>
-          </FormGroup>
-        </div>
-        <div className="col-lg-2 col-md-2 col-xs-8">
-          {this.state.display === 'images' &&
-            <span className="slider-container">
-              <Slider
-                min={100}
-                tooltip={false}
-                max={500}
-                step={1}
-                value={this.state.images_width}
-                onChange={this.handleImagesMaxWidth}
-              />
-            </span>
-          }
-        </div>
-        <div className="col-lg-2 col-md-2 col-xs-4">{this.state.specs.length} / {this.state.total_specs}</div>
+        {this.state.tab_type === 1 && 
+          <div className="col-lg-2 col-md-2 col-xs-5">
+            <FormGroup>
+              <InputGroup>
+                <FormControl bsSize="small" componentClass="select" onChange={this.handleOrderChange} value={this.state.order_by}>
+                  {order_opts}
+                </FormControl>
+                <InputGroup.Button>
+                  <Button bsSize="small" onClick={this.handleAscDescChange} style={{'font-size': '16px'}}>
+                    {this.state.order_dir === '' ?
+                      <span className="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                      :
+                      <span className="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>}
+                  </Button>
+                </InputGroup.Button>
+              </InputGroup>
+            </FormGroup>
+          </div>
+        }
+          <div className="col-lg-2 col-md-2 col-xs-8">
+            {this.state.display === 'images' &&
+              <span className="slider-container">
+                <Slider
+                  min={100}
+                  tooltip={false}
+                  max={500}
+                  step={1}
+                  value={this.state.images_width}
+                  onChange={this.handleImagesMaxWidth}
+                />
+              </span>
+            }
+          </div>
+        {this.state.tab_type === 1 && 
+          <div className="col-lg-2 col-md-2 col-xs-4">{this.state.specs.length} / {this.state.total_specs}</div>
+        }
+        {this.state.tab_type === 2 && 
+          <div className="col-lg-3 col-md-3 col-xs-4"><Feedback specs={this.state.llm_specs} filters={this.state.llm_filters} /></div>
+        }
       </div>
     )
   }
@@ -365,13 +418,15 @@ export default class CardSearchApp extends React.Component {
       {'label': 'Mana Value', 'value': 'mana_value'},
       {'label': 'Type', 'value': 'type'},
     ]
-    this.selectedFormats = _.keys(this.state.filters.formats).filter(f => this.state.filters.formats[f])
     this.selectedColors = _.keys(this.state.filters.colors).filter(c => this.state.filters.colors[c] === 1)
     this.selectedExcludeColors = _.keys(this.state.filters.colors).filter(c => this.state.filters.colors[c] === -1)
-    let specs = this.state.specs
+    let specs = this.state.tab_type === 1 ? this.state.specs : this.state.llm_specs
+    let error = this.state.tab_type === 1 ? this.state.api_error : this.state.llm_api_error
 
     if (this.state.loading) {
       main_content = <ProgressBar active now={100} />
+    } else if (error) {
+      main_content = <p style={{'height': '500px'}} dangerouslySetInnerHTML={{ __html: error }} />
     } else if (!specs.length) {
       main_content = <p style={{'height': '500px'}}>No cards found</p>
     } else {
@@ -386,22 +441,44 @@ export default class CardSearchApp extends React.Component {
         main_content = <CardList specs={specs} choices={this.state.choices} backsides={this.state.backsides} rank_label={''} />;
       }
     }
+
+    if (this.state.tab_type === 1) {
+      main_content = (
+        <InfiniteScroll
+          dataLength={this.state.specs.length}
+          next={() => this.get_cards(this.state.filters, this.state.order_by, this.state.page, false)}
+          hasMore={this.state.specs.length < this.state.total_specs && !this.state.loading}
+          loader={<ProgressBar active now={100} />}
+        >
+          {main_content}
+        </InfiniteScroll>
+      )
+    }
+    
     const widthOrder = this.renderWidthOrder(order_opts)
     return (
       <div>
-        <Filter filters={this.state.filters} choices={this.state.choices} filterChange={this.handleFilterChange}
-                resetFilters={this.resetFilters} modalCloseCB={this.handleFilterModalClose} disableInputs={this.state.disable_main_inputs}/>
+        <div className="row">
+          <div className="col-lg-6 col-xs-12">
+            <Tabs
+              activeKey={this.state.tab_type}
+              onSelect={this.handleTabTypeChange}
+            >
+              <Tab eventKey={1} title="Search">
+                <Filter filters={this.state.filters} choices={this.state.choices} filterChange={this.handleFilterChange}
+                        resetFilters={this.resetFilters} modalCloseCB={this.handleFilterModalClose} disableInputs={this.state.disable_main_inputs}/>
+              </Tab>
+              <Tab eventKey={2} title="GPT Search">
+                <FiltersLLM filters={this.state.llm_filters} choices={this.state.choices} disableInputs={this.state.disable_main_inputs} 
+                            filterChange={this.handleLLMFilterChange} performSearch={this.getLLMCards} />
+              </Tab>
+            </Tabs>
+          </div>
+        </div>
         {widthOrder}
         <div className="row">
           <div className="col-lg-12">
-            <InfiniteScroll
-              dataLength={this.state.specs.length}
-              next={() => this.get_cards(this.state.filters, this.state.order_by, this.state.page, false)}
-              hasMore={this.state.specs.length < this.state.total_specs && !this.state.loading}
-              loader={<ProgressBar active now={100} />}
-            >
-              {main_content}
-            </InfiniteScroll>
+            {main_content}
           </div>
         </div>
       </div>

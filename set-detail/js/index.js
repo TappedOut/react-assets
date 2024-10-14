@@ -45,19 +45,7 @@ class SetDetailApp extends React.Component {
       backsides: {},
       filters: {
         name: '',
-          formats: {
-          'Commander / EDH': true,
-          'Modern': true,
-          'Standard': true,
-          'Legacy': true,
-          'Vintage': true,
-          'Pauper': true,
-          'Pauper EDH': true,
-          'Duel Commander': true,
-          'Pauper Duel Commander': true,
-          'Commander: Rule 0': true,
-          'Canadian Highlander': true
-        },
+        formats: [],
         colors: {
           'u': 0,
           'b': 0,
@@ -141,19 +129,6 @@ class SetDetailApp extends React.Component {
     return cards.filter(card => {
       const backside = card.flip && this.state.backsides[card.flip] ? this.state.backsides[card.flip] : null
       let keep = true
-
-      // formats
-      const card_formats = card.formats && card.formats.length ? card.formats : []
-      const all_checked = _.keys(this.state.filters.formats).length === this.selectedFormats.length
-      if (!all_checked) {
-        let anyfmt = false
-        _.each(card_formats, f => {
-          if (_.includes(this.selectedFormats, f)) {
-            anyfmt = true
-          }
-        })
-        keep = keep && anyfmt
-      }
 
       // color
       let colors = card['effective_cost'] ? card['effective_cost'] : []
@@ -265,6 +240,14 @@ class SetDetailApp extends React.Component {
         })
       }
 
+      // Formats
+      if (this.state.filters.formats.length) {
+        let slugified_formats = card.formats.map((fmt) => this.state.choices.format_map[fmt])
+        _.forEach(this.state.filters.formats, (fmt) =>{
+          keep = keep && _.includes(slugified_formats, fmt)
+        })
+      }
+
       return keep
     })
   }
@@ -272,19 +255,7 @@ class SetDetailApp extends React.Component {
   resetFilters = () => {
     const empty = {
       name: '',
-        formats: {
-        'Commander / EDH': true,
-        'Modern': true,
-        'Standard': true,
-        'Legacy': true,
-        'Vintage': true,
-        'Pauper': true,
-        'Pauper EDH': true,
-        'Duel Commander': true,
-        'Pauper Duel Commander': true,
-        'Commander: Rule 0': true,
-        'Canadian Highlander': true
-      },
+        formats: [],
       colors: {
         'u': 0,
         'b': 0,
@@ -415,7 +386,6 @@ class SetDetailApp extends React.Component {
       {'label': 'Modern rank', 'value': 'rank_modern'},
       {'label': 'Legacy rank', 'value': 'rank_legacy'}
     ]
-    this.selectedFormats = _.keys(this.state.filters.formats).filter(f => this.state.filters.formats[f])
     this.selectedColors = _.keys(this.state.filters.colors).filter(c => this.state.filters.colors[c] === 1)
     this.selectedExcludeColors = _.keys(this.state.filters.colors).filter(c => this.state.filters.colors[c] === -1)
     let filtered_specs = this.orderCards(this.filterCards(this.state.specs))

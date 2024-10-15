@@ -1,5 +1,5 @@
 import React from 'react';
-import {FormControl} from 'react-bootstrap';
+import {FormControl, HelpBlock} from 'react-bootstrap';
 import _ from "lodash";
 import Select from 'react-select';
 
@@ -58,20 +58,32 @@ export default class FiltersLLM extends React.Component {
     })
     return (
         <div className="well">
-            <div className="row">
+            <div className="row" style={{marginBottom: '10px'}}>
                 <div className="col-lg-6 col-md-6 col-xs-12">
-                    {colorCheckboxes}
+                  <FormControl 
+                    placeholder="General Details Data" 
+                    name="hard_query" 
+                    type="text" 
+                    componentClass="textarea"
+                    className="form-control" 
+                    onChange={this.handleInputChange} 
+                    disabled={this.props.disableInputs}
+                    style={{height: '50px'}}
+                  />
+                  <HelpBlock>General card data, like costs, color, etc. For example "Costs 3 and is blue"</HelpBlock>
                 </div>
                 <div className="col-lg-6 col-md-6 col-xs-12">
                     <FormControl 
-                        placeholder="Query" 
-                        name="query" 
-                        type="text" 
-                        className="form-control" 
-                        onChange={this.handleInputChange} 
-                        value={this.props.filters.name} 
-                        disabled={this.props.disableInputs}
+                      placeholder="Text Semantics Data" 
+                      name="semantic_query" 
+                      type="text" 
+                      componentClass="textarea"
+                      className="form-control" 
+                      onChange={this.handleInputChange} 
+                      disabled={this.props.disableInputs}
+                      style={{height: '50px'}}
                     />
+                    <HelpBlock>Rules text data. For example "Has flying and creates tokens"</HelpBlock>
                 </div>
             </div>
             <div className='row'>

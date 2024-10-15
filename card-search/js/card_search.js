@@ -126,7 +126,8 @@ export default class CardSearchApp extends React.Component {
 
   buildLLMFilterDefaults = () => {
     const filters = {
-      query: '',
+      semantic_query: '',
+      hard_query: '',
       mtg_format: '',
       colors: {
         'u': 0,
@@ -184,11 +185,11 @@ export default class CardSearchApp extends React.Component {
   }
 
   getLLMCards = () => {
-    if (!this.state.llm_filters.query) {
+    if (!this.state.llm_filters.semantic_query && !this.state.llm_filters.hard_query) {
       this.setState({
         loading: false,
         disable_main_inputs: false,
-        llm_api_error: 'Query is required.'
+        llm_api_error: 'General or rules query is required.'
       })
       return
     }

@@ -3,13 +3,13 @@ import axios from 'axios';
 import Slider from 'react-rangeslider';
 import 'react-rangeslider/lib/index.css';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import {ProgressBar, FormGroup, InputGroup, FormControl, Button, Tabs, Tab} from 'react-bootstrap'
+import {ProgressBar, FormGroup, InputGroup, FormControl, Button, Tabs, Tab} from 'react-bootstrap';
+import Cookies from "js-cookie";
 import CardImages from '../../set-detail/js/components/cardImages.js';
 import CardTable from '../../set-detail/js/components/cardTable.js';
 import CardList from '../../set-detail/js/components/cardList.js';
 import Filter from "../../set-detail/js/components/filters.js";
 import FiltersLLM from "./components/filtersLLM.js"
-import Feedback from './components/feedback.js';
 import 'react-select/dist/react-select.css';
 import '../../set-detail/css/set-detail.scss';
 const _ = require('lodash');
@@ -52,7 +52,8 @@ export default class CardSearchApp extends React.Component {
       images_width: img_width,
       backsides: {},
       filters: filters,
-      llm_filters : llm_filters
+      llm_filters : llm_filters,
+      feedback_enabled: true,
     }
     this.get_cards(this.state.filters, 'name', 1, true)
     this.debounced_get_cards = _.debounce(
@@ -403,11 +404,42 @@ export default class CardSearchApp extends React.Component {
         {this.state.tab_type === 1 && 
           <div className="col-lg-2 col-md-2 col-xs-4">{this.state.specs.length} / {this.state.total_specs}</div>
         }
-        {this.state.tab_type === 2 && 
+        {/* {this.state.tab_type === 2 && 
           <div className="col-lg-3 col-md-3 col-xs-4"><Feedback specs={this.state.llm_specs} filters={this.state.llm_filters} /></div>
-        }
+        } */}
       </div>
     )
+  }
+
+  sendFeedback = (card_pk, action) => {
+    this.setState({feedback_enabled: false})
+    const post_data = {
+      'card_pk': card_pk,
+      'action': action
+    }
+    if (this.state.llm_filters.hard_query) post_data['hard_query'] = this.state.llm_filters.hard_query
+    if (this.state.llm_filters.semantic_query) post_data['semantic_query'] = this.state.llm_filters.semantic_query
+    if (this.state.llm_filters.mtg_format) post_data['mtg_format'] = this.state.llm_filters.mtg_format
+    
+    axios.post(
+      window.django.feedback_api, post_data, {headers: { 'X-CSRFToken': Cookies.get('csrftoken') }}
+    ).then(
+      response => {
+        this.setState({
+          feedback_enabled: true
+        })
+      },
+      error => {
+        this.setState({
+          feedback_enabled: true
+        })
+      }
+    )
+    .catch(error => {
+      this.setState({
+        feedback_enabled: true
+      })
+    })
   }
 
   render() {
@@ -424,6 +456,11 @@ export default class CardSearchApp extends React.Component {
     let specs = this.state.tab_type === 1 ? this.state.specs : this.state.llm_specs
     let error = this.state.tab_type === 1 ? this.state.api_error : this.state.llm_api_error
 
+    let feedbackCB;
+    if (this.state.tab_type === 2) {
+      feedbackCB = this.sendFeedback
+    }
+
     if (this.state.loading) {
       main_content = <ProgressBar active now={100} />
     } else if (error) {
@@ -432,11 +469,12 @@ export default class CardSearchApp extends React.Component {
       main_content = <p style={{'height': '500px'}}>No cards found</p>
     } else {
       if (this.state.display === 'images') {
-        main_content = <CardImages specs={specs} choices={this.state.choices}
+        main_content = <CardImages specs={specs} choices={this.state.choices} feedbackCB={feedbackCB} feedback_enabled={this.state.feedback_enabled}
                                    width={this.state.images_width} backsides={this.state.backsides} rank_label={''} />;
       }
       if (this.state.display === 'table') {
-        main_content = <CardTable specs={specs} choices={this.state.choices} backsides={this.state.backsides} rank_label={''} />
+        main_content = <CardTable specs={specs} choices={this.state.choices} backsides={this.state.backsides} 
+                                  rank_label={''} feedbackCB={feedbackCB} feedback_enabled={this.state.feedback_enabled} />
       }
       if (this.state.display === 'list') {
         main_content = <CardList specs={specs} choices={this.state.choices} backsides={this.state.backsides} rank_label={''} />;

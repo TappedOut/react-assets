@@ -12,7 +12,8 @@ export default class CardImage extends React.Component {
     this.state = {
       front: true,
       tla: this.props.default_tla ? this.props.default_tla : this.props.spec.tla,
-      dropdownOpen: false
+      dropdownOpen: false,
+      gaveFeedback: false
     }
   }
 
@@ -84,6 +85,27 @@ export default class CardImage extends React.Component {
           <tr>
             <td style={{"text-align": "center", "width":"60%", "cursor": "pointer", "padding": "4px"}}>{this.props.rank_label}</td>
             <td style={{"text-align": "center", "width":"40%", "cursor": "pointer", "padding": "4px"}}>#{spec.rank_display}</td>
+          </tr>}
+          {this.props.feedbackCB && 
+          <tr>
+            <button onClick={() => {
+                      this.props.feedbackCB(this.props.spec.pk, 'correct');
+                      this.setState({gaveFeedback: true})
+                    }} 
+                    type="button" 
+                    className="btn btn-success" 
+                    disabled={!this.props.feedback_enabled || this.state.gaveFeedback} 
+                    style={{"width": "50%"}}
+            ><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" /></button>
+            <button onClick={() => {
+                      this.props.feedbackCB(this.props.spec.pk, 'incorrect');
+                      this.setState({gaveFeedback: true})
+                    }} 
+                    type="button" 
+                    className="btn btn-danger" 
+                    disabled={!this.props.feedback_enabled || this.state.gaveFeedback} 
+                    style={{"width": "50%"}}
+            ><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true" /></button>
           </tr>}
         </table>
       </div>

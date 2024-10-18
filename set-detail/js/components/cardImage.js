@@ -1,6 +1,6 @@
 import React from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import { Dropdown, MenuItem } from 'react-bootstrap';
+import { Dropdown, MenuItem, Button } from 'react-bootstrap';
 
 
 const possible_alterations = ['f-&', 'f-etch', 'f-list', 'f-oversized', 'f-pp', 'f-pre', 'list', 'oversized', 'pp', 'ser', 'thick']
@@ -86,28 +86,32 @@ export default class CardImage extends React.Component {
             <td style={{"text-align": "center", "width":"60%", "cursor": "pointer", "padding": "4px"}}>{this.props.rank_label}</td>
             <td style={{"text-align": "center", "width":"40%", "cursor": "pointer", "padding": "4px"}}>#{spec.rank_display}</td>
           </tr>}
-          {this.props.feedbackCB && 
-          <tr>
-            <button onClick={() => {
-                      this.props.feedbackCB(this.props.spec.pk, 'correct');
-                      this.setState({gaveFeedback: true})
-                    }} 
-                    type="button" 
-                    className="btn btn-success" 
-                    disabled={!this.props.feedback_enabled || this.state.gaveFeedback} 
-                    style={{"width": "50%"}}
-            ><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" /></button>
-            <button onClick={() => {
-                      this.props.feedbackCB(this.props.spec.pk, 'incorrect');
-                      this.setState({gaveFeedback: true})
-                    }} 
-                    type="button" 
-                    className="btn btn-danger" 
-                    disabled={!this.props.feedback_enabled || this.state.gaveFeedback} 
-                    style={{"width": "50%"}}
-            ><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true" /></button>
-          </tr>}
         </table>
+        {this.props.feedbackCB && 
+          <div>
+            <Button 
+              bsStyle="success" 
+              style={{"width": "50%"}}
+              onClick={() => {
+                if (!this.state.gaveFeedback) {
+                  this.props.feedbackCB(this.props.spec.pk, 'correct');
+                  this.setState({gaveFeedback: 'correct'})
+                }
+              }} 
+              disabled={!this.props.feedback_enabled || this.state.gaveFeedback == 'incorrect'}
+            ><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" /></Button>
+            <Button 
+              bsStyle="danger" 
+              style={{"width": "50%"}}
+              onClick={() => {
+                if (!this.state.gaveFeedback) {
+                  this.props.feedbackCB(this.props.spec.pk, 'incorrect');
+                  this.setState({gaveFeedback: 'incorrect'})
+                }
+              }} 
+              disabled={!this.props.feedback_enabled || this.state.gaveFeedback == 'correct'}
+            ><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true" /></Button>
+          </div>}
       </div>
     )
   }

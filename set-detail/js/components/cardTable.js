@@ -24,10 +24,12 @@ export default class CardTable extends React.Component {
             bsStyle="success" 
             block
             onClick={() => {
-              this.props.feedbackCB(spec.pk, 'correct');
-              this.setState({gaveFeedback: {...this.state.gaveFeedback, [spec.pk]: true}})
+              if (!this.state.gaveFeedback[spec.pk]) {
+                this.props.feedbackCB(spec.pk, 'correct');
+                this.setState({gaveFeedback: {...this.state.gaveFeedback, [spec.pk]: 'correct'}})
+              }
             }}
-            disabled={!this.props.feedback_enabled || this.state.gaveFeedback[spec.pk]} 
+            disabled={!this.props.feedback_enabled || this.state.gaveFeedback[spec.pk] == 'incorrect'}
           >
             <Glyphicon glyph="thumbs-up" />
           </Button>
@@ -36,10 +38,12 @@ export default class CardTable extends React.Component {
             bsStyle="danger" 
             block
             onClick={() => {
-              this.props.feedbackCB(spec.pk, 'incorrect');
-              this.setState({gaveFeedback: {...this.state.gaveFeedback, [spec.pk]: true}})
+              if (!this.state.gaveFeedback[spec.pk]) {
+                this.props.feedbackCB(spec.pk, 'incorrect');
+                this.setState({gaveFeedback: {...this.state.gaveFeedback, [spec.pk]: 'incorrect'}})
+              }
             }}
-            disabled={!this.props.feedback_enabled || this.state.gaveFeedback[spec.pk]} 
+            disabled={!this.props.feedback_enabled || this.state.gaveFeedback[spec.pk] == 'correct'} 
           >
             <Glyphicon glyph="thumbs-down" />
           </Button>

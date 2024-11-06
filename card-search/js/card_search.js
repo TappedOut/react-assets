@@ -34,13 +34,14 @@ export default class CardSearchApp extends React.Component {
     }
     const filters = this.buildFilterDefaults()
     const llm_filters = this.buildLLMFilterDefaults()
+    let llm_default = window.location.hash === '#llm'
     this.state = {
       specs: [],
       llm_specs: [],
       total_specs: 0,
-      tab_type: 1,
+      tab_type: llm_default ? 2 : 1,
       page: 1,
-      loading: true,
+      loading: llm_default ? false : true,
       disable_main_inputs: true,
       display: 'images',
       vendors: ['tcg'],
@@ -53,16 +54,23 @@ export default class CardSearchApp extends React.Component {
       backsides: {},
       filters: filters,
       llm_filters : llm_filters,
+      llm_seached: false,
       feedback_enabled: true,
     }
-    this.get_cards(this.state.filters, 'name', 1, true)
-    this.debounced_get_cards = _.debounce(
-      (filters, order, page, get_choices) => this.get_cards(filters, order, page, get_choices),
-      1500
-    )
+
+    if (!llm_default) {
+      this.get_cards(this.state.filters, 'name', 1, true)
+      this.debounced_get_cards = _.debounce(
+        (filters, order, page, get_choices) => this.get_cards(filters, order, page, get_choices),
+        1500
+      )
+    }
   }
 
   handleTabTypeChange = (key) => {
+    if (key === 1 && !this.state.specs.length) {
+      this.get_cards(this.state.filters, 'name', 1, true)
+    }
     this.setState({ tab_type: key });
   }
 
@@ -196,7 +204,8 @@ export default class CardSearchApp extends React.Component {
     }
     this.setState({
       disable_main_inputs: true,
-      loading: true
+      loading: true,
+      llm_seached: true
     })
     const get_params = this.buildFilterGET(this.state.llm_filters)
     axios.get(
@@ -212,10 +221,13 @@ export default class CardSearchApp extends React.Component {
         })
       },
       error => {
+        let error_msg = 'Error getting card info. Please refresh the page.'
+        if (error.response.status) error_msg = 'Please log in to use the LLM search.'
+        if (error.response.data.error) error_msg = error.response.data.error
         this.setState({
           loading: false,
           disable_main_inputs: false,
-          llm_api_error: error.response.data.error ? error.response.data.error : 'Error getting card info. Please refresh the page.'
+          llm_api_error: error_msg
         })
       }
     )
@@ -465,6 +477,8 @@ export default class CardSearchApp extends React.Component {
       main_content = <ProgressBar active now={100} />
     } else if (error) {
       main_content = <p style={{'height': '500px'}} dangerouslySetInnerHTML={{ __html: error }} />
+    } else if (!this.state.llm_seached && this.state.tab_type === 2) {
+      main_content = <></>
     } else if (!specs.length) {
       main_content = <p style={{'height': '500px'}}>No cards found</p>
     } else {
@@ -507,7 +521,7 @@ export default class CardSearchApp extends React.Component {
                 <Filter filters={this.state.filters} choices={this.state.choices} filterChange={this.handleFilterChange}
                         resetFilters={this.resetFilters} modalCloseCB={this.handleFilterModalClose} disableInputs={this.state.disable_main_inputs}/>
               </Tab>
-              <Tab eventKey={2} title="GPT Search">
+              <Tab eventKey={2} title="LLM Search">
                 <FiltersLLM filters={this.state.llm_filters} choices={this.state.choices} disableInputs={this.state.disable_main_inputs} 
                             filterChange={this.handleLLMFilterChange} performSearch={this.getLLMCards} />
               </Tab>

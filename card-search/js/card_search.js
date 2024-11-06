@@ -42,7 +42,7 @@ export default class CardSearchApp extends React.Component {
       tab_type: llm_default ? 2 : 1,
       page: 1,
       loading: llm_default ? false : true,
-      disable_main_inputs: true,
+      disable_main_inputs: !llm_default,
       display: 'images',
       vendors: ['tcg'],
       api_error: '',

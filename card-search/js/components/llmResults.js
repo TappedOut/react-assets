@@ -31,7 +31,7 @@ const CSS = `
 .llm-meta a { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #e9e4d8; }
 .llm-meta .llm-price { flex: none; }
 .llm-overlay { position: fixed; z-index: 1050; inset: 0; display: grid; place-content: center; justify-items: center;
-  gap: 14px; padding: 16px; background: rgba(8, 10, 13, .86); cursor: zoom-out; }
+  gap: 14px; padding: 16px; background: rgba(8, 10, 13, .93); cursor: zoom-out; }
 .llm-overlay img { width: min(86vw, 400px); border-radius: 4.8% / 3.5%; box-shadow: 0 30px 80px #000; }
 .llm-overlay a { color: #e3b85f; font-size: 15px; }
 @media (max-width: 600px) { .llm-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 10px; } }
@@ -40,8 +40,8 @@ const CSS = `
 `
 
 const price = (spec) => {
-  const p = spec.tcg_market_price || spec.ck_price
-  return p ? `$${p}` : ''
+  const p = parseFloat(spec.tcg_market_price || spec.ck_price)
+  return p > 0 ? `$${p.toFixed(2)}` : ''
 }
 
 export default class LLMResults extends React.Component {

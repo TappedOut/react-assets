@@ -6,7 +6,7 @@ export default class CardImages extends React.Component {
   render() {
     const images = this.props.specs.map(spec =>
       <CardImage default_tla={this.props.default_tla} spec={spec} width={this.props.width} 
-                 feedbackCB={this.props.feedbackCB} feedback_enabled={this.props.feedback_enabled}
+                 feedbackCB={this.props.feedbackCB} feedback_enabled={this.props.feedback_enabled} votes={this.props.votes}
                  backsides={this.props.backsides} rank_label={this.props.rank_label} choices={this.props.choices}
       />
     )

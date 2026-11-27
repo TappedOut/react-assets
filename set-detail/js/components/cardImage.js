@@ -1,6 +1,7 @@
 import React from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { Dropdown, MenuItem, Button } from 'react-bootstrap';
+import MatchFeedback from './matchFeedback.js';
 
 
 const possible_alterations = ['f-&', 'f-etch', 'f-list', 'f-oversized', 'f-pp', 'f-pre', 'list', 'oversized', 'pp', 'ser', 'thick']
@@ -13,7 +14,6 @@ export default class CardImage extends React.Component {
       front: true,
       tla: this.props.default_tla ? this.props.default_tla : this.props.spec.tla,
       dropdownOpen: false,
-      gaveFeedback: false
     }
   }
 
@@ -89,31 +89,9 @@ export default class CardImage extends React.Component {
             <td style={{"text-align": "center", "width":"40%", "cursor": "pointer", "padding": "4px"}}>#{spec.rank_display}</td>
           </tr>}
         </table>
-        {this.props.feedbackCB && 
-          <div>
-            <Button 
-              bsStyle="success" 
-              style={{"width": "50%"}}
-              onClick={() => {
-                if (!this.state.gaveFeedback) {
-                  this.props.feedbackCB(this.props.spec.pk, 'correct');
-                  this.setState({gaveFeedback: 'correct'})
-                }
-              }} 
-              disabled={!this.props.feedback_enabled || this.state.gaveFeedback == 'incorrect'}
-            ><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" /></Button>
-            <Button 
-              bsStyle="danger" 
-              style={{"width": "50%"}}
-              onClick={() => {
-                if (!this.state.gaveFeedback) {
-                  this.props.feedbackCB(this.props.spec.pk, 'incorrect');
-                  this.setState({gaveFeedback: 'incorrect'})
-                }
-              }} 
-              disabled={!this.props.feedback_enabled || this.state.gaveFeedback == 'correct'}
-            ><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true" /></Button>
-          </div>}
+        {this.props.feedbackCB &&
+          <MatchFeedback pk={this.props.spec.pk} vote={(this.props.votes || {})[this.props.spec.pk]}
+                         onVote={this.props.feedbackCB} disabled={!this.props.feedback_enabled} />}
       </div>
     )
   }

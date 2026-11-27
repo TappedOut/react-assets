@@ -60,30 +60,34 @@ export default class FiltersLLM extends React.Component {
         <div className="well">
             <div className="row" style={{marginBottom: '10px'}}>
                 <div className="col-lg-6 col-md-6 col-xs-12">
-                  <FormControl 
-                    placeholder="General Details Data" 
-                    name="hard_query" 
-                    type="text" 
-                    componentClass="textarea"
-                    className="form-control" 
-                    onChange={this.handleInputChange} 
-                    disabled={this.props.disableInputs}
-                    style={{height: '50px'}}
-                  />
-                  <HelpBlock>General card data, like costs, color, etc. For example "Costs 3 and is blue"</HelpBlock>
-                </div>
-                <div className="col-lg-6 col-md-6 col-xs-12">
-                    <FormControl 
-                      placeholder="Text Semantics Data" 
-                      name="semantic_query" 
-                      type="text" 
+                    <label htmlFor="llm-semantic-query" style={{fontWeight: 'normal'}}>What the card does</label>
+                    <FormControl
+                      id="llm-semantic-query"
+                      placeholder="e.g. exiles a card from a graveyard"
+                      name="semantic_query"
                       componentClass="textarea"
-                      className="form-control" 
-                      onChange={this.handleInputChange} 
+                      className="form-control"
+                      value={this.props.filters.semantic_query || ''}
+                      onChange={this.handleInputChange}
                       disabled={this.props.disableInputs}
                       style={{height: '50px'}}
                     />
-                    <HelpBlock>Rules text data. For example "Has flying and creates tokens"</HelpBlock>
+                    <HelpBlock>Its rules text, in your words. For example "has flying and creates tokens"</HelpBlock>
+                </div>
+                <div className="col-lg-6 col-md-6 col-xs-12">
+                  <label htmlFor="llm-hard-query" style={{fontWeight: 'normal'}}>Cost, colour or type <span style={{color: '#999'}}>(optional)</span></label>
+                  <FormControl
+                    id="llm-hard-query"
+                    placeholder="e.g. costs 1 mana"
+                    name="hard_query"
+                    componentClass="textarea"
+                    className="form-control"
+                    value={this.props.filters.hard_query || ''}
+                    onChange={this.handleInputChange}
+                    disabled={this.props.disableInputs}
+                    style={{height: '50px'}}
+                  />
+                  <HelpBlock>For example "costs 3 and is blue"</HelpBlock>
                 </div>
             </div>
             <div className='row'>

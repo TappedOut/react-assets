@@ -72,6 +72,7 @@ export default class CardSearchApp extends React.Component {
       llm_filters : llm_filters,
       llm_seached: false,
       feedback_enabled: true,
+      llm_votes: {},  // card pk -> 'correct' | 'incorrect': the user's "matches your search?" answers
     }
 
     if (!llm_default) {
@@ -231,14 +232,15 @@ export default class CardSearchApp extends React.Component {
       this.setState({
         loading: false,
         disable_main_inputs: false,
-        llm_api_error: 'General or rules query is required.'
+        llm_api_error: 'Describe what the card does, or its cost, colour or type.'
       })
       return
     }
     this.setState({
       disable_main_inputs: true,
       loading: true,
-      llm_seached: true
+      llm_seached: true,
+      llm_votes: {}  // answers belong to one search
     })
     const get_params = this.buildFilterGET(this.state.llm_filters)
     axios.get(
@@ -456,6 +458,9 @@ export default class CardSearchApp extends React.Component {
         {this.state.tab_type === 1 && 
           <div className="col-lg-2 col-md-2 col-xs-4">{this.state.specs.length} / {this.state.total_specs}</div>
         }
+        {this.state.tab_type === 2 && this.state.llm_seached && !this.state.loading &&
+          <div className="col-lg-2 col-md-2 col-xs-4">{this.state.llm_specs.length} cards</div>
+        }
         {/* {this.state.tab_type === 2 && 
           <div className="col-lg-3 col-md-3 col-xs-4"><Feedback specs={this.state.llm_specs} filters={this.state.llm_filters} /></div>
         } */}
@@ -463,8 +468,13 @@ export default class CardSearchApp extends React.Component {
     )
   }
 
+  // action: 'correct' | 'incorrect' | 'clear'. Shown at once; put back if the server refuses it.
   sendFeedback = (card_pk, action) => {
-    this.setState({feedback_enabled: false})
+    const before = this.state.llm_votes
+    const votes = {...before}
+    if (action === 'clear') delete votes[card_pk]
+    else votes[card_pk] = action
+    this.setState({feedback_enabled: false, llm_votes: votes})
     const post_data = {
       'card_pk': card_pk,
       'action': action
@@ -472,26 +482,13 @@ export default class CardSearchApp extends React.Component {
     if (this.state.llm_filters.hard_query) post_data['hard_query'] = this.state.llm_filters.hard_query
     if (this.state.llm_filters.semantic_query) post_data['semantic_query'] = this.state.llm_filters.semantic_query
     if (this.state.llm_filters.mtg_format) post_data['mtg_format'] = this.state.llm_filters.mtg_format
-    
+
     axios.post(
       window.django.feedback_api, post_data, {headers: { 'X-CSRFToken': Cookies.get('csrftoken') }}
     ).then(
-      response => {
-        this.setState({
-          feedback_enabled: true
-        })
-      },
-      error => {
-        this.setState({
-          feedback_enabled: true
-        })
-      }
+      () => this.setState({feedback_enabled: true}),
+      () => this.setState({feedback_enabled: true, llm_votes: before})
     )
-    .catch(error => {
-      this.setState({
-        feedback_enabled: true
-      })
-    })
   }
 
   render() {
@@ -523,12 +520,12 @@ export default class CardSearchApp extends React.Component {
       main_content = <p style={{'height': '500px'}}>No cards found</p>
     } else {
       if (this.state.display === 'images') {
-        main_content = <CardImages specs={specs} choices={this.state.choices} feedbackCB={feedbackCB} feedback_enabled={this.state.feedback_enabled}
+        main_content = <CardImages specs={specs} choices={this.state.choices} feedbackCB={feedbackCB} feedback_enabled={this.state.feedback_enabled} votes={this.state.llm_votes}
                                    width={this.state.images_width} backsides={this.state.backsides} rank_label={''} />;
       }
       if (this.state.display === 'table') {
         main_content = <CardTable specs={specs} choices={this.state.choices} backsides={this.state.backsides} 
-                                  rank_label={''} feedbackCB={feedbackCB} feedback_enabled={this.state.feedback_enabled} />
+                                  rank_label={''} feedbackCB={feedbackCB} feedback_enabled={this.state.feedback_enabled} votes={this.state.llm_votes} />
       }
       if (this.state.display === 'list') {
         main_content = <CardList specs={specs} choices={this.state.choices} backsides={this.state.backsides} rank_label={''} />;

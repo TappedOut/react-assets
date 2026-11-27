@@ -84,7 +84,20 @@ export default class CardSearchApp extends React.Component {
   }
 
   componentDidMount() {
+    // Opened on the AI tab (#llm link): the normal search didn't run, so its choices (set icons, vendor links,
+    // formats) never arrived, and the result cards need them. Load them on their own.
+    if (this.state.tab_type === 2) this.getChoices()
     if (this.llm_link_asks) this.getLLMCards()  // the link carried a question: run it
+  }
+
+  getChoices = () => {
+    axios.get(`${CARD_SEARCH_API}?p=1&choices=True`).then(
+      response => {
+        if (!response.data || !response.data.choices) return
+        this.setState({choices: response.data.choices, vendors: response.data.vendors || this.state.vendors})
+      },
+      () => {}  // cards still render without set icons and vendor links
+    )
   }
 
   handleTabTypeChange = (key) => {

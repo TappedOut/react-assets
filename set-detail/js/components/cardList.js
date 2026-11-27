@@ -67,13 +67,16 @@ export default class CardList extends React.Component {
   }
 
   render() {
-    const choices = this.props.choices;
+    // choices can still be loading (AI tab opened from a #llm link): read them without throwing.
+    const choices = this.props.choices || {};
+    const vendor_url = choices.vendor_url || {};
+    const vendor_param = choices.vendor_param || {};
     const rows = this.props.specs.map(spec => {
       const renderBackside = spec.flip && spec.is_front && this.props.backsides[spec.flip];
-      let ck_price_url = spec[choices.vendor_url['CK']];
-      ck_price_url = ck_price_url ? `${ck_price_url}${choices.vendor_param['CK']}` : '';
-      let tcg_price_url = spec[choices.vendor_url['TCGMK']];
-      tcg_price_url = tcg_price_url ? `${tcg_price_url}${choices.vendor_param['TCGMK']}` : ''
+      let ck_price_url = spec[vendor_url['CK']];
+      ck_price_url = ck_price_url ? `${ck_price_url}${vendor_param['CK'] || ''}` : '';
+      let tcg_price_url = spec[vendor_url['TCGMK']];
+      tcg_price_url = tcg_price_url ? `${tcg_price_url}${vendor_param['TCGMK'] || ''}` : ''
       return (
         <div className="row">
           <div className="col-xs-12">

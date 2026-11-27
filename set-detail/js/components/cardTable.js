@@ -12,10 +12,13 @@ export default class CardTable extends React.Component {
   }
 
   render() {
-    const choices = this.props.choices;
+    // choices can still be loading (AI tab opened from a #llm link): read them without throwing.
+    const choices = this.props.choices || {};
+    const vendor_url = choices.vendor_url || {};
+    const vendor_param = choices.vendor_param || {};
     const rows = this.props.specs.map(spec => {
-      let price_url = spec[choices.vendor_url['CK']];
-      price_url = price_url ? `${price_url}${choices.vendor_param['CK']}` : ''
+      let price_url = spec[vendor_url['CK']];
+      price_url = price_url ? `${price_url}${vendor_param['CK'] || ''}` : ''
       const rank = spec.rank_display !== '--' ? `#${spec.rank_display}` : spec.rank_display;
       return (<tr key={spec.pk}>
         {this.props.feedbackCB && <td>

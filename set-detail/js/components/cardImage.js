@@ -35,9 +35,11 @@ export default class CardImage extends React.Component {
   }
 
   handlePriceClick = (vendor, spec) => {
-    const url = spec[this.props.choices.vendor_url[vendor]];
+    // choices can still be loading (the AI tab opened from a #llm link loads them on its own): don't throw.
+    const choices = this.props.choices || {}
+    const url = spec[(choices.vendor_url || {})[vendor]];
     if (url) {
-      const link = `${url}${this.props.choices.vendor_param[vendor]}`
+      const link = `${url}${(choices.vendor_param || {})[vendor] || ''}`
       window.open(link, "_blank")
     }
   }
@@ -47,7 +49,7 @@ export default class CardImage extends React.Component {
   }
 
   getIconClass = (tla) => {
-    const new_tla = this.props.choices.set_icon_map[tla]
+    const new_tla = ((this.props.choices || {}).set_icon_map || {})[tla]
     if (new_tla) return new_tla
     if (tla) return tla.toLowerCase()
   }

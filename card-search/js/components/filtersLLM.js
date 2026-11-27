@@ -95,6 +95,7 @@ export default class FiltersLLM extends React.Component {
                     <Select
                         name="mtg_format"
                         placeholder="Format"
+                        aria-label="Format"
                         onChange={(v) => this.handleSelectChange('mtg_format', v)}
                         value={this.props.filters.mtg_format}
                         options={this.props.choices.format_opts}

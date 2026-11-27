@@ -34,6 +34,7 @@ const CSS = `
   gap: 14px; padding: 16px; background: rgba(8, 10, 13, .93); cursor: zoom-out; }
 .llm-overlay img { width: min(86vw, 400px); border-radius: 4.8% / 3.5%; box-shadow: 0 30px 80px #000; }
 .llm-overlay a { color: #e3b85f; font-size: 15px; }
+.llm-overlay:focus { outline: none; }
 @media (max-width: 600px) { .llm-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 10px; } }
 @media (min-width: 420px) and (max-width: 600px) { .llm-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (prefers-reduced-motion: reduce) { .llm-cards *, .llm-overlay * { transition: none !important; } }
@@ -56,8 +57,31 @@ export default class LLMResults extends React.Component {
     document.removeEventListener('keydown', this.onKey)
   }
 
+  // The zoom overlay is a modal dialog for keyboard users too: focus moves into it on open, Tab stays inside it,
+  // Escape (or Close, or a click) closes it, and focus goes back to the card that opened it.
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.zoomed && !prevState.zoomed && this.overlay) this.overlay.focus()
+    if (!this.state.zoomed && prevState.zoomed && this.opener) { this.opener.focus(); this.opener = null }
+  }
+
+  open = (spec, e) => {
+    this.opener = e && e.currentTarget
+    this.setState({zoomed: spec})
+  }
+
+  close = () => this.setState({zoomed: null})
+
   onKey = (e) => {
-    if (e.key === 'Escape' && this.state.zoomed) this.setState({zoomed: null})
+    if (!this.state.zoomed) return
+    if (e.key === 'Escape') { this.close(); return }
+    if (e.key === 'Tab' && this.overlay) {
+      const items = Array.prototype.slice.call(this.overlay.querySelectorAll('a[href], button'))
+      if (!items.length) return
+      const i = items.indexOf(document.activeElement)
+      const next = e.shiftKey ? (i <= 0 ? items.length - 1 : i - 1) : (i === -1 || i === items.length - 1 ? 0 : i + 1)
+      e.preventDefault()
+      items[next].focus()
+    }
   }
 
   tilt = (e) => {
@@ -86,7 +110,7 @@ export default class LLMResults extends React.Component {
             <li key={spec.pk}>
               <button type="button" className="llm-card" aria-label={`Look closer at ${spec.name}`}
                       onPointerMove={this.tilt} onPointerLeave={this.untilt}
-                      onClick={() => this.setState({zoomed: spec})}>
+                      onClick={(e) => this.open(spec, e)}>
                 <span className="llm-face">
                   <span className="llm-alt">{spec.name}</span>
                   {spec.image && <img src={spec.image} alt="" loading="lazy" />}
@@ -104,9 +128,11 @@ export default class LLMResults extends React.Component {
           ))}
         </ul>
         {zoomed &&
-          <div className="llm-overlay" role="dialog" aria-label={zoomed.name} onClick={() => this.setState({zoomed: null})}>
+          <div className="llm-overlay" role="dialog" aria-modal="true" aria-label={zoomed.name} tabIndex={-1}
+               ref={el => { this.overlay = el }} onClick={this.close}>
             {zoomed.image && <img src={zoomed.image_large || zoomed.image} alt={zoomed.name} />}
             <a href={zoomed.url} onClick={e => e.stopPropagation()}>{zoomed.name}: card page, prices and decks</a>
+            <button type="button" className="btn btn-default btn-sm llm-close" onClick={this.close}>Close</button>
           </div>}
       </div>
     )

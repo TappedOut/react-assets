@@ -4,6 +4,8 @@ import React from 'react';
 // "Does this card match your AI search?" on each AI search result.
 // vote: 'correct' | 'incorrect' | undefined. Clicking the chosen button again takes the vote back ('clear');
 // clicking the other one switches it. onVote(pk, action) sends it (card_search.sendFeedback).
+// The visible text is the short "Yes" / "No" under the "Matches your search?" prompt (one line even at
+// ~300 px card width); the full wording stays in the tooltip and the screen-reader label.
 const BUTTONS = [
   {action: 'correct', emoji: '👍', label: 'Yes, it matches', short: 'Yes', on: 'btn-success'},
   {action: 'incorrect', emoji: '👎', label: "Doesn't match", short: 'No', on: 'btn-danger'},
@@ -20,7 +22,7 @@ export default class MatchFeedback extends React.Component {
           key={b.action}
           type="button"
           className={`btn btn-sm ${selected ? b.on : 'btn-default'}`}
-          style={{flex: compact ? '0 0 auto' : '1 1 0', minWidth: 0, whiteSpace: compact ? 'nowrap' : 'normal',
+          style={{flex: compact ? '0 0 auto' : '1 1 0', minWidth: 0, whiteSpace: 'nowrap',
                   fontWeight: selected ? 'bold' : 'normal'}}
           aria-pressed={selected}
           aria-label={title}
@@ -28,7 +30,7 @@ export default class MatchFeedback extends React.Component {
           disabled={disabled}
           onClick={() => onVote(pk, selected ? 'clear' : b.action)}
         >
-          <span aria-hidden="true">{b.emoji}</span>&nbsp;{compact ? b.short : b.label}
+          <span aria-hidden="true">{b.emoji}</span>&nbsp;{b.short}
         </button>
       )
     })

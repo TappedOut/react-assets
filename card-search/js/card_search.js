@@ -10,6 +10,7 @@ import CardTable from '../../set-detail/js/components/cardTable.js';
 import CardList from '../../set-detail/js/components/cardList.js';
 import Filter from "../../set-detail/js/components/filters.js";
 import FiltersLLM from "./components/filtersLLM.js"
+import LLMResults from "./components/llmResults.js"
 import 'react-select/dist/react-select.css';
 import '../../set-detail/css/set-detail.scss';
 const _ = require('lodash');
@@ -414,6 +415,7 @@ export default class CardSearchApp extends React.Component {
     order_opts = order_opts.map(opt => <option value={opt.value}>{opt.label}</option>)
     return (
       <div style={{"margin-bottom": "15px"}} className="row">
+        {this.state.tab_type === 1 &&
         <div className="col-lg-2 col-md-2 col-xs-7">
           <div className="btn-group" role="group" style={{'display': 'flex'}}>
             <button className="btn btn-default btn-sm" style={{'flex': 1}} onClick={() => this.handleDisplayChange('table')} disabled={this.state.display === 'table'}>Table</button>
@@ -421,7 +423,7 @@ export default class CardSearchApp extends React.Component {
             {window.django.is_mobile &&
             <button className="btn btn-default btn-sm" style={{'flex': 1}} onClick={() => this.handleDisplayChange('list')} disabled={this.state.display === 'list'}>List</button>}
           </div>
-        </div>
+        </div>}
         {this.state.tab_type === 1 && 
           <div className="col-lg-2 col-md-2 col-xs-5">
             <FormGroup>
@@ -441,6 +443,7 @@ export default class CardSearchApp extends React.Component {
             </FormGroup>
           </div>
         }
+          {this.state.tab_type === 1 &&
           <div className="col-lg-2 col-md-2 col-xs-8">
             {this.state.display === 'images' &&
               <span className="slider-container">
@@ -454,12 +457,12 @@ export default class CardSearchApp extends React.Component {
                 />
               </span>
             }
-          </div>
+          </div>}
         {this.state.tab_type === 1 && 
           <div className="col-lg-2 col-md-2 col-xs-4">{this.state.specs.length} / {this.state.total_specs}</div>
         }
         {this.state.tab_type === 2 && this.state.llm_seached && !this.state.loading &&
-          <div className="col-lg-2 col-md-2 col-xs-4">{this.state.llm_specs.length} cards</div>
+          <div className="col-xs-12">{this.state.llm_specs.length} cards</div>
         }
         {/* {this.state.tab_type === 2 && 
           <div className="col-lg-3 col-md-3 col-xs-4"><Feedback specs={this.state.llm_specs} filters={this.state.llm_filters} /></div>
@@ -518,6 +521,10 @@ export default class CardSearchApp extends React.Component {
       main_content = <></>
     } else if (!specs.length) {
       main_content = <p style={{'height': '500px'}}>No cards found</p>
+    } else if (this.state.tab_type === 2) {
+      // The AI tab has one view, like the draft page's card grid (the user, 2026-11-27); no images/table toggle.
+      main_content = <LLMResults specs={specs} votes={this.state.llm_votes} onVote={this.sendFeedback}
+                                 feedback_enabled={this.state.feedback_enabled} />
     } else {
       if (this.state.display === 'images') {
         main_content = <CardImages specs={specs} choices={this.state.choices} feedbackCB={feedbackCB} feedback_enabled={this.state.feedback_enabled} votes={this.state.llm_votes}

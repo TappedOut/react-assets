@@ -11,7 +11,9 @@ const BUTTONS = [
 
 export default class MatchFeedback extends React.Component {
   render() {
-    const {pk, vote, compact, disabled, onVote} = this.props
+    const {pk, vote, compact, prompt, disabled, onVote} = this.props
+    // compact: short Yes/No labels. prompt: also show "Matches your search?" above them (the AI grid); the table
+    // leaves it to its column header.
     const buttons = BUTTONS.map(b => {
       const selected = vote === b.action
       const title = selected ? `${b.label} (your answer; click again to undo)` : `${b.label}: tell us whether this card fits your search`
@@ -20,7 +22,7 @@ export default class MatchFeedback extends React.Component {
           key={b.action}
           type="button"
           className={`btn btn-sm ${selected ? b.on : 'btn-default'}`}
-          style={{flex: compact ? '0 0 auto' : '1 1 0', minWidth: 0, whiteSpace: compact ? 'nowrap' : 'normal',
+          style={{flex: compact && !prompt ? '0 0 auto' : '1 1 0', minWidth: 0, whiteSpace: compact ? 'nowrap' : 'normal',
                   fontWeight: selected ? 'bold' : 'normal'}}
           aria-pressed={selected}
           aria-label={title}
@@ -34,9 +36,9 @@ export default class MatchFeedback extends React.Component {
     })
     return (
       <div role="group" aria-label="Does this card match your search?"
-           style={{padding: compact ? 0 : '6px 4px 4px', textAlign: compact ? 'left' : 'center'}}>
+           style={{padding: compact ? 0 : '6px 4px 4px', textAlign: compact && !prompt ? 'left' : 'center'}}>
         {/* In the table the column header already asks; only the thanks shows there. */}
-        {(vote || !compact) &&
+        {(vote || !compact || prompt) &&
           <div style={{fontSize: '12px', color: vote ? '#8fd18f' : '#bbb', marginBottom: '4px'}} aria-live="polite">
             {vote ? 'Thanks, noted' : 'Matches your search?'}
           </div>}

@@ -140,8 +140,11 @@ function CardOdds() {
     ).then((result) => {
       setIsSending(false)
       setOddsProbs(result.data.odds)
-    }).catch((err) => setOddsProbs([{'label': 'Error', 'prob': 'Failed to get odds. Please refresh the page and try again'}])
-    ).finally(() => {
+    }).catch((err) => {
+      // The API answers 400 {"error": "..."} when the odds service turns the request down
+      const reason = err.response && err.response.data && err.response.data.error
+      setOddsProbs([{'label': 'Error', 'prob': reason || 'Failed to get odds. Please refresh the page and try again'}])
+    }).finally(() => {
       if (isMounted.current) setIsSending(false)
     })
 

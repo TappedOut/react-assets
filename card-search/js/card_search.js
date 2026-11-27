@@ -25,6 +25,20 @@ const FORMATS_MAP_BACK = {}
 _.forOwn(window.django.formats_map, (val, key) => {FORMATS_MAP_BACK[val] = key})
 
 
+// A link can open the AI tab with a question already asked:
+//   /mtg-cards/search/#llm?q=exiles+a+card+from+a+graveyard&details=costs+1+mana
+// q is what the card does (semantic_query), details its cost, colour or type (hard_query).
+// Used by the "Describe the card you want" box on /magic-cards/.
+export const readLLMLink = (hash) => {
+  if (!hash || hash.indexOf('#llm') !== 0) return null
+  const query = hash.indexOf('?') >= 0 ? hash.slice(hash.indexOf('?') + 1) : ''
+  const params = new URLSearchParams(query)
+  return {
+    semantic_query: (params.get('q') || '').slice(0, 300),
+    hard_query: (params.get('details') || '').slice(0, 300),
+  }
+}
+
 export default class CardSearchApp extends React.Component {
   constructor(props) {
     super(props);
@@ -33,8 +47,10 @@ export default class CardSearchApp extends React.Component {
       img_width = 300
     }
     const filters = this.buildFilterDefaults()
-    const llm_filters = this.buildLLMFilterDefaults()
-    let llm_default = window.location.hash === '#llm'
+    const llm_link = readLLMLink(window.location.hash)
+    const llm_filters = {...this.buildLLMFilterDefaults(), ...(llm_link || {})}
+    let llm_default = llm_link !== null
+    this.llm_link_asks = !!(llm_link && (llm_link.semantic_query || llm_link.hard_query))
     this.state = {
       specs: [],
       llm_specs: [],
@@ -65,6 +81,10 @@ export default class CardSearchApp extends React.Component {
         1500
       )
     }
+  }
+
+  componentDidMount() {
+    if (this.llm_link_asks) this.getLLMCards()  // the link carried a question: run it
   }
 
   handleTabTypeChange = (key) => {

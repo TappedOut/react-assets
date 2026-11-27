@@ -241,9 +241,16 @@ export default class CardSearchApp extends React.Component {
         })
       },
       error => {
+        // No response (network error): the generic message. 401/403: not logged in, with a link that comes back
+        // to this question. Otherwise the API's own message (weekly limit 400, 429, unavailable 503...).
+        const response = error && error.response
         let error_msg = 'Error getting card info. Please refresh the page.'
-        if (error.response.status) error_msg = 'Please log in to use the LLM search.'
-        if (error.response.data.error) error_msg = error.response.data.error
+        if (response && (response.status === 401 || response.status === 403)) {
+          const back = window.location.pathname + window.location.search + window.location.hash
+          error_msg = `Please <a href="/accounts/log-in/?next=${encodeURIComponent(back)}">log in</a> to use the AI search.`
+        } else if (response && response.data && response.data.error) {
+          error_msg = response.data.error
+        }
         this.setState({
           loading: false,
           disable_main_inputs: false,

@@ -14,6 +14,7 @@ export default class CardImage extends React.Component {
       front: true,
       tla: this.props.default_tla ? this.props.default_tla : this.props.spec.tla,
       dropdownOpen: false,
+      imageLoaded: false,
     }
   }
 
@@ -24,6 +25,10 @@ export default class CardImage extends React.Component {
         tla: tla
       });
     }
+  }
+
+  handleImageLoaded = () => {
+    if (!this.state.imageLoaded) this.setState({imageLoaded: true})
   }
 
   handleDropdownToggle = () => {
@@ -136,8 +141,12 @@ export default class CardImage extends React.Component {
     return (
       <div style={{'width': this.props.width, 'max-width': this.props.width, 'display': 'inline-block', 'margin-right': '15px', 'margin-bottom': '20px'}}>
         <a href={spec.url}>
-          <div style={{ position: 'relative', width: '100%', height: 'auto' }}>
+          {/* Until the lazy image arrives, reserve a card's shape (63:88), so the bar and the rows below don't jump
+              when it loads (card search CLS 0.245). Dropped once it has loaded, so a landscape card (a plane) keeps
+              its own shape and the loaded layout is exactly as before. */}
+          <div style={{ position: 'relative', width: '100%', height: 'auto', aspectRatio: this.state.imageLoaded ? undefined : '63 / 88' }}>
             <LazyLoadImage
+                onLoad={this.handleImageLoaded}
                 alt={spec.name}
                 src={image}
                 width={this.props.width}

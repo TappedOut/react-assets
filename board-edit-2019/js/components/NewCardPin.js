@@ -1,5 +1,6 @@
 import React from 'react';
 import Cookies from "js-cookie";
+import { ListsBadge } from '../cardSource';
 
 
 export default function NewCardPin(props) {
@@ -60,6 +61,7 @@ export default function NewCardPin(props) {
              </a>
           </span>
         </h5>
+        <ListsBadge inLists={card.in_lists}/>
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Async } from 'react-select';
 import axios from 'axios';
-import Toggle from 'react-toggle';
 import NewCardPin from './NewCardPin';
+import { CardSourcePicker, sourceParams } from '../../../board-edit-2019/js/cardSource';
 const _ = require('lodash');
 
 
@@ -24,6 +24,8 @@ export default class NewCardsBoard extends React.Component {
       callback(null, { options: [] });
     } else {
       let searchUrl = `${this.props.searchInput.invOnly ? this.props.autocompleteUrlInv : this.props.autocompleteUrl}?name=${input}`
+      const listParams = this.props.searchInput.invOnly ? '' : sourceParams(this.props.cardSource);
+      if (listParams) searchUrl += `&${listParams}`;
       this.throttledAutocomplete(searchUrl, callback);
     }
   };
@@ -60,15 +62,11 @@ export default class NewCardsBoard extends React.Component {
             onSubmit={this.handleSearch}>
         <div className="form-group">
           <div className="col-md-3 inv-only-row">
-            <span className="toggler">
-              <label htmlFor="invOnlyTogglerNewCards">
-                Restrict to my Inventory</label>
-              <Toggle
-                id="invOnlyTogglerNewCards"
-                name="invOnly"
-                defaultChecked={this.props.searchInput.invOnly}
-                onChange={this.props.handleSearchInput}/>
-            </span>
+            {/* "Cards from": All cards / My inventory / Lists (board-edit-2019/js/cardSource.js); replaces "Restrict to my Inventory". */}
+            <CardSourcePicker value={this.props.cardSource || {source: this.props.searchInput.invOnly ? 'inv' : 'all', lists: []}}
+                              listsUrl={this.props.cardSourceListsUrl}
+                              onChange={this.props.onCardSourceChange}
+                              idPrefix="newcards-classic"/>
           </div>
           <div className="col-md-4">
             <Async arrowRenderer={null}
@@ -85,6 +83,12 @@ export default class NewCardsBoard extends React.Component {
                    onInputKeyDown={this.handleEnterSearch}
                    onChange={this.props.handleSearchCardSelect}
                    onCloseResetsInput={false}
+                     optionRenderer={(o) => (
+                       <span>{o.name}
+                         {o.in_lists && o.in_lists.length > 0 &&
+                           <small className="text-muted"> · in {o.in_lists.map(l => l.name).join(', ')}</small>}
+                       </span>
+                     )}
                    onSelectResetsInput={false}
                    openOnFocus={true}
                    placeholder="Search card by name"

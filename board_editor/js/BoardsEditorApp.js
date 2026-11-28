@@ -12,6 +12,7 @@ import CardEditModal from './components/CardEditModal';
 import CardMoveModal from './components/CardMoveModal';
 import CardSearchModal from './components/CardSearchModal';
 import NewCardsBoard from './components/NewCardsBoard';
+import { DEFAULT_SOURCE, initialSource, initValue, saveSource, sourceError, sourceParams } from '../../board-edit-2019/js/cardSource';
 import { get_card_id } from "./utils";
 import deck_group from './utils/deck_grouping';
 import { Collapse } from 'react-bootstrap';
@@ -113,6 +114,9 @@ export default class BoardsEditorApp extends React.Component {
         name: '',
         invOnly: false
       },
+      // "Cards from" (board-edit-2019/js/cardSource.js): all | inv | lists. inv keeps the invOnly paths.
+      cardSource: DEFAULT_SOURCE,
+      prevCardSource: DEFAULT_SOURCE,
       selectedCategory: 0,
       selectedCategoryType: '',
       // timerSaving: null,
@@ -185,8 +189,11 @@ export default class BoardsEditorApp extends React.Component {
       INIT_URL
     ).then(
       response => {
+        const cardSource = initialSource(response.data);
         this.setState({
           initData: response.data,
+          cardSource,
+          simpleSearchInput: {name: '', invOnly: cardSource.source === 'inv'},
           searchInput: {
             name: '',
             type: '',
@@ -653,6 +660,17 @@ export default class BoardsEditorApp extends React.Component {
     });
   };
 
+  handleCardSourceChange = (cardSource) => {
+    const prevCardSource = this.state.cardSource;
+    const simpleSearchInput = {...this.state.simpleSearchInput, invOnly: cardSource.source === 'inv'};
+    this.setState({cardSource, prevCardSource, simpleSearchInput}, () => {
+      saveSource(this.state.initData, cardSource);
+      if (_.size(this.state.foundCards) > 0 || this.state.simpleSearchInput.name) {
+        this.searchCards(true, !!this.state.simpleSearchInput.name);
+      }
+    });
+  };
+
   handleSimpleSearchInput = (event) => {
     let target = event.target;
     let simpleSearchInput = {...this.state.simpleSearchInput};
@@ -844,8 +862,11 @@ export default class BoardsEditorApp extends React.Component {
     if (searchTerms.trim() !== '' && !this.state.searchingCards) {
       let nextSearchPage = newSearch ? 1 : this.state.nextSearchPage;
 
-      let searchUrl = `${this.state.initData.django.cards_search_url}` +
+      // board_edit_init returns cards_search_url at the top level (there is no 'django' key, so this search used to throw).
+      let searchUrl = `${initValue(this.state.initData, 'cards_search_url')}` +
         `?page=${nextSearchPage}&${searchTerms}`;
+      const listParams = this.state.simpleSearchInput.invOnly ? '' : sourceParams(this.state.cardSource);
+      if (listParams) searchUrl += `&${listParams}`;
 
       axios.get(
         searchUrl
@@ -870,6 +891,15 @@ export default class BoardsEditorApp extends React.Component {
           this.setState({foundCards, nextSearchPage, searchingCards: false, searchOnScroll: true});
         },
         error => {
+          const refused = sourceError(error);
+          if (refused) {
+            // The Lists pick was refused (none picked, or a List no longer readable): say why, keep the previous source.
+            this.appendWarnings([{msg: `Lists: ${refused}`, type: "warning"}]);
+            const back = this.state.prevCardSource.source === 'lists' ? DEFAULT_SOURCE : this.state.prevCardSource;
+            this.setState({cardSource: back, foundCards: {}, searchingCards: false, nextSearchPage: null,
+              simpleSearchInput: {...this.state.simpleSearchInput, invOnly: back.source === 'inv'}});
+            return;
+          }
           if (error.response && error.response.status >= 500) {
             this.appendWarnings([{
               msg: "There was a site-error while searching possible cards. " +
@@ -1336,6 +1366,9 @@ export default class BoardsEditorApp extends React.Component {
             toggleImages={this.state.toggleImages}
             autocompleteUrl={AUTOCOMPLETE_URL}
             autocompleteUrlInv={AUTOCOMPLETE_URL_INV}
+            cardSource={this.state.cardSource}
+            cardSourceListsUrl={initValue(this.state.initData, 'card_source_lists_url')}
+            onCardSourceChange={this.handleCardSourceChange}
           />
         </div>
       </div>

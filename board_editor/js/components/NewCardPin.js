@@ -1,4 +1,5 @@
 import React from 'react';
+import { ListsBadge } from '../../../board-edit-2019/js/cardSource';
 
 
 export default function NewCardPin(props) {
@@ -57,6 +58,7 @@ export default function NewCardPin(props) {
              </a>
           </span>
         </h5>
+        <ListsBadge inLists={card.in_lists}/>
       </div>
     </div>
   );

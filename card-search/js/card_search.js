@@ -514,7 +514,9 @@ export default class CardSearchApp extends React.Component {
     }
 
     if (this.state.loading) {
-      main_content = <ProgressBar active now={100} />
+      // Hold a screen while results load, so the footer below doesn't show and then jump down when they arrive
+      // (Lighthouse mobile CLS). The loaded page is unchanged.
+      main_content = <div style={{minHeight: '100vh'}}><ProgressBar active now={100} /></div>
     } else if (error) {
       main_content = <p style={{'height': '500px'}} dangerouslySetInnerHTML={{ __html: error }} />
     } else if (!this.state.llm_seached && this.state.tab_type === 2) {

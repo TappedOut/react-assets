@@ -89,7 +89,7 @@ export default class LLMResults extends React.Component {
     if (!this.state.zoomed) return
     if (e.key === 'Escape') { this.close(); return }
     if (e.key === 'Tab' && this.overlay) {
-      const items = Array.prototype.slice.call(this.overlay.querySelectorAll('a[href], button'))
+      const items = Array.prototype.slice.call(this.overlay.querySelectorAll('a[href], button:not([disabled])'))  // a disabled button can't take focus: skipping it keeps Close reachable while a vote is being sent
       if (!items.length) return
       const i = items.indexOf(document.activeElement)
       const next = e.shiftKey ? (i <= 0 ? items.length - 1 : i - 1) : (i === -1 || i === items.length - 1 ? 0 : i + 1)
@@ -121,7 +121,7 @@ export default class LLMResults extends React.Component {
         <style>{CSS}</style>
         {onVote &&
           <p className="llm-hint">
-            <span className="llm-pointer">Does a card match your search? Point at it, or tab to it, to tell us.</span>
+            <span className="llm-pointer">Does a card match your search? Point at it, tab to it, or open it to tell us.</span>
             <span className="llm-touch">Does a card match your search? Open it to tell us.</span>
           </p>}
         <ul className="llm-cards">
@@ -142,7 +142,7 @@ export default class LLMResults extends React.Component {
               </div>
               {onVote &&
                 <div className={'llm-vote' + ((votes || {})[spec.pk] ? ' llm-voted' : '')}>
-                  <MatchFeedback compact pk={spec.pk} vote={(votes || {})[spec.pk]}
+                  <MatchFeedback compact pk={spec.pk} name={spec.name} vote={(votes || {})[spec.pk]}
                                  onVote={onVote} disabled={!feedback_enabled} />
                 </div>}
             </li>
@@ -155,7 +155,7 @@ export default class LLMResults extends React.Component {
             <a href={zoomed.url} onClick={e => e.stopPropagation()}>{zoomed.name}: card page, prices and decks</a>
             {onVote &&
               <div className="llm-vote" onClick={e => e.stopPropagation()}>
-                <MatchFeedback compact prompt pk={zoomed.pk} vote={(votes || {})[zoomed.pk]}
+                <MatchFeedback compact prompt pk={zoomed.pk} name={zoomed.name} vote={(votes || {})[zoomed.pk]}
                                onVote={onVote} disabled={!feedback_enabled} />
               </div>}
             <button type="button" className="btn btn-default btn-sm llm-close" onClick={this.close}>Close</button>
